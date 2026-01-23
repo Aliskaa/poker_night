@@ -1,50 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useUser } from '@clerk/clerk-expo';
-import { useRouter } from 'expo-router';
-import { collection, doc, onSnapshot, query, where, orderBy } from 'firebase/firestore';
-import { db } from '@/services/firebase';
+import { useActiveGames } from '@/hooks/useActiveGames';
 import { useGameLogic } from '@/hooks/useGameLogic';
-
-import { ScrollView, YStack, XStack, Text, H1, H3, H4, Avatar, Button, Card, Spinner, Theme, Separator } from 'tamagui';
-import { ChevronRight, Plus, TrendingUp, Users, Crown, Shield, Play, LogIn } from '@tamagui/lucide-icons';
-import { Game } from '@/types/Game';
+import { useUserLogic } from '@/hooks/useUserLogic';
+import { useUser } from '@clerk/clerk-expo';
+import { ChevronRight, Crown, LogIn, Play, Plus, Shield, TrendingUp, Users } from '@tamagui/lucide-icons';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Avatar, Button, Card, H1, H3, H4, ScrollView, Separator, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 
 export default function HomeScreen() {
   const { user } = useUser();
   const router = useRouter();
   const { createGame } = useGameLogic();
+  const { currentUserStats } = useUserLogic();
+  const { activeGames } = useActiveGames();
   
   const [isCreating, setIsCreating] = useState(false);
-  const [userStats, setUserStats] = useState({ netProfit: 0, gamesPlayed: 0 });
-  const [activeGames, setActiveGames] = useState<Game[]>([]);
-
-  // Écouteur des statistiques
-  useEffect(() => {
-    if (!user) return;
-    const userRef = doc(db, 'users', user.id);
-    const unsubscribe = onSnapshot(userRef, (doc) => {
-      if (doc.exists() && doc.data().statistics) {
-        setUserStats(doc.data().statistics);
-      }
-    });
-    return () => unsubscribe();
-  }, [user]);
-
-  // Écouteur des parties en cours
-  useEffect(() => {
-    const q = query(
-      collection(db, 'games'), 
-      where('status', '==', 'PLAYING'),
-      orderBy('createdAt', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const games = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Game));
-      setActiveGames(games);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const handleCreateGame = async () => {
     setIsCreating(true);
@@ -55,7 +25,7 @@ export default function HomeScreen() {
     else alert("Impossible de créer la partie.");
   };
 
-  const isProfitable = userStats.netProfit >= 0;
+  const isProfitable = currentUserStats.netProfit >= 0;
   const profitColor = isProfitable ? "$success" : "$danger"; 
 
   return (
@@ -150,7 +120,7 @@ export default function HomeScreen() {
                     <Text color="$colorMuted" fontSize="$2" fontWeight="600">Profit Net</Text>
                   </XStack>
                   <H1 color={profitColor} fontSize="$8" fontWeight="900" letterSpacing={-1}>
-                    {isProfitable ? "+" : ""}{String(userStats.netProfit)}€
+                    {isProfitable ? "+" : ""}{String(currentUserStats.netProfit)}€
                   </H1>
                 </YStack>
               </Card>
@@ -162,7 +132,7 @@ export default function HomeScreen() {
                     <Text color="$colorMuted" fontSize="$2" fontWeight="600">Parties</Text>
                   </XStack>
                   <H1 color="$color" fontSize="$8" fontWeight="900" letterSpacing={-1}>
-                    {String(userStats.gamesPlayed)}
+                    {String(currentUserStats.gamesPlayed)}
                   </H1>
                 </YStack>
               </Card>

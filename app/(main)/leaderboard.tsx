@@ -5,6 +5,7 @@ import { Trophy, Medal, TrendingUp, TrendingDown, Minus } from '@tamagui/lucide-
 import { collection, getDocs } from 'firebase/firestore';
 import { useUser } from '@clerk/clerk-expo';
 import { db } from '@/services/firebase';
+import { useUserLogic } from '@/hooks/useUserLogic';
 
 type LeaderboardUser = {
   id: string;
@@ -17,41 +18,8 @@ type LeaderboardUser = {
 
 export default function LeaderboardScreen() {
   const { user: currentUser } = useUser();
-  const [players, setPlayers] = useState<LeaderboardUser[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { leaderboard: players, loading } = useUserLogic();
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      setLoading(true);
-      try {
-        const querySnapshot = await getDocs(collection(db, 'users'));
-        const usersData: any[] = [];
-
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.statistics) {
-            usersData.push({
-              id: doc.id,
-              name: data.firstName || data.username || "Joueur Inconnu",
-              avatarUrl: data.imageUrl || data.avatarUrl,
-              netProfit: data.statistics.netProfit || 0,
-              gamesPlayed: data.statistics.gamesPlayed || 0,
-            });
-          }
-        });
-
-        const sortedUsers = usersData.sort((a, b) => b.netProfit - a.netProfit);
-        const rankedUsers = sortedUsers.map((u, index) => ({ ...u, rank: index + 1 }));
-        setPlayers(rankedUsers);
-      } catch (error) {
-        console.error("Erreur de récupération du classement", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLeaderboard();
-  }, []);
 
   if (loading) {
     return (
@@ -110,7 +78,7 @@ export default function LeaderboardScreen() {
 
                       <YStack flex={1}>
                         <H4 color="$color" fontWeight={isMe ? "900" : "700"} numberOfLines={1}>
-                          {player.name} {isMe && "(Moi)"}
+                          {isMe ? "Moi": player.name}
                         </H4>
                         <Text color="$colorMuted" fontSize="$2">{player.gamesPlayed} partie{player.gamesPlayed > 1 ? "s" : ""} jouée{player.gamesPlayed > 1 ? "s" : ""}</Text>
                       </YStack>
