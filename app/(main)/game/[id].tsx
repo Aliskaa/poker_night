@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, Share } from 'react-native';
 import * as Linking from 'expo-linking';
-import { YStack, XStack, Text, H1, H4, Button, Avatar, Card, Separator, Spinner, Input, Theme } from 'tamagui';
-import { Trophy, Coins, UserX, Plus, UserPlus, Share as ShareIcon } from '@tamagui/lucide-icons';
+import { YStack, XStack, Text, H1, H4, Button, Avatar, Card, Separator, Spinner, Input, Theme, Sheet } from 'tamagui';
+import { Trophy, Coins, UserX, Plus, UserPlus, Share as ShareIcon, HelpCircle, RotateCcw, Pause, Play } from '@tamagui/lucide-icons';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { Player } from '@/types/Player';
 import { useUser } from '@clerk/clerk-expo';
@@ -14,12 +14,39 @@ export default function GameScreen() {
   const [newGuestName, setNewGuestName] = useState('');
   const { user } = useUser();
 
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const DEFAULT_TIME = 1200;
+  const [timerSeconds, setTimerSeconds] = useState(DEFAULT_TIME);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  // Rejoindre la partie automatiquement si l'utilisateur est connecté
   useEffect(() => {
     if (game && user) {
       joinGame();
     }
   }, [game?.id, user?.id]);
 
+  // Gestion du timer des blindes
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning && timerSeconds > 0) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => prev - 1);
+      }, 1000);
+    } else if (timerSeconds === 0) {
+      setIsTimerRunning(false);
+    }
+
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timerSeconds]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  // Fonction de partage du lien de la table
   const onShareTable = async () => {
     const url = Linking.createURL(`/(main)/game/${id}`, { scheme: 'pokernight' });
 
@@ -49,6 +76,7 @@ export default function GameScreen() {
     );
   }
 
+  // Détection si la partie heads-up est terminée
   const activePlayers = game.players.filter(p => p.status === 'ACTIVE');
   const isHeadsUpFinished = activePlayers.length <= 1 && game.players.length > 1;
 
@@ -66,7 +94,7 @@ export default function GameScreen() {
 
     return (
       <Theme name="dark">
-        <YStack flex={1} backgroundColor="$background" padding="$4" paddingTop="$10" space="$4">
+        <YStack flex={1} backgroundColor="$background" padding="$4" paddingTop="$10" gap="$4">
           <YStack alignItems="center" marginVertical="$6">
             <Trophy size={60} color="#fbbf24" />
             <H1 color="$color" marginTop="$2">Résultats</H1>
@@ -74,7 +102,7 @@ export default function GameScreen() {
           </YStack>
 
           <ScrollView>
-            <YStack space="$3">
+            <YStack gap="$3">
               {finalRankings.map((player) => {
                 // Définition des couleurs du podium
                 const isWinner = player.finalRank === 1;
@@ -90,7 +118,7 @@ export default function GameScreen() {
                     borderColor={isWinner ? "$yellow8" : isSecond ? "$gray8" : isThird ? "$orange8" : "$borderColor"}
                   >
                     <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
-                      <XStack space="$3" alignItems="center">
+                      <XStack gap="$3" alignItems="center">
                         <Text fontWeight="900" fontSize="$6" color={isWinner ? "$yellow11" : "$gray11"}>
                           #{String(player.finalRank)}
                         </Text>
@@ -130,21 +158,17 @@ export default function GameScreen() {
     <Theme name="dark">
       <YStack flex={1} backgroundColor="$background" paddingTop="$10">
 
+        {/* EN-TÊTE */}
         <YStack alignItems="center" paddingBottom="$6" paddingTop="$4" position="relative">
-          <Button 
-            position="absolute" 
-            top="$2" 
-            right="$4" 
-            size="$3" 
-            circular 
-            icon={<ShareIcon size={18} />} 
-            backgroundColor="$gray4"
-            onPress={onShareTable}
-          />
+          {/* BOUTONS D'ACTION */}
+          <XStack position="absolute" top="$2" right="$4" gap="$2">
+            <Button size="$3" circular icon={<HelpCircle size={18} />} backgroundColor="$gray4" onPress={() => setIsHelpOpen(true)} />
+            <Button size="$3" circular icon={<ShareIcon size={18} />} backgroundColor="$gray4" onPress={onShareTable} />
+          </XStack>
           <Text color="$gray11" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
             Pot Total
           </Text>
-          <XStack alignItems="center" space="$2">
+          <XStack alignItems="center" gap="$2">
             <Coins size={40} color="#fbbf24" />
             <H1 fontSize="$10" color="$color" fontWeight="900">
               {String(game.totalPot)} €
@@ -155,22 +179,23 @@ export default function GameScreen() {
           </Text>
         </YStack>
 
-        {isHeadsUpFinished && (
-          <Button
-            marginHorizontal="$4"
-            backgroundColor="$green10"
-            color="white"
-            icon={<Trophy size={18} />}
-            onPress={endGame}
-          >
-            Terminer et voir les gains
-          </Button>
-        )}
 
         <Separator borderColor="$gray5" />
 
+        {/* LISTE DES JOUEURS */}
         <ScrollView style={{ flex: 1 }}>
-          <YStack padding="$4" space="$3">
+          <YStack padding="$4" gap="$3">
+            {isHeadsUpFinished && (
+              <Button
+                marginHorizontal="$4"
+                backgroundColor="$green10"
+                color="white"
+                icon={<Trophy size={18} />}
+                onPress={endGame}
+              >
+                Terminer et voir les gains
+              </Button>
+            )}
             <Text color="$gray11" fontWeight="bold">
               Joueurs ({String(game.players.length)})
             </Text>
@@ -187,11 +212,12 @@ export default function GameScreen() {
           </YStack>
         </ScrollView>
 
+        {/* FOOTER AJOUT INVITÉ (comme avant) */}
         <YStack padding="$4" backgroundColor="$backgroundStrong" borderTopWidth={1} borderColor="$borderColor">
           <Text color="$gray11" fontSize="$2" marginBottom="$2">
             Ajouter un invité à la table :
           </Text>
-          <XStack space="$2">
+          <XStack gap="$2">
             <Input
               flex={1}
               placeholder="Prénom..."
@@ -213,8 +239,66 @@ export default function GameScreen() {
           </XStack>
         </YStack>
 
+        {/* AIDE & TIMER */}
+        <Sheet modal open={isHelpOpen} onOpenChange={setIsHelpOpen} snapPoints={[85]} dismissOnSnapToBottom>
+          <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+          <Sheet.Handle />
+          <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
+            
+            {/* 1. SECTION TIMER */}
+            <Card bordered backgroundColor="$gray3" padding="$4">
+              <XStack justifyContent="space-between" alignItems="center">
+                <YStack>
+                  <Text color="$gray11" fontWeight="bold" textTransform="uppercase" fontSize="$2">Prochaine Blinde</Text>
+                  <H1 color={timerSeconds < 60 ? "$red10" : "$color"} fontSize="$8" fontWeight="900">
+                    {formatTime(timerSeconds)}
+                  </H1>
+                </YStack>
+                <XStack gap="$2">
+                  <Button circular size="$4" backgroundColor="$gray6" icon={<RotateCcw size={18} />} onPress={() => { setIsTimerRunning(false); setTimerSeconds(DEFAULT_TIME); }} />
+                  <Button circular size="$4" backgroundColor={isTimerRunning ? "$red10" : "$green10"} color="white" icon={isTimerRunning ? <Pause size={18} /> : <Play size={18} />} onPress={() => setIsTimerRunning(!isTimerRunning)} />
+                </XStack>
+              </XStack>
+            </Card>
+
+            <Separator borderColor="$gray5" />
+
+            {/* 2. SECTION RAPPEL DES MAINS */}
+            <YStack flex={1} gap="$3">
+              <Text color="$gray11" fontWeight="bold" textTransform="uppercase" fontSize="$2">Ordre des combinaisons (Du + fort au + faible)</Text>
+              <ScrollView>
+                <YStack gap="$2" paddingBottom="$10">
+                  <HandRow rank="1" name="Quinte Flush Royale" description="10, J, Q, K, A de même couleur" />
+                  <HandRow rank="2" name="Quinte Flush (Straight Flush)" description="5 cartes consécutives de même couleur" />
+                  <HandRow rank="3" name="Carré" description="4 cartes de même valeur" />
+                  <HandRow rank="4" name="Full (Full House)" description="Un Brelan + Une Paire" />
+                  <HandRow rank="5" name="Couleur (Flush)" description="5 cartes de même couleur (non-consécutives)" />
+                  <HandRow rank="6" name="Quinte (Suite / Straight)" description="5 cartes consécutives (couleurs différentes)" />
+                  <HandRow rank="7" name="Brelan" description="3 cartes de même valeur" />
+                  <HandRow rank="8" name="Double Paire" description="Deux paires de valeurs différentes" />
+                  <HandRow rank="9" name="Paire" description="2 cartes de même valeur" />
+                  <HandRow rank="10" name="Hauteur (High Card)" description="La carte la plus haute l'emporte" />
+                </YStack>
+              </ScrollView>
+            </YStack>
+
+          </Sheet.Frame>
+        </Sheet>
+
       </YStack>
     </Theme>
+  );
+}
+
+function HandRow({ rank, name, description }: { rank: string, name: string, description: string }) {
+  return (
+    <XStack padding="$2" backgroundColor="$gray4" borderRadius="$2" alignItems="center" gap="$3">
+      <Text color="$gray11" fontWeight="bold" fontSize="$5" width={30} textAlign="center">#{rank}</Text>
+      <YStack flex={1}>
+        <Text color="$color" fontWeight="bold">{name}</Text>
+        <Text color="$gray11" fontSize="$2">{description}</Text>
+      </YStack>
+    </XStack>
   );
 }
 
@@ -240,7 +324,7 @@ function PlayerCard({
     >
       <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
 
-        <XStack space="$3" alignItems="center" flex={1}>
+        <XStack gap="$3" alignItems="center" flex={1}>
           <Avatar circular size="$4">
             <Avatar.Fallback backgroundColor={isEliminated ? "$gray8" : "$green10"} />
           </Avatar>
@@ -255,14 +339,14 @@ function PlayerCard({
         </XStack>
 
         {isEliminated ? (
-          <XStack alignItems="center" space="$1">
+          <XStack alignItems="center" gap="$1">
             <Trophy size={16} color="$gray11" />
             <Text color="$gray11" fontWeight="bold">
               Rang {String(player.finalRank)}
             </Text>
           </XStack>
         ) : (
-          <XStack space="$2">
+          <XStack gap="$2">
             <Button
               size="$3"
               circular

@@ -1,12 +1,12 @@
+import { useGameLogic } from '@/hooks/useGameLogic';
+import { db } from '@/services/firebase';
+import { useUser } from '@clerk/clerk-expo';
+import { ChevronRight, PlayCircle, Plus, TrendingUp, Users } from '@tamagui/lucide-icons';
+import { useRouter } from 'expo-router';
+import { doc, onSnapshot } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { YStack, XStack, Text, Button, Card, H3, H4, Avatar, Spinner } from 'tamagui';
-import { Plus, Users, TrendingUp, ChevronRight, PlayCircle } from '@tamagui/lucide-icons';
-import { useUser } from '@clerk/clerk-expo';
-import { useRouter } from 'expo-router';
-import { useGameLogic } from '../../hooks/useGameLogic'; // <-- Import du Hook
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '@/services/firebase';
+import { Avatar, Button, Card, H3, H4, Spinner, Text, XStack, YStack } from 'tamagui';
 
 export default function HomeScreen() {
   const { user } = useUser();
@@ -87,7 +87,7 @@ export default function HomeScreen() {
           <YStack gap="$2">
             <Text color="$gray11" fontWeight="bold" textTransform="uppercase" fontSize="$2">En Direct</Text>
             <Card bordered padding="$3" theme="green">
-              <XStack justifyContent="gap-between" alignItems="center">
+              <XStack justifyContent="space-between" alignItems="center">
                 <YStack>
                   <Text fontWeight="bold" fontSize="$5">Table du Vendredi</Text>
                   <Text color="$gray11">Pot: 45€ • 5 Joueurs</Text>
@@ -120,17 +120,21 @@ export default function HomeScreen() {
 
         {/* Menu Navigation Rapide */}
         <YStack gap="$2" marginTop="$2">
-          <MenuItem icon={<Users />} title="Mes Groupes" subtitle="Gérer les potes et invités" />
-          <MenuItem icon={<TrendingUp />} title="Classement Général" subtitle="Qui est le patron ?" />
+          <MenuItem icon={<Users />} title="Mes Groupes" subtitle="Gérer les potes et invités" onPress={() => console.log('Naviguer vers', 'Mes groupes')} />
+          <MenuItem
+            icon={<TrendingUp />}
+            title="Classement Général"
+            subtitle="Qui est le patron ?"
+            onPress={() => router.push('/(main)/leaderboard')}
+          />
         </YStack>
-
       </YStack>
     </ScrollView>
   );
 }
 
 // Composant local pour le menu
-const MenuItem = ({ icon, title, subtitle }: { icon: any, title: string, subtitle: string }) => (
+const MenuItem = ({ icon, title, subtitle, onPress }: { icon: any, title: string, subtitle: string, onPress: () => void }) => (
   <XStack
     backgroundColor="$backgroundStrong"
     padding="$3"
@@ -138,7 +142,7 @@ const MenuItem = ({ icon, title, subtitle }: { icon: any, title: string, subtitl
     alignItems="center"
     gap="$3"
     pressStyle={{ opacity: 0.8 }}
-    onPress={() => console.log('Naviguer vers', title)}
+    onPress={onPress}
   >
     <YStack backgroundColor="$gray4" padding="$2" borderRadius="$3">
       {React.cloneElement(icon, { size: 20, color: 'white' })}
