@@ -15,6 +15,6 @@ export type Player = {
 export type Guest = {
     id: string;
     name: string;
-    totalWinnings: number;
+    netProfit: number;
     gamesPlayed: number;
 }

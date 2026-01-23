@@ -1,6 +1,7 @@
 import { Guest } from "./Player"
 
-export type Groups = {
+export type Group = {
+  id: string
   name: string
   ownerId: string
   createdAt: number

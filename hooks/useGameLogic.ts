@@ -41,7 +41,7 @@ export const useGameLogic = (gameId?: string) => {
     // ----------------------------------------------------------------------
     // 2. ACTION: CREATION DE PARTIE
     // ----------------------------------------------------------------------
-    const createGame = async (defaultBuyIn: number = 5) => {
+    const createGame = async (defaultBuyIn: number = 5, groupId?: string) => {
         if (!user) return null;
 
         try {
@@ -49,6 +49,7 @@ export const useGameLogic = (gameId?: string) => {
                 id: '', // L'ID sera généré par Firestore
                 hostId: user.id,
                 status: 'PLAYING',
+                groupId: groupId || null,
                 config: {
                     defaultBuyIn,
                 },
