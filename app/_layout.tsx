@@ -1,17 +1,15 @@
 import '../tamagui-web.css'
 
-import { useEffect } from 'react'
-import { useColorScheme } from 'react-native'
-import { StatusBar } from 'expo-status-bar'
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
+import { AppProvider } from '@/providers/AppProvider'
 import { useFonts } from 'expo-font'
 import { SplashScreen, Stack } from 'expo-router'
-import { Provider } from 'providers/AppProvider'
-import { useTheme } from 'tamagui'
+import { StatusBar } from 'expo-status-bar'
+import { useEffect } from 'react'
+import { useColorScheme } from 'react-native'
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+  ErrorBoundary
 } from 'expo-router'
 
 export const unstable_settings = {
@@ -27,7 +25,8 @@ export default function RootLayout() {
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   })
-  const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+
+  const colorScheme = useColorScheme()
 
   useEffect(() => {
     if (interLoaded || interError) {
@@ -41,44 +40,24 @@ export default function RootLayout() {
   }
 
   return (
-    <Providers>
-      <RootLayoutNav />
-    </Providers>
-  )
-}
-
-const Providers = ({ children }: { children: React.ReactNode }) => {
-  return <Provider>{children}</Provider>
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme()
-  const theme = useTheme()
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <AppProvider>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
-          }}
-        />
 
-        <Stack.Screen
-          name="modal"
-          options={{
-            title: 'Tamagui + Expo',
-            presentation: 'modal',
-            animation: 'slide_from_right',
-            gestureEnabled: true,
-            gestureDirection: 'horizontal',
-            contentStyle: {
-              backgroundColor: theme.background.val,
-            },
-          }}
-        />
+      <Stack
+        screenOptions={{
+          headerShown: false, // On gère nos propres headers avec Tamagui souvent, ou on active au cas par cas
+          contentStyle: { backgroundColor: '#121212' } // Fond sombre par défaut
+        }}
+      >
+        {/* L'index vérifie l'auth */}
+        <Stack.Screen name="index" />
+
+        {/* Groupe Auth (Login/Signup) */}
+        <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
+
+        {/* Groupe Main (App principale) */}
+        <Stack.Screen name="(main)" options={{ animation: 'slide_from_right' }} />
       </Stack>
-    </ThemeProvider>
+    </AppProvider>
   )
 }
