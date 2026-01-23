@@ -1,0 +1,54 @@
+// Collection: games
+// ID du document: auto-généré (ex: "game_999")
+{
+  hostId: "user_2aXy...", // Celui qui a créé la table (admin)
+  createdAt: Timestamp,
+  status: "WAITING" | "PLAYING" | "FINISHED",
+  
+  // Configuration de la partie
+  config: {
+    defaultBuyIn: 5,   // Mise par défaut (5€)
+    payoutModel: "50_30_20" // Pour savoir quel algo de répartition utiliser
+  },
+
+  groupId: "group_xyz123", // Optionnel, pour lier à un groupe
+
+  // Données financières
+  totalPot: 45,        // Somme de tous les buy-ins
+  
+  // Liste des joueurs (Array d'objets)
+  // On utilise un Array plutôt qu'une sous-collection car :
+  // 1. Une table de poker a peu d'éléments (< 10-20).
+  // 2. C'est plus facile à récupérer en une seule requête.
+  players: [
+    {
+      id: "user_2aXy...",  // ID Clerk ou un ID généré pour un invité
+      isGuest: false,      // Pour savoir si c'est un compte réel
+      name: "Kevin",       // Copie du nom pour affichage rapide (dénormalisation)
+      avatar: "...",
+      
+      // Gestion des sous
+      buyInCount: 2,       // 1 entrée + 1 recave
+      totalInvested: 10,   // 5€ x 2
+      
+      // État du jeu
+      status: "ACTIVE",    // "ACTIVE", "ELIMINATED", "FOLDED"
+      eliminatedAt: null,  // Timestamp (utile pour trier l'ordre de sortie)
+      
+      // Résultats (rempli à la fin)
+      finalRank: null,     // 1, 2, 3...
+      payout: 0            // Gain final
+    },
+    {
+      id: "guest_bfs87...", 
+      isGuest: true,
+      name: "Thomas (Pote)", 
+      buyInCount: 1,
+      totalInvested: 5,
+      status: "ELIMINATED",
+      eliminatedAt: 1698432000,
+      finalRank: 5,
+      payout: 0
+    }
+  ]
+}

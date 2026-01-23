@@ -1,0 +1,28 @@
+// Collection: groups
+// ID: auto-generated (ex: "group_xyz123")
+{
+  name: "Les Potes du Vendredi",
+  ownerId: "clerk_user_admin", // Celui qui a créé le groupe
+  createdAt: Timestamp,
+  
+  // Code d'invitation simple pour rejoindre le groupe via l'app
+  inviteCode: "POKER-VENDREDI", 
+
+  // Les membres inscrits (ceux qui ont un compte Clerk)
+  // Tableau d'IDs pour faciliter les règles de sécurité Firestore
+  members: [
+    "user_2aXy...", 
+    "user_99bC..." 
+  ],
+
+  // Les "Shadow Profiles" (Invités spécifiques à ce groupe)
+  // On les stocke ici pour qu'ils soient persistants d'une partie à l'autre dans ce groupe.
+  guests: [
+    {
+      id: "guest_local_id_1", // ID généré (ex: uuid)
+      name: "Julien (Cousin)",
+      totalWinnings: 50, // On peut même tracker les stats des invités ici !
+      gamesPlayed: 2
+    }
+  ]
+}

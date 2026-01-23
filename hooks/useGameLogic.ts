@@ -3,7 +3,7 @@ import log from "@/services/logger";
 import { Game } from "@/types/Game";
 import { Player, PlayerStatus } from "@/types/Player";
 import { useUser } from "@clerk/clerk-expo"
-import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export const useGameLogic = (gameId?: string) => {
@@ -161,6 +161,7 @@ export const useGameLogic = (gameId?: string) => {
 
     // ----------------------------------------------------------------------
     // 4. ACTION: Terminer la partie et distribuer les gains (50/30/20)
+    //            Ajout des stats
     // ----------------------------------------------------------------------
     const endGame = async () => {
         if (!game || !gameId) return;
@@ -186,22 +187,39 @@ export const useGameLogic = (gameId?: string) => {
             // 2. Les autres ont déja leur rang (calculé lors de l'élimination)
             let finalPayout = 0;
             if (player.finalRank === 2) finalPayout = payout2;
-            else if (player.finalRank === 3) finalPayout = payout3;
+            if (player.finalRank === 3) finalPayout = payout3;
 
-            return {
-                ...player,
-                payout: finalPayout
-            };
+            return { ...player, payout: finalPayout };
         });
 
-        const gameRef = doc(db, "games", gameId);
+        const batch = writeBatch(db);
 
-        // On met à jour le status de la partie à 'FINISHED' et on sauvegarde les gains
-        await updateDoc(gameRef, {
+        const gameRef = doc(db, "games", gameId);
+        batch.update(gameRef, {
             status: 'FINISHED',
             players: updatedPlayers,
         });
-    };
+
+        updatedPlayers.forEach(player => {
+            if (!player.isGuest) {
+                const playerRef = doc(db, "users", player.id);
+                const profit = (player.payout || 0) - player.totalInvested;
+
+                // increment() permet d'ajouter une valeur à un champ numérique existant
+                batch.set(playerRef, {
+                    statistics: {
+                        gamesPlayed: increment(1),
+                        totalInvested: increment(player.totalInvested),
+                        totalWinnings: increment(player.payout || 0),
+                        netProfit: increment(profit),
+                    }
+                }, { merge: true }); // 'merge: true' pour ne pas écraser les autres données utilisateur
+            }
+        });
+
+        // Commit de toutes les modifications en une seule opération
+        await batch.commit();
+    }
 
     return {
         game,

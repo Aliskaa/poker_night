@@ -1,0 +1,20 @@
+// Collection: users
+// ID du document: UserID de Clerk (ex: "user_2aXy...")
+{
+  displayName: "Kevin",
+  avatarUrl: "https://...",
+  createdAt: Timestamp,
+
+  // Liste des IDs de groupes auxquels j'appartiens
+  groupIds: ["group_xyz123", "group_abc789"]
+  
+  // Stats agrégées (Mises à jour à la fin de chaque partie)
+  statistics: {
+    gamesPlayed: 12,
+    wins: 3,          // Nombre de fois 1er
+    totalInvested: 120, // Total des mises (inclus recaves)
+    totalWinnings: 180, // Total récupéré
+    netProfit: 60,    // Le chiffre important (Winnings - Invested)
+    bestRank: 1
+  }
+}
