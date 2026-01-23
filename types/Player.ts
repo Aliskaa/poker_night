@@ -1,6 +1,6 @@
 export type PlayerStatus = 'ACTIVE' | 'ELIMINATED';
 
-export interface Player {
+export type Player = {
     id: string;
     name: string;
     isGuest: boolean;
@@ -10,4 +10,11 @@ export interface Player {
     eliminatedAt?: number | null;
     finalRank?: number | null;
     payout?: number;
+}
+
+export type Guest = {
+    id: string;
+    name: string;
+    totalWinnings: number;
+    gamesPlayed: number;
 }

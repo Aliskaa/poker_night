@@ -81,6 +81,34 @@ export const useGameLogic = (gameId?: string) => {
     // 3. ACTIONS: Gérer les joueurs (Ajout, Recave, Élimination)
     // ----------------------------------------------------------------------
 
+    const joinGame = async () => {
+        if (!game || !gameId) return;
+
+        // 1. Vérifier si le joueur est déjà à la table (pour éviter les doublons)
+        const isAlreadyPlaying = game.players.some(p => p.id === user?.id);
+        if (isAlreadyPlaying) {
+            log.warn("useGameLogic: Le joueur est déjà à la table.");
+            return;
+        }
+
+        // 2. Ajouter le joueur à la partie
+        const newPlayer: Player = {
+            id: user!.id,
+            name: user!.firstName || user!.username || "Joueur",
+            isGuest: false,
+            buyInCount: 1,
+            totalInvested: game.config.defaultBuyIn,
+            status: 'ACTIVE'
+        };
+
+        // 3. L'ajouter a Firestore et augmenter le pot
+        const gameRef = doc(db, "games", gameId);
+        await updateDoc(gameRef, {
+            players: [...game.players, newPlayer],
+            totalPot: increment(game.config.defaultBuyIn),
+        });
+    };
+
     // Ajouter un nouvel invité à la table
     const addGuestPlayer = async (guestName: string, buyIn: number) => {
         if (!game || !gameId) return;
@@ -225,6 +253,7 @@ export const useGameLogic = (gameId?: string) => {
         game,
         loading,
         createGame,
+        joinGame,
         addGuestPlayer,
         addRebuy,
         eliminatePlayer,

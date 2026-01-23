@@ -1,15 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ScrollView } from 'react-native';
+import { ScrollView, Share } from 'react-native';
+import * as Linking from 'expo-linking';
 import { YStack, XStack, Text, H1, H4, Button, Avatar, Card, Separator, Spinner, Input, Theme } from 'tamagui';
-import { Trophy, Coins, UserX, Plus, UserPlus } from '@tamagui/lucide-icons';
+import { Trophy, Coins, UserX, Plus, UserPlus, Share as ShareIcon } from '@tamagui/lucide-icons';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { Player } from '@/types/Player';
+import { useUser } from '@clerk/clerk-expo';
 
 export default function GameScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame } = useGameLogic(id);
+  const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame, joinGame } = useGameLogic(id);
   const [newGuestName, setNewGuestName] = useState('');
+  const { user } = useUser();
+
+  useEffect(() => {
+    if (game && user) {
+      joinGame();
+    }
+  }, [game?.id, user?.id]);
+
+  const onShareTable = async () => {
+    const url = Linking.createURL(`/(main)/game/${id}`, { scheme: 'pokernight' });
+
+    try {
+      await Share.share({
+        message: `♠️ Viens jouer au Poker ! La table est ouverte. \nBuy-in: ${String(game?.config.defaultBuyIn)}€ \n\nClique ici pour rejoindre : ${url}`,
+      });
+    } catch (error) {
+      console.error("Erreur lors du partage du lien de la table :", error);
+    }
+  }
 
   if (loading) {
     return (
@@ -109,7 +130,17 @@ export default function GameScreen() {
     <Theme name="dark">
       <YStack flex={1} backgroundColor="$background" paddingTop="$10">
 
-        <YStack alignItems="center" paddingBottom="$6" paddingTop="$4">
+        <YStack alignItems="center" paddingBottom="$6" paddingTop="$4" position="relative">
+          <Button 
+            position="absolute" 
+            top="$2" 
+            right="$4" 
+            size="$3" 
+            circular 
+            icon={<ShareIcon size={18} />} 
+            backgroundColor="$gray4"
+            onPress={onShareTable}
+          />
           <Text color="$gray11" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
             Pot Total
           </Text>

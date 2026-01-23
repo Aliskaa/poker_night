@@ -8,6 +8,8 @@ export type Game = {
     status: GameStatus;
     config: {
         defaultBuyIn: number;
+        payoutModel?: string; // TODO: définir un type pour les modèles de payout
+                              //       Exemple : 50_30_20 (defaut), 60_25_15, etc.
     };
     totalPot: number;
     players: Player[];
