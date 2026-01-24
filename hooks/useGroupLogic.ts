@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, doc, query, where, onSnapshot, addDoc, updateDoc, arrayUnion, getDocs, serverTimestamp, documentId } from 'firebase/firestore';
+import { collection, doc, query, where, onSnapshot, addDoc, updateDoc, arrayUnion, getDocs, serverTimestamp, documentId, deleteDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useUser } from '@clerk/clerk-expo';
 import log from '@/services/logger';
@@ -119,13 +119,32 @@ export const useGroupLogic = (groupId?: string) => {
     await updateDoc(groupRef, { guests: arrayUnion(newGuest) });
   };
 
+  const deleteGroup = async () => {
+    if (!groupId || !currentGroup || !user) return;
+
+    if (currentGroup.ownerId !== user.id) {
+      alert("Seul le propriétaire peut supprimer le groupe.");
+      return;
+    }
+
+    try {
+      const groupRef = doc(db, 'groups', groupId);
+      await deleteDoc(groupRef);
+      return true;
+    } catch (error) {
+      log.error("Erreur suppression groupe:", error);
+      return false;
+    }
+  }
+
   return {
-    userGroups,     // Liste des groupes (pour groups.tsx)
-    currentGroup,   // Le groupe actuel (pour groups/[id].tsx)
-    memberDetails,  // Infos des membres
+    userGroups,
+    currentGroup,
+    memberDetails,
     loading,
     createGroup,
     joinGroup,
-    addGuestToGroup
+    addGuestToGroup,
+    deleteGroup,
   };
 };

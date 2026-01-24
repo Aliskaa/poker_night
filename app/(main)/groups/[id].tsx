@@ -1,9 +1,9 @@
 import { useUser } from '@clerk/clerk-expo';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, Share } from 'react-native';
+import { Alert, ScrollView, Share } from 'react-native';
 import { useGroupLogic } from '@/hooks/useGroupLogic';
-import { Crown, Ghost, Play, Share2, UserPlus, Users } from '@tamagui/lucide-icons';
+import { Crown, Ghost, Play, Share2, Trash2, UserPlus, Users } from '@tamagui/lucide-icons';
 import { Avatar, Button, Card, H1, H4, Input, Separator, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 
 export default function GroupDetailScreen() {
@@ -12,7 +12,7 @@ export default function GroupDetailScreen() {
   const router = useRouter();
   
   // Plus besoin de useGameLogic ici ! On gère juste le Groupe.
-  const { currentGroup: group, memberDetails, loading, addGuestToGroup } = useGroupLogic(id);
+  const { currentGroup: group, memberDetails, loading, addGuestToGroup, deleteGroup } = useGroupLogic(id);
 
   const [isGuestSheetOpen, setIsGuestSheetOpen] = useState(false);
   const [newGuestName, setNewGuestName] = useState('');
@@ -34,6 +34,27 @@ export default function GroupDetailScreen() {
       pathname: '/(main)/create-game',
       params: { groupId: group.id }
     });
+  };
+
+  // --- ACTION DANGER : Supprimer le groupe ---
+  const handleDeleteGroup = () => {
+    Alert.alert(
+      "Supprimer le Club",
+      "Es-tu sûr de vouloir supprimer définitivement ce Club et tous ses invités ? Cette action est irréversible.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Supprimer",
+          style: "destructive", // Met le bouton en rouge sur iOS
+          onPress: async () => {
+            const success = await deleteGroup();
+            if (success) {
+              router.replace('/(main)/groups'); // On retourne à la liste des clubs
+            }
+          }
+        }
+      ]
+    );
   };
 
   // --- ACTION : Ajouter un invité local ---
@@ -170,6 +191,13 @@ export default function GroupDetailScreen() {
           >
             Configurer une partie de Club
           </Button>
+
+          {/* NOUVEAU BOUTON : SUPPRIMER LE CLUB (Visible uniquement par le créateur) */}
+          {isOwner && (
+            <Button size="$4" backgroundColor="transparent" color="$danger" icon={<Trash2 size={16} />} onPress={handleDeleteGroup}>
+              Supprimer le Club
+            </Button>
+          )}
         </YStack>
 
         {/* BOTTOM SHEET : Ajouter un invité */}
