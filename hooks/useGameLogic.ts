@@ -1,6 +1,6 @@
 import { db } from "@/services/firebase";
 import log from "@/services/logger";
-import { Game } from "@/types/Game";
+import { Game, GameConfig } from "@/types/Game";
 import { Player, PlayerStatus } from "@/types/Player";
 import { useUser } from "@clerk/clerk-expo"
 import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
@@ -41,7 +41,7 @@ export const useGameLogic = (gameId?: string) => {
     // ----------------------------------------------------------------------
     // 2. ACTION: CREATION DE PARTIE
     // ----------------------------------------------------------------------
-    const createGame = async (defaultBuyIn: number = 5, groupId?: string) => {
+    const createGame = async (config: GameConfig, groupId?: string) => {
         if (!user) return null;
 
         try {
@@ -50,23 +50,21 @@ export const useGameLogic = (gameId?: string) => {
                 hostId: user.id,
                 status: 'PLAYING',
                 groupId: groupId || null,
-                config: {
-                    defaultBuyIn,
-                },
-                totalPot: defaultBuyIn,
+                config: config,
+                totalPot: config.defaultBuyIn,
                 players: [
                     {
                         id: user.id,
                         name: user.firstName || user.username || "Hôte",
                         isGuest: false,
                         buyInCount: 1,
-                        totalInvested: defaultBuyIn,
+                        totalInvested: config.defaultBuyIn,
                         status: 'ACTIVE',
                         finalRank: null,
                         payout: 0,
                     },
                 ],
-                createdAt: new Date().getTime(),
+                createdAt: new Date(),
             }
 
             const docRef = await addDoc(collection(db, "games"), newGameData);
@@ -84,6 +82,11 @@ export const useGameLogic = (gameId?: string) => {
 
     const joinGame = async () => {
         if (!game || !gameId) return;
+
+        if (!isLateRegOpen()) {
+            alert("Impossible de rejoindre : Inscriptions fermées.");
+            return;
+        }
 
         // 1. Vérifier si le joueur est déjà à la table (pour éviter les doublons)
         const isAlreadyPlaying = game.players.some(p => p.id === user?.id);
@@ -114,7 +117,12 @@ export const useGameLogic = (gameId?: string) => {
     const addGuestPlayer = async (guestName: string, buyIn: number) => {
         if (!game || !gameId) return;
 
-        const newPlayer: Player = {
+        if (!isLateRegOpen()) {
+            alert("Les inscriptions sont fermées (Late Reg terminé) !");
+            return;
+        }
+
+        const newGuest: Player = {
             id: `guest_${Date.now()}`,
             name: guestName,
             isGuest: true,
@@ -127,7 +135,7 @@ export const useGameLogic = (gameId?: string) => {
 
         // On ajoute le joueur à la liste et on augmente le pot
         await updateDoc(gameRef, {
-            players: [...game.players, newPlayer],
+            players: [...game.players, newGuest],
             totalPot: increment(buyIn),
         });
     };
@@ -136,9 +144,10 @@ export const useGameLogic = (gameId?: string) => {
     const addRebuy = async (playerId: string, amount: number) => {
         if (!game || !gameId) return;
 
-        // Firebase ne permet pas de modifier un élément précis d'un tableau facilement.
-        // L'astuce : On modifie le tableau en local (JS) et on réécrit tout le tableau.
-        // (Très performant pour < 20 joueurs).
+        if (!isLateRegOpen()) {
+            alert("Les recaves sont terminées !");
+            return;
+        }
 
         const updatePlayers = game.players.map(player => {
             if (player.id === playerId) {
@@ -187,6 +196,35 @@ export const useGameLogic = (gameId?: string) => {
         });
 
     }
+
+    // --- UTILITAIRE : Vérifier si les inscriptions/recaves sont encore ouvertes ---
+    const isLateRegOpen = (): boolean => {
+        if (!game) return false;
+        // Si la limite est 0, c'est illimité ("Ouvert")
+        if (game.config.lateRegLimit === 0) return true;
+
+        let startTime = Date.now();
+
+        if (game.createdAt) {
+            // 1. Si c'est un vrai objet Timestamp Firebase (il a la méthode toDate)
+            if (typeof (game.createdAt as any).toDate === 'function') {
+                startTime = (game.createdAt as any).toDate().getTime();
+            } 
+            // 2. Si c'est un objet brut contenant "seconds" (Firebase Timestamp brut)
+            else if ((game.createdAt as any).seconds) {
+                startTime = (game.createdAt as any).seconds * 1000;
+            }
+            // 3. Si c'est déjà une date JS (en local avant l'envoi au serveur)
+            else if (game.createdAt instanceof Date) {
+                startTime = game.createdAt.getTime();
+            }
+        }
+
+        const now = Date.now();
+        const minutesElapsed = (now - startTime) / (1000 * 60);
+
+        return minutesElapsed < game.config.lateRegLimit;
+    };
 
     // ----------------------------------------------------------------------
     // 4. ACTION: Terminer la partie et distribuer les gains (50/30/20)
@@ -259,5 +297,6 @@ export const useGameLogic = (gameId?: string) => {
         addRebuy,
         eliminatePlayer,
         endGame,
+        isLateRegOpen: isLateRegOpen()
     };
 }

@@ -3,14 +3,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, Share } from 'react-native';
 import * as Linking from 'expo-linking';
 import { YStack, XStack, Text, H1, H3, H4, Button, Avatar, Card, Separator, Spinner, Input, Theme, Sheet } from 'tamagui';
-import { Trophy, Coins, UserX, Plus, UserPlus, Share as ShareIcon, HelpCircle, RotateCcw, Pause, Play, AlertTriangle } from '@tamagui/lucide-icons';
+import { Trophy, Coins, UserX, Plus, UserPlus, Share as ShareIcon, HelpCircle, RotateCcw, Pause, Play, AlertTriangle, Lock, Infinity, Timer } from '@tamagui/lucide-icons';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { Player } from '@/types/Player';
 import { useUser } from '@clerk/clerk-expo';
 
 export default function GameScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame, joinGame } = useGameLogic(id);
+  const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame, joinGame, isLateRegOpen } = useGameLogic(id);
   const [newGuestName, setNewGuestName] = useState('');
   const { user } = useUser();
 
@@ -18,6 +18,7 @@ export default function GameScreen() {
   const DEFAULT_TIME = 1200;
   const [timerSeconds, setTimerSeconds] = useState(DEFAULT_TIME);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [lateRegSeconds, setLateRegSeconds] = useState<number | null>(null);
 
   useEffect(() => {
     if (game && user) {
@@ -25,6 +26,7 @@ export default function GameScreen() {
     }
   }, [game?.id, user?.id]);
 
+  // Logique : Timer des Blindes (Bottom Sheet)
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isTimerRunning && timerSeconds > 0) {
@@ -36,6 +38,33 @@ export default function GameScreen() {
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, timerSeconds]);
+
+  // Logique : Chrono du Late Reg
+  useEffect(() => {
+    if (!game || game.config.lateRegLimit === 0) return;
+
+    // Calculer la date de fin en fonction de la création de la partie
+    let startTime = Date.now();
+    if (game.createdAt) {
+      if (typeof (game.createdAt as any).toDate === 'function') startTime = (game.createdAt as any).toDate().getTime();
+      else if ((game.createdAt as any).seconds) startTime = (game.createdAt as any).seconds * 1000;
+      else if (game.createdAt instanceof Date) startTime = game.createdAt.getTime();
+    }
+
+    const endTime = startTime + (game.config.lateRegLimit * 60 * 1000);
+
+    // Mettre à jour le chrono toutes les secondes
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const diffInSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
+      setLateRegSeconds(diffInSeconds);
+
+      // Si le temps est écoulé, on arrête l'intervalle
+      if (diffInSeconds <= 0) clearInterval(interval);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [game?.createdAt, game?.config.lateRegLimit]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -143,6 +172,40 @@ export default function GameScreen() {
   };
 
   // ---------------------------------------------------------------------------
+  // NOUVEAU RENDU : BADGE LATE REG
+  // ---------------------------------------------------------------------------
+  const renderLateRegBadge = () => {
+    if (game.config.lateRegLimit === 0) {
+      return (
+        <XStack alignItems="center" gap="$1.5" backgroundColor="rgba(16, 185, 129, 0.15)" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$3">
+          <Infinity size={14} color="$success" />
+          <Text color="$success" fontSize="$2" fontWeight="bold">Ouvert</Text>
+        </XStack>
+      );
+    }
+
+    if (lateRegSeconds !== null && lateRegSeconds > 0) {
+      const isUrgent = lateRegSeconds < 300; // Moins de 5 minutes = Urgent (Orange)
+      return (
+        <XStack alignItems="center" gap="$1.5" backgroundColor={isUrgent ? "rgba(245, 158, 11, 0.15)" : "rgba(16, 185, 129, 0.15)"} paddingHorizontal="$2" paddingVertical="$1" borderRadius="$3">
+          <Timer size={14} color={isUrgent ? "$warning" : "$success"} />
+          <Text color={isUrgent ? "$warning" : "$success"} fontSize="$2" fontWeight="bold" fontFamily="$body">
+            {formatTime(lateRegSeconds)}
+          </Text>
+        </XStack>
+      );
+    }
+
+    // Temps écoulé
+    return (
+      <XStack alignItems="center" gap="$1.5" backgroundColor="rgba(239, 68, 68, 0.15)" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$3">
+        <Lock size={14} color="$danger" />
+        <Text color="$danger" fontSize="$2" fontWeight="bold">Fermé</Text>
+      </XStack>
+    );
+  };
+
+  // ---------------------------------------------------------------------------
   // RENDU : TABLE ACTIVE
   // ---------------------------------------------------------------------------
   return (
@@ -155,7 +218,7 @@ export default function GameScreen() {
             <Button size="$3" circular icon={<HelpCircle size={18} color="$colorMuted" />} backgroundColor="$backgroundStrong" borderColor="$borderColor" borderWidth={1} onPress={() => setIsHelpOpen(true)} />
             <Button size="$3" circular icon={<ShareIcon size={18} color="$colorMuted" />} backgroundColor="$backgroundStrong" borderColor="$borderColor" borderWidth={1} onPress={onShareTable} />
           </XStack>
-          
+
           <Text color="$colorMuted" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={2}>
             Pot Total
           </Text>
@@ -165,9 +228,19 @@ export default function GameScreen() {
               {String(game.totalPot)} €
             </H1>
           </XStack>
-          <Text color="$colorMuted" fontSize="$2" marginTop="$1">
-            Buy-in standard : {String(game.config.defaultBuyIn)}€
-          </Text>
+          
+          {/* NOUVEAU : SOUS-TITRE AVEC LE CHRONO */}
+          <XStack alignItems="center" gap="$3" marginTop="$2">
+            <XStack alignItems="center" gap="$1.5">
+              <Coins size={14} color="$colorMuted" />
+              <Text color="$colorMuted" fontSize="$2">Buy-in: {String(game.config.defaultBuyIn)}€</Text>
+            </XStack>
+            <Separator vertical borderColor="$borderColor" height={12} />
+            <XStack alignItems="center" gap="$1.5">
+              <Text color="$colorMuted" fontSize="$2">Inscriptions :</Text>
+              {renderLateRegBadge()}
+            </XStack>
+          </XStack>
         </YStack>
 
         <Separator borderColor="$borderColor" marginVertical="$4" />
@@ -180,7 +253,7 @@ export default function GameScreen() {
                 Terminer la partie
               </Button>
             )}
-            
+
             <Text color="$colorMuted" fontWeight="bold" fontSize="$3" letterSpacing={1} textTransform="uppercase">
               Joueurs ({String(game.players.length)})
             </Text>
@@ -190,6 +263,7 @@ export default function GameScreen() {
                 key={player.id}
                 player={player}
                 defaultBuyIn={game.config.defaultBuyIn}
+                isLateRegOpen={isLateRegOpen}
                 onRebuy={() => addRebuy(player.id, game.config.defaultBuyIn)}
                 onEliminate={() => eliminatePlayer(player.id)}
               />
@@ -205,23 +279,25 @@ export default function GameScreen() {
               size="$4"
               backgroundColor="$background"
               borderColor="$borderColor"
-              placeholder="Ajouter un invité..."
+              placeholder={isLateRegOpen ? "Ajouter un invité..." : "Inscriptions closes"} // Feedback visuel
               value={newGuestName}
               onChangeText={setNewGuestName}
+              editable={isLateRegOpen} // Bloque la saisie
+              opacity={isLateRegOpen ? 1 : 0.5}
             />
             <Button
               size="$4"
-              icon={<UserPlus size={20} />}
-              backgroundColor="$accent"
+              icon={isLateRegOpen ? <UserPlus size={20} /> : <Lock size={20} />} // Changement d'icône
+              backgroundColor={isLateRegOpen ? "$accent" : "$gray8"} // Changement de couleur
               color="white"
               fontWeight="bold"
-              disabled={!newGuestName}
+              disabled={!newGuestName || !isLateRegOpen} // Blocage du bouton
               onPress={() => {
                 addGuestPlayer(newGuestName, game.config.defaultBuyIn);
                 setNewGuestName('');
               }}
             >
-              Ajouter
+              {isLateRegOpen ? "Ajouter" : "Fermé"}
             </Button>
           </XStack>
         </YStack>
@@ -233,7 +309,7 @@ export default function GameScreen() {
           <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
           <Sheet.Handle />
           <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
-            
+
             {/* TIMER PREMIUM */}
             <Card bordered backgroundColor="$backgroundStrong" borderColor="$borderColor" padding="$4">
               <XStack justifyContent="space-between" alignItems="center">
@@ -295,7 +371,7 @@ function HandRow({ rank, name, description }: { rank: string, name: string, desc
 }
 
 // Carte Joueur refondue
-function PlayerCard({ player, defaultBuyIn, onRebuy, onEliminate }: { player: Player, defaultBuyIn: number, onRebuy: () => void, onEliminate: () => void }) {
+function PlayerCard({ player, defaultBuyIn, isLateRegOpen, onRebuy, onEliminate }: { player: Player, defaultBuyIn: number, isLateRegOpen: boolean, onRebuy: () => void, onEliminate: () => void }) {
   const isEliminated = player.status === 'ELIMINATED';
 
   return (
@@ -329,8 +405,16 @@ function PlayerCard({ player, defaultBuyIn, onRebuy, onEliminate }: { player: Pl
           </XStack>
         ) : (
           <XStack gap="$2">
-            <Button size="$3" circular icon={<Plus size={18} />} backgroundColor="$success" color="white" onPress={onRebuy} />
-            <Button size="$3" circular icon={<UserX size={16} />} backgroundColor="$danger" color="white" onPress={onEliminate} />
+            <Button
+              size="$3"
+              circular
+              icon={isLateRegOpen ? <Plus size={18} /> : <Lock size={16} />} // Cadenas si fermé
+              backgroundColor={isLateRegOpen ? "$success" : "$gray8"} // Gris si fermé
+              color="white"
+              disabled={!isLateRegOpen} // Désactivé si fermé
+              onPress={onRebuy}
+              opacity={isLateRegOpen ? 1 : 0.6}
+            />            <Button size="$3" circular icon={<UserX size={16} />} backgroundColor="$danger" color="white" onPress={onEliminate} />
           </XStack>
         )}
       </Card.Header>

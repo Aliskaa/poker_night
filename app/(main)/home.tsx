@@ -1,32 +1,24 @@
 import { useActiveGames } from '@/hooks/useActiveGames';
-import { useGameLogic } from '@/hooks/useGameLogic';
 import { useUserLogic } from '@/hooks/useUserLogic';
 import { useUser } from '@clerk/clerk-expo';
 import { ChevronRight, Crown, LogIn, Play, Plus, Shield, TrendingUp, Users } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { Avatar, Button, Card, H1, H3, H4, ScrollView, Separator, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 
 export default function HomeScreen() {
   const { user } = useUser();
   const router = useRouter();
-  const { createGame } = useGameLogic();
   const { currentUserStats } = useUserLogic();
   const { activeGames } = useActiveGames();
-  
-  const [isCreating, setIsCreating] = useState(false);
 
-  const handleCreateGame = async () => {
-    setIsCreating(true);
-    const newGameId = await createGame(5);
-    setIsCreating(false);
 
-    if (newGameId) router.push(`/(main)/game/${newGameId}`);
-    else alert("Impossible de créer la partie.");
+  const handleCreateGame = () => {
+    router.push('/(main)/create-game'); // On navigue simplement vers le nouvel écran !
   };
 
   const isProfitable = currentUserStats.netProfit >= 0;
-  const profitColor = isProfitable ? "$success" : "$danger"; 
+  const profitColor = isProfitable ? "$success" : "$danger";
 
   return (
     <Theme name="dark">
@@ -62,14 +54,13 @@ export default function HomeScreen() {
               <Button
                 flex={1}
                 size="$4"
-                icon={isCreating ? <Spinner color="$nightBase" /> : <Plus size={20} color="$nightBase" />}
+                icon={<Plus size={20} color="$nightBase" />}
                 backgroundColor="$potGold"
                 color="$nightBase"
                 fontWeight="900"
-                disabled={isCreating}
                 onPress={handleCreateGame}
               >
-                {isCreating ? "Distribution..." : "Ouvrir une table"}
+                Ouvrir une table
               </Button>
             </Card.Footer>
           </Card>
@@ -83,7 +74,7 @@ export default function HomeScreen() {
                   En Direct ({String(activeGames.length)})
                 </Text>
               </XStack>
-              
+
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
                 {activeGames.map((game) => (
                   <Card key={game.id} bordered width={280} backgroundColor="rgba(5, 150, 105, 0.1)" borderColor="$success">
@@ -93,12 +84,15 @@ export default function HomeScreen() {
                           <Text color="$success" fontWeight="900" fontSize="$5">Pot: {String(game.totalPot)}€</Text>
                           <Text color="$colorMuted" fontSize="$3">{String(game.players.length)} joueurs à la table</Text>
                         </YStack>
-                        <Button 
-                          circular 
-                          size="$4" 
-                          backgroundColor="$success" 
-                          icon={<LogIn size={18} color="white" />} 
-                          onPress={() => router.push(`/(main)/game/${game.id}`)}
+                        <Button
+                          circular
+                          size="$4"
+                          backgroundColor="$success"
+                          icon={<LogIn size={18} color="white" />}
+                          onPress={() => router.push({
+                            pathname: '/(main)/game/[id]',
+                            params: { id: game.id }
+                          })}
                         />
                       </XStack>
                     </Card.Header>
