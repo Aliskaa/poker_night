@@ -89,10 +89,13 @@ export default function HomeScreen() {
                           size="$4"
                           backgroundColor="$success"
                           icon={<LogIn size={18} color="white" />}
-                          onPress={() => router.push({
-                            pathname: '/(main)/game/[id]',
-                            params: { id: game.id }
-                          })}
+                          // On désactive le bouton si l'ID est vide (les parties bugguées)
+                          disabled={!game.id}
+                          opacity={game.id ? 1 : 0.5}
+                          onPress={() => {
+                            // Syntaxe directe et infaillible
+                            router.push(`/(main)/game/${game.id}`);
+                          }}
                         />
                       </XStack>
                     </Card.Header>

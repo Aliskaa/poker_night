@@ -45,8 +45,7 @@ export const useGameLogic = (gameId?: string) => {
         if (!user) return null;
 
         try {
-            const newGameData: Game = {
-                id: '', // L'ID sera généré par Firestore
+            const newGameData: Omit<Game, 'id'> = {
                 hostId: user.id,
                 status: 'PLAYING',
                 groupId: groupId || null,
