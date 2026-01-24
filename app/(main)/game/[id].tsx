@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, Share } from 'react-native';
 import * as Linking from 'expo-linking';
 import { YStack, XStack, Text, H1, H3, H4, Button, Avatar, Card, Separator, Spinner, Input, Theme, Sheet } from 'tamagui';
-import { Trophy, Coins, UserX, Plus, UserPlus, Share as ShareIcon, HelpCircle, RotateCcw, Pause, Play, AlertTriangle, Lock, Infinity, Timer } from '@tamagui/lucide-icons';
+import { Trophy, Coins, UserX, Plus, UserPlus, Share as ShareIcon, HelpCircle, RotateCcw, Pause, Play, AlertTriangle, Lock, Infinity, Timer, ChevronLeft } from '@tamagui/lucide-icons';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { Player } from '@/types/Player';
 import { useUser } from '@clerk/clerk-expo';
@@ -214,6 +214,19 @@ export default function GameScreen() {
 
         {/* EN-TÊTE VIP */}
         <YStack alignItems="center" paddingBottom="$4" paddingTop="$2" position="relative">
+
+          <XStack position="absolute" top="$2" left="$4">
+            <Button 
+              size="$3" 
+              circular 
+              icon={<ChevronLeft size={20} color="$color" />} 
+              backgroundColor="$backgroundStrong" 
+              borderColor="$borderColor" 
+              borderWidth={1} 
+              onPress={() => router.push('/(main)/home')} // Retourne au Dashboard
+            />
+          </XStack>
+
           <XStack position="absolute" top="$2" right="$4" gap="$2">
             <Button size="$3" circular icon={<HelpCircle size={18} color="$colorMuted" />} backgroundColor="$backgroundStrong" borderColor="$borderColor" borderWidth={1} onPress={() => setIsHelpOpen(true)} />
             <Button size="$3" circular icon={<ShareIcon size={18} color="$colorMuted" />} backgroundColor="$backgroundStrong" borderColor="$borderColor" borderWidth={1} onPress={onShareTable} />

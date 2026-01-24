@@ -76,8 +76,8 @@ export default function HomeScreen() {
               </XStack>
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-                {activeGames.map((game) => (
-                  <Card key={game.id} bordered width={280} backgroundColor="rgba(5, 150, 105, 0.1)" borderColor="$success">
+                {activeGames.map((game, index) => (
+                  <Card key={game.id || `game-${index}`} bordered width={280} backgroundColor="rgba(5, 150, 105, 0.1)" borderColor="$success">
                     <Card.Header padded>
                       <XStack justifyContent="space-between" alignItems="center">
                         <YStack>
