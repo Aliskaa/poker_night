@@ -33,7 +33,7 @@ export default function GameScreen() {
   // CHRONO 1 : Timer des Blindes (Bottom Sheet)
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: number;
     if (isTimerRunning && timerSeconds > 0) {
       interval = setInterval(() => setTimerSeconds((prev) => prev - 1), 1000);
     } else if (timerSeconds === 0) {

@@ -1,6 +1,7 @@
 import { db } from '@/services/firebase';
+import log from '@/services/logger';
 import { Game } from '@/types/Game';
-import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 export const useActiveGames = () => {
@@ -25,5 +26,13 @@ export const useActiveGames = () => {
         return () => unsubscribe();
     }, []);
 
-    return { activeGames, loading };
-};
+    const deleteActiveGame = async (gameId: string) => {
+        try {
+            await deleteDoc(doc(db, 'games', gameId));
+        } catch (error) {
+            log.error("Error deleting game: ", error);
+        }
+    };
+
+    return { activeGames, deleteActiveGame, loading };
+}

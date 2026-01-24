@@ -1,24 +1,30 @@
-import { useUser } from '@clerk/clerk-expo';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, ScrollView, Share } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ScrollView, Share, Alert } from 'react-native';
+import { useUser } from '@clerk/clerk-expo';
+import { YStack, Separator, Spinner, Theme } from 'tamagui';
+
 import { useGroupLogic } from '@/hooks/useGroupLogic';
-import { Crown, Ghost, Play, Share2, Trash2, UserPlus, Users } from '@tamagui/lucide-icons';
-import { Avatar, Button, Card, H1, H4, Input, Separator, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
+import { GroupHeader } from '@/components/group/GroupHeader';
+import { InviteCodeCard } from '@/components/group/InviteCodeCard';
+import { MemberList } from '@/components/group/MemberList';
+import { GuestList } from '@/components/group/GuestList';
+import { GroupActions } from '@/components/group/GroupActions';
+import { AddGuestSheet } from '@/components/group/AddGuestSheet';
+
+// --- IMPORT DES SOUS-COMPOSANTS ---
 
 export default function GroupDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useUser();
   const router = useRouter();
   
-  // Plus besoin de useGameLogic ici ! On gère juste le Groupe.
   const { currentGroup: group, memberDetails, loading, addGuestToGroup, deleteGroup } = useGroupLogic(id);
 
+  // --- ÉTATS POUR LA SHEET INVITÉ ---
   const [isGuestSheetOpen, setIsGuestSheetOpen] = useState(false);
-  const [newGuestName, setNewGuestName] = useState('');
-  const [isAddingGuest, setIsAddingGuest] = useState(false); // Nouvel état local pour le bouton de la Sheet
 
-  // --- ACTION : Partager le code ---
+  // --- ACTIONS ---
   const shareInviteCode = async () => {
     if (!group) return;
     try {
@@ -26,50 +32,21 @@ export default function GroupDetailScreen() {
     } catch (error) { console.log("Erreur partage:", error); }
   };
 
-  // --- NOUVELLE ACTION : Aller vers la configuration de partie ---
   const handleLaunchGroupGame = () => {
-    if (!group) return;
-    // On navigue vers l'écran de config en passant l'ID du groupe en paramètre
-    router.push({
-      pathname: '/(main)/create-game',
-      params: { groupId: group.id }
-    });
+    if (group) router.push({ pathname: '/(main)/create-game', params: { groupId: group.id } });
   };
 
-  // --- ACTION DANGER : Supprimer le groupe ---
   const handleDeleteGroup = () => {
-    Alert.alert(
-      "Supprimer le Club",
-      "Es-tu sûr de vouloir supprimer définitivement ce Club et tous ses invités ? Cette action est irréversible.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Supprimer",
-          style: "destructive", // Met le bouton en rouge sur iOS
-          onPress: async () => {
-            const success = await deleteGroup();
-            if (success) {
-              router.replace('/(main)/groups'); // On retourne à la liste des clubs
-            }
-          }
-        }
-      ]
-    );
+    Alert.alert("Supprimer le Club", "Es-tu sûr de vouloir supprimer définitivement ce Club et tous ses invités ?", [
+      { text: "Annuler", style: "cancel" },
+      { text: "Supprimer", style: "destructive", onPress: async () => {
+          if (await deleteGroup()) router.replace('/(main)/groups');
+        } 
+      }
+    ]);
   };
 
-  // --- ACTION : Ajouter un invité local ---
-  const handleAddGuest = async () => {
-    if (!newGuestName) return;
-    setIsAddingGuest(true);
-    await addGuestToGroup(newGuestName);
-    setIsAddingGuest(false);
-    setNewGuestName('');
-    setIsGuestSheetOpen(false);
-  };
-
-  if (loading || !group) {
-    return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$potGold" /></YStack>;
-  }
+  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$potGold" /></YStack>;
 
   const isOwner = group.ownerId === user?.id;
 
@@ -77,152 +54,22 @@ export default function GroupDetailScreen() {
     <Theme name="dark">
       <YStack flex={1} backgroundColor="$background" paddingTop="$10">
 
-        {/* 1. EN-TÊTE DU CLUB */}
-        <YStack alignItems="center" marginBottom="$4">
-          <Avatar circular size="$6" borderColor="$potGold" borderWidth={2} marginBottom="$2">
-            <Avatar.Fallback backgroundColor="$backgroundStrong" />
-          </Avatar>
-          <H1 color="$color" fontWeight="900" letterSpacing={-1}>{group.name}</H1>
-          <XStack alignItems="center" gap="$2" marginTop="$1">
-            <Users size={16} color="$colorMuted" />
-            <Text color="$colorMuted" textTransform="uppercase" fontSize="$2" letterSpacing={1}>
-              {group.members.length + group.guests.length} Joueurs au total
-            </Text>
-          </XStack>
-        </YStack>
+        <GroupHeader name={group.name} totalPlayers={group.members.length + group.guests.length} />
 
-        {/* 2. LE CODE SECRET */}
-        <YStack paddingHorizontal="$4" marginBottom="$4">
-          <Card bordered backgroundColor="$backgroundStrong" borderColor="$borderColor" padding="$4">
-            <YStack alignItems="center" gap="$2">
-              <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>
-                Code d'invitation du Club
-              </Text>
-              <XStack alignItems="center" gap="$3">
-                <Text color="$potGold" fontSize="$8" fontWeight="900" letterSpacing={4}>
-                  {group.inviteCode}
-                </Text>
-                <Button circular size="$4" backgroundColor="$accent" icon={<Share2 size={18} color="white" />} onPress={shareInviteCode} />
-              </XStack>
-            </YStack>
-          </Card>
-        </YStack>
+        <InviteCodeCard code={group.inviteCode} onShare={shareInviteCode} />
 
         <Separator borderColor="$borderColor" />
 
         <ScrollView style={{ flex: 1 }}>
           <YStack padding="$4" gap="$5">
-
-            {/* SECTION 1 : MEMBRES */}
-            <YStack gap="$3">
-              <Text color="$colorMuted" fontWeight="bold" fontSize="$3" letterSpacing={1} textTransform="uppercase">
-                Membres Officiels ({group.members.length})
-              </Text>
-              {memberDetails.map((member) => {
-                const isGroupOwner = member.id === group.ownerId;
-                const isMe = member.id === user?.id;
-
-                return (
-                  <XStack key={member.id} alignItems="center" gap="$3" backgroundColor="$backgroundStrong" padding="$3" borderRadius="$4" borderWidth={1} borderColor={isGroupOwner ? "$potGold" : "$borderColor"}>
-                    <Avatar circular size="$4">
-                      <Avatar.Image src={member.imageUrl || member.avatarUrl} />
-                      <Avatar.Fallback backgroundColor="$accent" />
-                    </Avatar>
-                    <YStack flex={1}>
-                      <Text color="$color" fontWeight="bold" fontSize="$4">
-                        {member.firstName || member.username || "Joueur"} {isMe && "(Moi)"}
-                      </Text>
-                      {isGroupOwner ? (
-                        <XStack alignItems="center" gap="$1">
-                          <Crown size={12} color="$potGold" />
-                          <Text color="$potGold" fontSize="$2" fontWeight="bold">Créateur</Text>
-                        </XStack>
-                      ) : (
-                        <Text color="$colorMuted" fontSize="$2">Membre</Text>
-                      )}
-                    </YStack>
-                  </XStack>
-                );
-              })}
-            </YStack>
-
-            {/* SECTION 2 : INVITÉS */}
-            <YStack gap="$3">
-              <XStack justifyContent="space-between" alignItems="center">
-                <Text color="$colorMuted" fontWeight="bold" fontSize="$3" letterSpacing={1} textTransform="uppercase">
-                  Invités du Club ({group.guests.length})
-                </Text>
-                {isOwner && (
-                  <Button size="$3" backgroundColor="$accent" color="white" icon={<UserPlus size={16} />} onPress={() => setIsGuestSheetOpen(true)}>
-                    Ajouter
-                  </Button>
-                )}
-              </XStack>
-
-              {group.guests.length === 0 ? (
-                <Text color="$colorMuted" fontStyle="italic">Aucun invité enregistré.</Text>
-              ) : (
-                group.guests.map((guest) => (
-                  <XStack key={guest.id} alignItems="center" gap="$3" backgroundColor="$background" padding="$3" borderRadius="$4" borderWidth={1} borderColor="$borderColor">
-                    <YStack backgroundColor="$borderColor" padding="$2" borderRadius="$3">
-                      <Ghost size={20} color="$colorMuted" />
-                    </YStack>
-                    <YStack flex={1}>
-                      <Text color="$color" fontWeight="bold" fontSize="$4">{guest.name}</Text>
-                      <Text color="$colorMuted" fontSize="$2">{guest.netProfit}€ profit net • {guest.gamesPlayed} parties</Text>
-                    </YStack>
-                  </XStack>
-                ))
-              )}
-            </YStack>
-
+            <MemberList members={memberDetails} ownerId={group.ownerId} currentUserId={user?.id} />
+            <GuestList guests={group.guests} isOwner={isOwner} onAddGuest={() => setIsGuestSheetOpen(true)} />
           </YStack>
         </ScrollView>
 
-        {/* 3. BOUTON CONFIGURER PARTIE */}
-        <YStack padding="$4" backgroundColor="$backgroundStrong" borderTopWidth={1} borderColor="$borderColor">
-          <Button 
-            size="$5" 
-            backgroundColor="$success" 
-            color="white" 
-            fontWeight="900" 
-            icon={<Play size={20} color="white" />}
-            onPress={handleLaunchGroupGame}
-          >
-            Configurer une partie de Club
-          </Button>
+        <GroupActions isOwner={isOwner} onConfigureGame={handleLaunchGroupGame} onDeleteGroup={handleDeleteGroup} />
 
-          {/* NOUVEAU BOUTON : SUPPRIMER LE CLUB (Visible uniquement par le créateur) */}
-          {isOwner && (
-            <Button size="$4" backgroundColor="transparent" color="$danger" icon={<Trash2 size={16} />} onPress={handleDeleteGroup}>
-              Supprimer le Club
-            </Button>
-          )}
-        </YStack>
-
-        {/* BOTTOM SHEET : Ajouter un invité */}
-        <Sheet modal open={isGuestSheetOpen} onOpenChange={setIsGuestSheetOpen} snapPoints={[40]} dismissOnSnapToBottom>
-          <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-          <Sheet.Handle />
-          <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
-            <H4 color="$color" textAlign="center">Créer un Invité</H4>
-            <Text color="$colorMuted" textAlign="center" marginBottom="$2">
-              Cet invité sera sauvegardé dans ce club. Ses statistiques (gains/pertes) seront conservées partie après partie.
-            </Text>
-            <Input 
-              size="$5" 
-              placeholder="Prénom de l'invité (ex: Julien)" 
-              value={newGuestName} 
-              onChangeText={setNewGuestName} 
-              backgroundColor="$backgroundStrong"
-              borderColor="$borderColor"
-              color="$color"
-            />
-            <Button size="$5" backgroundColor="$accent" color="white" fontWeight="900" disabled={!newGuestName || isAddingGuest} onPress={handleAddGuest}>
-              {isAddingGuest ? <Spinner color="white" /> : 'Créer le profil invité'}
-            </Button>
-          </Sheet.Frame>
-        </Sheet>
+        <AddGuestSheet isOpen={isGuestSheetOpen} onOpenChange={setIsGuestSheetOpen} onAddGuest={(name) => addGuestToGroup(name)} />
 
       </YStack>
     </Theme>
