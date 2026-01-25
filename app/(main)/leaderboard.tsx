@@ -1,20 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView } from 'react-native';
-import { YStack, XStack, Text, H1, H4, Card, Avatar, Spinner, Theme, Separator } from 'tamagui';
-import { Trophy, Medal, TrendingUp, TrendingDown, Minus } from '@tamagui/lucide-icons';
-import { collection, getDocs } from 'firebase/firestore';
-import { useUser } from '@clerk/clerk-expo';
-import { db } from '@/services/firebase';
 import { useUserLogic } from '@/hooks/useUserLogic';
-
-type LeaderboardUser = {
-  id: string;
-  name: string;
-  avatarUrl?: string;
-  netProfit: number;
-  gamesPlayed: number;
-  rank: number;
-};
+import { useUser } from '@clerk/clerk-expo';
+import { Medal, Minus, TrendingDown, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import React from 'react';
+import { ScrollView } from 'react-native';
+import { Avatar, Card, H1, H4, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 
 export default function LeaderboardScreen() {
   const { user: currentUser } = useUser();

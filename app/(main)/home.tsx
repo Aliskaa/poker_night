@@ -1,18 +1,18 @@
+import { useUser } from '@clerk/clerk-expo';
+import { TrendingUp, Users } from '@tamagui/lucide-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useUser } from '@clerk/clerk-expo';
-import { Theme, YStack, Separator } from 'tamagui';
-import { Users, TrendingUp } from '@tamagui/lucide-icons';
+import { Separator, Theme, YStack } from 'tamagui';
 
-import { useActiveGames } from '@/hooks/useActiveGames';
+import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 import { useUserLogic } from '@/hooks/useUserLogic';
 
 // Import des nouveaux sous-composants
-import { HomeHeader } from '@/components/home/HomeHeader';
-import { CreateGameCard } from '@/components/home/CreateGameCard';
 import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
 import { BankrollStats } from '@/components/home/BankrollStats';
+import { CreateGameCard } from '@/components/home/CreateGameCard';
+import { HomeHeader } from '@/components/home/HomeHeader';
 import { MenuItem } from '@/components/home/MenuItem';
 
 export default function HomeScreen() {

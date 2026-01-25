@@ -1,3 +1,6 @@
+import { useToast } from '@/hooks/useToast'
+import log from '@/services/logger'
+import { AlertCircle, AlertTriangle, CheckCircle2, Info } from '@tamagui/lucide-icons'
 import { Toast, useToastController, useToastState } from '@tamagui/toast'
 import { Button, H4, XStack, YStack, isWeb } from 'tamagui'
 
@@ -6,47 +9,84 @@ export function CurrentToast() {
 
   if (!currentToast || currentToast.isHandledNatively) return null
 
+  // 1. Récupération du type envoyé depuis useToast (par défaut 'info')
+  const type = currentToast.customData?.type || 'info';
+
+  // 2. Configuration dynamique des styles selon le type
+  const config = {
+    success: {
+      icon: <CheckCircle2 size={24} color="$success" />,
+      bg: "rgba(16, 185, 129, 0.15)", // Fond vert translucide
+      border: "$success"
+    },
+    error: {
+      icon: <AlertCircle size={24} color="$danger" />,
+      bg: "rgba(239, 68, 68, 0.15)", // Fond rouge translucide
+      border: "$danger"
+    },
+    warning: {
+      icon: <AlertTriangle size={24} color="$warning" />,
+      bg: "rgba(245, 158, 11, 0.15)", // Fond orange translucide
+      border: "$warning"
+    },
+    info: {
+      icon: <Info size={24} color="$accent" />,
+      bg: "$backgroundStrong",
+      border: "$borderColor"
+    },
+  }[type as 'success' | 'error' | 'warning' | 'info'];
+
   return (
     <Toast
       key={currentToast.id}
       duration={currentToast.duration}
       viewportName={currentToast.viewportName}
-      enterStyle={{ opacity: 0, scale: 0.5, y: -25 }}
+      enterStyle={{ opacity: 0, scale: 0.95, y: -20 }}
       exitStyle={{ opacity: 0, scale: 1, y: -20 }}
       y={isWeb ? '$12' : 0}
-      theme="accent"
-      rounded="$6"
       animation="quick"
+
+      backgroundColor={config.bg}
+      borderColor={config.border}
+      borderWidth={1}
+      borderRadius="$4"
+      padding="$3"
+      shadowColor="#000"
+      shadowOffset={{ width: 0, height: 4 }}
+      shadowOpacity={0.3}
+      shadowRadius={12}
     >
-      <YStack items="center" p="$2" gap="$2">
-        <Toast.Title fontWeight="bold">{currentToast.title}</Toast.Title>
-        {!!currentToast.message && (
-          <Toast.Description>{currentToast.message}</Toast.Description>
-        )}
-      </YStack>
+      <XStack gap="$3" alignItems="center">
+        {config.icon}
+        <YStack alignItems="center">
+          <Toast.Title color="$color" fontWeight="900" fontSize="$4" letterSpacing={0.5}>{currentToast.title}</Toast.Title>
+          {!!currentToast.message && (
+            <Toast.Description color="$colorMuted" fontSize="$2" marginTop="$1">{currentToast.message}</Toast.Description>
+          )}
+        </YStack>
+      </XStack>
     </Toast>
   )
 }
 
 export function ToastControl() {
-  const toast = useToastController()
+
+  const { success, hide } = useToast();
 
   return (
-    <YStack gap="$2" items="center">
+    <YStack gap="$2" alignItems="center">
       <H4>Toast demo</H4>
-      <XStack gap="$2" justify="center">
+      <XStack gap="$2" justifyContent="center">
         <Button
           onPress={() => {
-            toast.show('Successfully saved!', {
-              message: "Don't worry, we've got your data.",
-            })
+            success("Opération réussie", "Votre action a été effectuée avec succès.");
           }}
         >
           Show
         </Button>
         <Button
           onPress={() => {
-            toast.hide()
+            hide()
           }}
         >
           Hide

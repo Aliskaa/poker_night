@@ -7,16 +7,6 @@ import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { AlertTriangle, ChevronRight, Crown, Key, Plus, Users } from '@tamagui/lucide-icons';
 import { Avatar, Button, Card, H1, H4, Input, Separator, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 
-// Définition du type pour un Groupe
-type Group = {
-    id: string;
-    name: string;
-    ownerId: string;
-    inviteCode: string;
-    members: string[]; // Tableau d'IDs Clerk
-    guests: any[];
-};
-
 export default function GroupsScreen() {
     const { user } = useUser();
     const router = useRouter();
@@ -29,6 +19,20 @@ export default function GroupsScreen() {
 
     const [isJoinOpen, setIsJoinOpen] = useState(false);
     const [inviteCode, setInviteCode] = useState('');
+
+    const handleCreateGroup = async () => {
+        if (!newGroupName) return;
+        await createGroup(newGroupName);
+        setNewGroupName('');
+        setIsCreateOpen(false);
+    }
+
+    const handleJoinGroup = async () => {
+        if (!inviteCode) return;
+        await joinGroup(inviteCode);
+        setInviteCode('');
+        setIsJoinOpen(false);
+    }
 
     if (loading) {
         return (
@@ -140,7 +144,7 @@ export default function GroupsScreen() {
                             borderColor="$borderColor"
                             color="$color"
                         />
-                        <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" disabled={!newGroupName || loading} onPress={() => createGroup(newGroupName)    }>
+                        <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" disabled={!newGroupName || loading} onPress={handleCreateGroup}>
                             {loading ? <Spinner color="$nightBase" /> : 'Valider'}
                         </Button>
                     </Sheet.Frame>
@@ -162,7 +166,7 @@ export default function GroupsScreen() {
                             color="$color"
                             autoCapitalize="characters"
                         />
-                        <Button size="$5" backgroundColor="$accent" color="white" fontWeight="900" disabled={!inviteCode || loading} onPress={() => joinGroup(inviteCode)}>
+                        <Button size="$5" backgroundColor="$accent" color="white" fontWeight="900" disabled={!inviteCode || loading} onPress={handleJoinGroup}>
                             {loading ? <Spinner color="white" /> : 'Rejoindre'}
                         </Button>
                     </Sheet.Frame>

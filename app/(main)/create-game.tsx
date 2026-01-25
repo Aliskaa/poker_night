@@ -10,6 +10,7 @@ import { useGameLogic } from '@/hooks/useGameLogic';
 import { ConfigSection } from '@/components/create-game/ConfigSection';
 import { OptionButton } from '@/components/create-game/OptionButton';
 import { PayoutCard } from '@/components/create-game/PayoutCard';
+import { PAYOUT_MODELS } from '@/constants/game';
 
 export default function CreateGameScreen() {
   const router = useRouter();
@@ -79,8 +80,9 @@ export default function CreateGameScreen() {
 
             <ConfigSection title="Structure des gains (Payout)" icon={<Trophy size={18} color="$success" />}>
               <YStack gap="$2">
-                <PayoutCard title="Podium (50 / 30 / 20)" description="Récompense les 3 premiers joueurs." isSelected={payoutModel === '50_30_20'} onPress={() => setPayoutModel('50_30_20')} />
-                <PayoutCard title="Winner Takes All" description="Le 1er ramasse tout le pot." isSelected={payoutModel === 'winner_takes_all'} onPress={() => setPayoutModel('winner_takes_all')} />
+                {Object.entries(PAYOUT_MODELS).map(([key, model]) => (
+                  <PayoutCard key={key} title={model.title} description={model.description} isSelected={payoutModel === key} onPress={() => setPayoutModel(key as keyof typeof PAYOUT_MODELS)} />
+                ))}
               </YStack>
             </ConfigSection>
 

@@ -5,7 +5,7 @@ import { Card, Button, Text, XStack, YStack, Sheet, H4 } from 'tamagui';
 import { Play, LogIn, Settings2, AlertTriangle, Trash2 } from '@tamagui/lucide-icons';
 import { Game } from '@/types/Game';
 import { useUser } from '@clerk/clerk-expo';
-import { useActiveGames } from '@/hooks/useActiveGames';
+import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 
 export function ActiveGamesSlider({ games }: { games: Game[] }) {
   const router = useRouter();

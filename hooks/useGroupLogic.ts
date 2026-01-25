@@ -5,9 +5,11 @@ import { useUser } from '@clerk/clerk-expo';
 import log from '@/services/logger';
 import { Group } from '@/types/Groups';
 import { Guest } from '@/types/Player';
+import { useToast } from './useToast';
 
 export const useGroupLogic = (groupId?: string) => {
   const { user } = useUser();
+  const { success: successToast, error: errorToast } = useToast();
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
   const [memberDetails, setMemberDetails] = useState<any[]>([]);
@@ -78,6 +80,9 @@ export const useGroupLogic = (groupId?: string) => {
         guests: [],
         createdAt: serverTimestamp(),
       });
+
+      successToast("Groupe créé avec succès !");
+
       return docRef.id;
     } catch (error) {
       log.error("Erreur création groupe:", error);
@@ -123,13 +128,14 @@ export const useGroupLogic = (groupId?: string) => {
     if (!groupId || !currentGroup || !user) return;
 
     if (currentGroup.ownerId !== user.id) {
-      alert("Seul le propriétaire peut supprimer le groupe.");
+      errorToast("Seul le propriétaire peut supprimer le groupe.");
       return;
     }
 
     try {
       const groupRef = doc(db, 'groups', groupId);
       await deleteDoc(groupRef);
+      successToast("Groupe supprimé avec succès !");
       return true;
     } catch (error) {
       log.error("Erreur suppression groupe:", error);

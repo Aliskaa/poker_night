@@ -3,9 +3,11 @@ import log from "@/services/logger";
 import { useUser } from "@clerk/clerk-expo"
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useEffect } from "react";
+import { useToast } from "./useToast";
 
 export const useSyncUser = () => {
     const { user, isLoaded } = useUser();
+    const { info, error: errorToast } = useToast();
 
     useEffect(() => {
         const syncUserToFirestore = async () => {
@@ -38,8 +40,10 @@ export const useSyncUser = () => {
 
                     await setDoc(userRef, newUser);
                     log.info("✅ Nouvel utilisateur créé dans Firestore :", user.id);
+                    info("Bienvenue, " + displayName + " ! Votre profil a été créé avec succès.");
                 } catch (error) {
                     log.error("❌ Erreur lors de la création de l'utilisateur :", error);
+                    errorToast("Une erreur est survenue lors de la création de votre profil.", "Veuillez réessayer plus tard.");
                 }
             } else {
                 try {
@@ -47,8 +51,10 @@ export const useSyncUser = () => {
                         lastLoginAt: Date.now(),
                         avatarUrl: user.imageUrl || userSnap.data().avatarUrl,
                     });
+                    info("Bon retour, " + (userSnap.data().displayName || 'Joueur') + " !");
                 } catch (error) {
                     log.error("❌ Erreur lors de la mise à jour de l'utilisateur :", error);
+                    errorToast("Une erreur est survenue lors de la mise à jour de votre profil.", "Veuillez réessayer plus tard.");
                 }
             }
         };

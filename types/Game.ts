@@ -1,10 +1,11 @@
+import { PAYOUT_MODELS } from "@/constants/game";
 import { Player } from "./Player";
 
 export type GameStatus = 'WAITING' | 'PLAYING' | 'FINISHED';
 
 export type GameConfig = {
     defaultBuyIn: number;
-    payoutModel: string;
+    payoutModel: keyof typeof PAYOUT_MODELS;
     defaultTimeBlindDuration: number;
     lateRegLimit: number; // en minutes
 }
