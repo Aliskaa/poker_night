@@ -1,7 +1,10 @@
 import { Pause, Play, RotateCcw } from "@tamagui/lucide-icons";
 import { Button, Card, H1, ScrollView, Separator, Sheet, Text, XStack, YStack } from "tamagui";
+import { HAND_RANKINGS } from '@/constants/poker';    // <-- Import données
+import { HandRow } from '@/components/poker/HandRow'; // <-- Import composant
 
 export function HelpBottomSheet({ isOpen, onOpenChange, timerSeconds, isTimerRunning, onToggleTimer, onResetTimer }: { isOpen: boolean, onOpenChange: (open: boolean) => void, timerSeconds: number, isTimerRunning: boolean, onToggleTimer: () => void, onResetTimer: () => void }) {
+    
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -11,61 +14,40 @@ export function HelpBottomSheet({ isOpen, onOpenChange, timerSeconds, isTimerRun
     return (
         <Sheet modal open={isOpen} onOpenChange={onOpenChange} snapPoints={[85]} dismissOnSnapToBottom>
             <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-            <Sheet.Handle />
-            <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
+            <Sheet.Handle backgroundColor="rgba(255,255,255,0.2)" />
+            <Sheet.Frame padding="$4" gap="$4" backgroundColor="#064e3b">
 
                 {/* TIMER PREMIUM */}
-                <Card bordered backgroundColor="$backgroundStrong" borderColor="$borderColor" padding="$4">
+                <Card bordered backgroundColor="rgba(0,0,0,0.3)" borderColor="rgba(255,255,255,0.1)" padding="$4">
                     <XStack justifyContent="space-between" alignItems="center">
                         <YStack>
-                            <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Prochaine Blinde</Text>
+                            <Text color="rgba(255,255,255,0.6)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Prochaine Blinde</Text>
                             <H1 color={timerSeconds < 60 ? "$danger" : "$potGold"} fontSize="$8" fontWeight="900">
                                 {formatTime(timerSeconds)}
                             </H1>
                         </YStack>
                         <XStack gap="$2">
-                            <Button circular size="$5" backgroundColor="$background" borderColor="$borderColor" borderWidth={1} icon={<RotateCcw size={20} color="$colorMuted" />} onPress={onResetTimer} />
+                            <Button circular size="$5" backgroundColor="transparent" borderColor="rgba(255,255,255,0.2)" borderWidth={1} icon={<RotateCcw size={20} color="white" />} onPress={onResetTimer} />
                             <Button circular size="$5" backgroundColor={isTimerRunning ? "$danger" : "$success"} color="white" icon={isTimerRunning ? <Pause size={20} /> : <Play size={20} />} onPress={onToggleTimer} />
                         </XStack>
                     </XStack>
                 </Card>
 
-                <Separator borderColor="$borderColor" />
+                <Separator borderColor="rgba(255,255,255,0.1)" />
 
-                {/* AIDE MAINS */}
+                {/* AIDE MAINS (Réutilisée !) */}
                 <YStack flex={1} gap="$3">
-                    <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Hiérarchie des mains</Text>
+                    <Text color="rgba(255,255,255,0.6)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Hiérarchie des mains</Text>
                     <ScrollView>
-                        <YStack gap="$2" paddingBottom="$10">
-                            <HandRow rank="1" name="Quinte Flush Royale" description="10, J, Q, K, A de même couleur" />
-                            <HandRow rank="2" name="Quinte Flush" description="5 cartes consécutives de même couleur" />
-                            <HandRow rank="3" name="Carré" description="4 cartes de même valeur" />
-                            <HandRow rank="4" name="Full" description="Un Brelan + Une Paire" />
-                            <HandRow rank="5" name="Couleur (Flush)" description="5 cartes de même couleur" />
-                            <HandRow rank="6" name="Quinte (Suite)" description="5 cartes consécutives" />
-                            <HandRow rank="7" name="Brelan" description="3 cartes de même valeur" />
-                            <HandRow rank="8" name="Double Paire" description="Deux paires différentes" />
-                            <HandRow rank="9" name="Paire" description="2 cartes de même valeur" />
-                            <HandRow rank="10" name="Hauteur" description="La carte la plus haute" />
+                        <YStack gap="$3" paddingBottom="$10">
+                            {HAND_RANKINGS.map((hand) => (
+                                <HandRow key={hand.rank} hand={hand} />
+                            ))}
                         </YStack>
                     </ScrollView>
                 </YStack>
 
             </Sheet.Frame>
         </Sheet>
-    );
-}
-
-function HandRow({ rank, name, description }: { rank: string, name: string, description: string }) {
-    return (
-        <Card bordered backgroundColor="$backgroundStrong" borderColor="$borderColor">
-            <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
-                <Text color="$potGold" fontWeight="900" fontSize="$6" width={32} textAlign="center">#{rank}</Text>
-                <YStack flex={1}>
-                    <Text color="$color" fontWeight="bold" fontSize="$4">{name}</Text>
-                    <Text color="$colorMuted" fontSize="$2">{description}</Text>
-                </YStack>
-            </Card.Header>
-        </Card>
     );
 }

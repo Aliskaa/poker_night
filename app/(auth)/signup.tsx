@@ -4,6 +4,7 @@ import { useRouter, Link } from 'expo-router';
 import { YStack, Input, Button, Text, H1, XStack, Spinner, Theme } from 'tamagui';
 import { Mail, Lock, User, CheckCircle2, Crown } from '@tamagui/lucide-icons';
 import log from '@/services/logger';
+import { PokerBackground } from '@/components/ui/PokerBackground';
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -46,7 +47,7 @@ export default function SignUpScreen() {
 
       if (completeSignUp.status === 'complete') {
         await setActive({ session: completeSignUp.createdSessionId });
-        router.replace('/(main)/home');
+        router.replace('/(main)/(tabs)/home');
       }
     } catch (err: any) {
       alert("Code incorrect ou expiré.");
@@ -61,7 +62,8 @@ export default function SignUpScreen() {
   if (pendingVerification) {
     return (
       <Theme name="dark">
-        <YStack flex={1} justifyContent="center" padding="$4" backgroundColor="$background" gap="$4">
+        <PokerBackground>
+          <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
           <YStack gap="$2" marginBottom="$4" alignItems="center">
             <CheckCircle2 size={56} color="$success" />
             <H1 textAlign="center" color="$color" fontWeight="900" marginTop="$2">Vérification</H1>
@@ -97,7 +99,8 @@ export default function SignUpScreen() {
           >
             {loading ? <Spinner color="white" /> : 'Valider mon compte'}
           </Button>
-        </YStack>
+          </YStack>
+        </PokerBackground>
       </Theme>
     );
   }
@@ -107,7 +110,8 @@ export default function SignUpScreen() {
   // ---------------------------------------------------------------------------
   return (
     <Theme name="dark">
-      <YStack flex={1} justifyContent="center" padding="$4" backgroundColor="$background" gap="$4">
+      <PokerBackground>
+        <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
         
         {/* EN-TÊTE */}
         <YStack gap="$2" marginBottom="$6" alignItems="center">
@@ -154,7 +158,8 @@ export default function SignUpScreen() {
             <Text color="$potGold" fontWeight="bold">Se connecter</Text>
           </Link>
         </XStack>
-      </YStack>
+        </YStack>
+      </PokerBackground>
     </Theme>
   );
 }

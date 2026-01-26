@@ -2,108 +2,87 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
-import { Theme, YStack, XStack, Text, H2, Button, Card, Separator } from 'tamagui';
-import { Play, Plus, Search, Users } from '@tamagui/lucide-icons';
+import { Theme, YStack, Text, XStack, Button } from 'tamagui';
+import { Search, Users } from '@tamagui/lucide-icons';
 
 import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
 import { HomeHeader } from '@/components/home/HomeHeader';
+import { HeroPlayCard } from '@/components/home/HeroPlayCard';
+import { PokerBackground } from '@/components/ui/PokerBackground'; // <-- Import du tapis
 
 export default function HomeScreen() {
   const { user } = useUser();
   const router = useRouter();
   const { activeGames } = useActiveGames();
 
-  // Salutation dynamique selon l'heure
-  const hour = new Date().getHours();
-  const greeting = hour < 18 ? "Bonjour" : "Bonsoir";
-
   return (
     <Theme name="dark">
-      <ScrollView style={{ flex: 1, backgroundColor: '#0b0f19' }}>
-        <YStack padding="$4" paddingTop="$8" gap="$6">
+      {/* ON ENGLOBE TOUT DANS LE TAPIS VERT */}
+      <PokerBackground>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+          <YStack padding="$4" paddingTop="$8" gap="$6">
 
-          {/* 1. HEADER MINIMALISTE (Juste le prénom) */}
-          <HomeHeader user={user} />
+            {/* 1. HEADER */}
+            <HomeHeader user={user} />
 
-          {/* 2. LE RADAR (Parties en cours) - C'est la star de la page */}
-          <YStack>
-             {/* Le composant gère lui-même son affichage si vide */}
+            {/* 2. RADAR (Parties en cours) */}
             <ActiveGamesSlider games={activeGames} />
-          </YStack>
 
-          {/* 3. HERO ACTION : GROS BOUTON "OUVRIR UNE TABLE" */}
-          {/* On le met en avant avec une couleur accentuée */}
-          <Card 
-            bordered 
-            backgroundColor="$potGold" 
-            borderColor="$potGold"
-            pressStyle={{ scale: 0.98, opacity: 0.9 }}
-            onPress={() => router.push('/(main)/create-game')}
-            elevation={10}
-            shadowColor="$potGold"
-            shadowOpacity={0.4}
-            shadowRadius={20}
-          >
-            <Card.Header padded>
-              <XStack justifyContent="space-between" alignItems="center">
-                <YStack>
-                  <H2 color="$nightBase" fontWeight="900">JOUER</H2>
-                  <Text color="$nightBase" opacity={0.8} fontWeight="600">Lancer une nouvelle table</Text>
-                </YStack>
-                <YStack backgroundColor="$nightBase" padding="$3" borderRadius="$10">
-                  <Play size={28} color="$potGold" fill="$potGold" />
-                </YStack>
+            {/* 3. HERO ACTION : LA CARTE GOLD AVEC LE PIQUE ♠️ */}
+            {/* Elle va ressortir magnifiquement sur le fond vert foncé */}
+            <HeroPlayCard onPress={() => router.push('/(main)/create-game')} />
+
+            {/* 4. ACTIONS SECONDAIRES (Style Verre Fumé) */}
+            <YStack gap="$3">
+              <Text color="rgba(255,255,255,0.6)" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
+                Accès Rapide
+              </Text>
+              <XStack gap="$3">
+                <QuickAction 
+                  icon={<Search size={24} />} 
+                  label="Rejoindre" 
+                  subLabel="Code PIN" 
+                  onPress={() => router.push('/(main)/(tabs)/groups')} 
+                />
+                <QuickAction 
+                  icon={<Users size={24} />} 
+                  label="Mes Clubs" 
+                  subLabel="Gérer" 
+                  onPress={() => router.push('/(main)/(tabs)/groups')} 
+                />
               </XStack>
-            </Card.Header>
-          </Card>
+            </YStack>
 
-          {/* 4. ACTIONS SECONDAIRES (Grille 2x2) */}
-          <YStack gap="$3">
-            <Text color="$colorMuted" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
-              Raccourcis
-            </Text>
-            <XStack gap="$3">
-              <QuickAction 
-                icon={<Search size={20} />} 
-                label="Rejoindre" 
-                subLabel="Via Code" 
-                onPress={() => router.push('/(main)/groups')} // Ou une modal "Join"
-              />
-              <QuickAction 
-                icon={<Users size={20} />} 
-                label="Mes Clubs" 
-                subLabel="Gérer" 
-                onPress={() => router.push('/(main)/groups')} 
-              />
-            </XStack>
           </YStack>
-
-        </YStack>
-      </ScrollView>
+        </ScrollView>
+      </PokerBackground>
     </Theme>
   );
 }
 
-// Petit composant local pour les boutons carrés
+// Boutons "Glassmorphism" (Transparents)
 const QuickAction = ({ icon, label, subLabel, onPress }: any) => (
   <Button 
     flex={1} 
-    height={100} 
-    backgroundColor="$backgroundStrong" 
-    borderColor="$borderColor" 
+    height={110} 
+    // Fond semi-transparent pour laisser voir le tapis
+    backgroundColor="rgba(255, 255, 255, 0.05)" 
+    borderColor="rgba(255, 255, 255, 0.1)" 
     borderWidth={1}
     flexDirection="column"
     alignItems="flex-start"
-    justifyContent="center"
-    padding="$3"
-    gap="$1"
+    justifyContent="space-between"
+    padding="$4"
     onPress={onPress}
+    pressStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
   >
-    <YStack backgroundColor="rgba(255,255,255,0.05)" padding="$2" borderRadius="$3" marginBottom="$2">
+    <YStack backgroundColor="rgba(0,0,0,0.3)" padding="$2" borderRadius="$3">
       {React.cloneElement(icon, { color: '#fbbf24' })}
     </YStack>
-    <Text color="$color" fontWeight="bold" fontSize="$4">{label}</Text>
-    <Text color="$colorMuted" fontSize="$2">{subLabel}</Text>
+    <YStack>
+        <Text color="white" fontWeight="bold" fontSize="$5">{label}</Text>
+        <Text color="rgba(255,255,255,0.5)" fontSize="$2">{subLabel}</Text>
+    </YStack>
   </Button>
 );

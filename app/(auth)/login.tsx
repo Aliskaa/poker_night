@@ -7,6 +7,7 @@ import * as Linking from "expo-linking";
 import * as WebBrowser from 'expo-web-browser';
 import log from '@/services/logger';
 import { Platform } from 'react-native';
+import { PokerBackground } from '@/components/ui/PokerBackground';
 
 export const useWarmUpBrowser = () => {
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function LoginScreen() {
 
             if (completeSignIn.status === 'complete') {
                 await setActive({ session: completeSignIn.createdSessionId });
-                router.replace('/(main)/home');
+                router.replace('/(main)/(tabs)/home');
             }
         } catch (err: any) {
             alert("Identifiants incorrects.");
@@ -79,7 +80,8 @@ export default function LoginScreen() {
 
     return (
         <Theme name="dark">
-            <YStack flex={1} justifyContent="center" padding="$4" backgroundColor="$background" gap="$4">
+            <PokerBackground>
+                <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
                 
                 {/* EN-TÊTE : Logo et Titre */}
                 <YStack gap="$2" marginBottom="$6" alignItems="center">
@@ -174,7 +176,8 @@ export default function LoginScreen() {
                     </Link>
                 </XStack>
 
-            </YStack>
+                </YStack>
+            </PokerBackground>
         </Theme>
     );
 }

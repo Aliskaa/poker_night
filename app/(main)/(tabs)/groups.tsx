@@ -5,18 +5,16 @@ import { ScrollView } from 'react-native';
 
 import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { AlertTriangle, ChevronRight, Crown, Key, Plus, Users } from '@tamagui/lucide-icons';
-import { Avatar, Button, Card, H1, H4, Input, Separator, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
+import { Avatar, Button, Card, H1, H4, Input, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
+import { PokerBackground } from '@/components/ui/PokerBackground';
 
 export default function GroupsScreen() {
     const { user } = useUser();
     const router = useRouter();
-
     const { userGroups, createGroup, joinGroup, loading } = useGroupLogic();
 
-    // États pour les Modals (Sheets)
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [newGroupName, setNewGroupName] = useState('');
-
     const [isJoinOpen, setIsJoinOpen] = useState(false);
     const [inviteCode, setInviteCode] = useState('');
 
@@ -34,145 +32,119 @@ export default function GroupsScreen() {
         setIsJoinOpen(false);
     }
 
-    if (loading) {
-        return (
-            <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background">
-                <Spinner size="large" color="$potGold" />
-            </YStack>
-        );
-    }
+    if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
 
     return (
         <Theme name="dark">
-            <YStack flex={1} backgroundColor="$background" paddingTop="$10">
+            <PokerBackground>
+                <YStack flex={1} paddingTop="$10">
 
-                {/* EN-TÊTE VIP */}
-                <YStack alignItems="center" marginBottom="$6">
-                    <YStack backgroundColor="rgba(59, 130, 246, 0.1)" padding="$3" borderRadius="$5" marginBottom="$2">
-                        <Users size={40} color="$accent" />
+                    {/* EN-TÊTE */}
+                    <YStack alignItems="center" marginBottom="$6">
+                        <YStack backgroundColor="rgba(251, 191, 36, 0.1)" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="rgba(251, 191, 36, 0.3)" borderWidth={1}>
+                            <Users size={32} color="$potGold" />
+                        </YStack>
+                        <H1 color="white" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Mes Clubs</H1>
+                        <Text color="rgba(255,255,255,0.6)" letterSpacing={1} textTransform="uppercase" fontSize="$2">
+                            Gère tes QG de poker
+                        </Text>
                     </YStack>
-                    <H1 color="$color" fontWeight="900" letterSpacing={-1}>Mes Clubs</H1>
-                    <Text color="$colorMuted" letterSpacing={1} textTransform="uppercase" fontSize="$2">
-                        Gère tes QG de poker
-                    </Text>
+
+                    {/* ACTIONS */}
+                    <XStack paddingHorizontal="$4" gap="$3" marginBottom="$6">
+                        <Button
+                            flex={1} size="$4"
+                            // Style Verre
+                            backgroundColor="rgba(255,255,255,0.1)"
+                            borderColor="rgba(255,255,255,0.2)" borderWidth={1}
+                            icon={<Key size={18} color="$potGold" />}
+                            onPress={() => setIsJoinOpen(true)}
+                        >
+                            <Text color="white" fontWeight="bold">Rejoindre</Text>
+                        </Button>
+                        <Button
+                            flex={1} size="$4"
+                            // Style Or Premium
+                            backgroundColor="$potGold"
+                            icon={<Plus size={18} color="$nightBase" />}
+                            onPress={() => setIsCreateOpen(true)}
+                            pressStyle={{ opacity: 0.9, scale: 0.98 }}
+                        >
+                            <Text color="$nightBase" fontWeight="900">Créer un Club</Text>
+                        </Button>
+                    </XStack>
+
+                    {/* LISTE DES GROUPES (Glass Cards) */}
+                    <ScrollView style={{ flex: 1 }}>
+                        <YStack padding="$4" gap="$3" paddingBottom="$10">
+                            {userGroups.length === 0 ? (
+                                <YStack alignItems="center" marginTop="$6" gap="$3" opacity={0.6}>
+                                    <AlertTriangle size={32} color="white" />
+                                    <Text color="white" fontWeight="bold">Tu n'as pas encore de Club.</Text>
+                                </YStack>
+                            ) : (
+                                userGroups.map((group) => {
+                                    const isOwner = group.ownerId === user?.id;
+                                    return (
+                                        <Card
+                                            key={group.id}
+                                            bordered
+                                            // Glassmorphism
+                                            backgroundColor="rgba(255, 255, 255, 0.05)"
+                                            borderColor={isOwner ? "$potGold" : "rgba(255, 255, 255, 0.1)"}
+                                            borderWidth={1}
+                                            pressStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', scale: 0.99 }}
+                                            onPress={() => router.push(`/(main)/groups/${group.id}`)}
+                                        >
+                                            <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
+                                                <Avatar circular size="$5" borderColor={isOwner ? "$potGold" : "rgba(255,255,255,0.2)"} borderWidth={2}>
+                                                    <Avatar.Fallback backgroundColor="rgba(0,0,0,0.3)" />
+                                                    {/* Tu peux remettre Avatar.Image ici */}
+                                                </Avatar>
+                                                <YStack flex={1}>
+                                                    <XStack alignItems="center" gap="$2">
+                                                        <H4 color="white" fontWeight="bold">{group.name}</H4>
+                                                        {isOwner && <Crown size={14} color="$potGold" />}
+                                                    </XStack>
+                                                    <Text color="rgba(255,255,255,0.5)" fontSize="$2">{group.members.length} membres</Text>
+                                                </YStack>
+                                                <ChevronRight size={20} color="rgba(255,255,255,0.3)" />
+                                            </Card.Header>
+                                        </Card>
+                                    );
+                                })
+                            )}
+                        </YStack>
+                    </ScrollView>
+
+                    {/* MODAL CREATION (Garde le style sheet par défaut ou adapte le background si besoin) */}
+                    <Sheet modal open={isCreateOpen} onOpenChange={setIsCreateOpen} snapPoints={[40]} dismissOnSnapToBottom>
+                        <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+                        <Sheet.Handle />
+                        <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
+                            <H4 color="$color" textAlign="center">Nouveau Club</H4>
+                            <Input size="$5" placeholder="Nom du Club" value={newGroupName} onChangeText={setNewGroupName} backgroundColor="$background" borderColor="$borderColor" />
+                            <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" disabled={!newGroupName || loading} onPress={handleCreateGroup}>
+                                {loading ? <Spinner color="$nightBase" /> : 'Valider'}
+                            </Button>
+                        </Sheet.Frame>
+                    </Sheet>
+
+                    {/* MODAL REJOINDRE */}
+                    <Sheet modal open={isJoinOpen} onOpenChange={setIsJoinOpen} snapPoints={[40]} dismissOnSnapToBottom>
+                        <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+                        <Sheet.Handle />
+                        <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
+                            <H4 color="$color" textAlign="center">Rejoindre</H4>
+                            <Input size="$5" placeholder="Code d'invitation" value={inviteCode} onChangeText={setInviteCode} backgroundColor="$background" borderColor="$borderColor" autoCapitalize="characters" />
+                            <Button size="$5" backgroundColor="$accent" color="white" fontWeight="900" disabled={!inviteCode || loading} onPress={handleJoinGroup}>
+                                {loading ? <Spinner color="white" /> : 'Rejoindre'}
+                            </Button>
+                        </Sheet.Frame>
+                    </Sheet>
+
                 </YStack>
-
-                {/* BOUTONS D'ACTION (CRÉER / REJOINDRE) */}
-                <XStack paddingHorizontal="$4" gap="$3" marginBottom="$4">
-                    <Button
-                        flex={1}
-                        size="$4"
-                        backgroundColor="$backgroundStrong"
-                        borderColor="$borderColor"
-                        borderWidth={1}
-                        icon={<Key size={18} color="$potGold" />}
-                        onPress={() => setIsJoinOpen(true)}
-                    >
-                        <Text color="$color" fontWeight="bold">Rejoindre</Text>
-                    </Button>
-                    <Button
-                        flex={1}
-                        size="$4"
-                        backgroundColor="$potGold"
-                        icon={<Plus size={18} color="$nightBase" />}
-                        onPress={() => setIsCreateOpen(true)}
-                    >
-                        <Text color="$nightBase" fontWeight="900">Créer un Club</Text>
-                    </Button>
-                </XStack>
-
-                <Separator borderColor="$borderColor" marginVertical="$2" />
-
-                {/* LISTE DES GROUPES */}
-                <ScrollView style={{ flex: 1 }}>
-                    <YStack padding="$4" gap="$3">
-                        {userGroups.length === 0 ? (
-                            <YStack alignItems="center" marginTop="$6" gap="$3">
-                                <AlertTriangle size={32} color="$colorMuted" />
-                                <Text color="$colorMuted" fontWeight="bold">Tu n'as pas encore de Club.</Text>
-                                <Text color="$colorMuted" fontSize="$2">Crée le tien ou rejoins celui de tes potes !</Text>
-                            </YStack>
-                        ) : (
-                            userGroups.map((group) => {
-                                const isOwner = group.ownerId === user?.id;
-
-                                return (
-                                    <Card
-                                        key={group.id}
-                                        bordered
-                                        backgroundColor="$backgroundStrong"
-                                        borderColor={isOwner ? "$potGold" : "$borderColor"}
-                                        pressStyle={{ backgroundColor: '$backgroundHover', scale: 0.98 }}
-                                        // Clic temporaire vers console.log avant de créer la page détail
-                                        onPress={() => router.push(`/(main)/groups/${group.id}`)}
-                                    >
-                                        <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
-                                            <Avatar circular size="$5" borderColor={isOwner ? "$potGold" : "$borderColor"} borderWidth={2}>
-                                                <Avatar.Fallback backgroundColor="$background" />
-                                            </Avatar>
-                                            <YStack flex={1}>
-                                                <XStack alignItems="center" gap="$2">
-                                                    <H4 color="$color" fontWeight="bold">{group.name}</H4>
-                                                    {isOwner && <Crown size={14} color="$potGold" />}
-                                                </XStack>
-                                                <XStack alignItems="center" gap="$1" marginTop="$1">
-                                                    <Users size={12} color="$colorMuted" />
-                                                    <Text color="$colorMuted" fontSize="$2">{group.members.length} membres inscrits</Text>
-                                                </XStack>
-                                            </YStack>
-                                            <ChevronRight size={20} color="$colorMuted" />
-                                        </Card.Header>
-                                    </Card>
-                                );
-                            })
-                        )}
-                    </YStack>
-                </ScrollView>
-
-                {/* MODAL : CRÉER UN GROUPE */}
-                <Sheet modal open={isCreateOpen} onOpenChange={setIsCreateOpen} snapPoints={[40]} dismissOnSnapToBottom>
-                    <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-                    <Sheet.Handle />
-                    <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
-                        <H4 color="$color" textAlign="center">Nouveau Club</H4>
-                        <Input
-                            size="$5"
-                            placeholder="Nom du Club (ex: Poker Vendredi)"
-                            value={newGroupName}
-                            onChangeText={setNewGroupName}
-                            backgroundColor="$backgroundStrong"
-                            borderColor="$borderColor"
-                            color="$color"
-                        />
-                        <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" disabled={!newGroupName || loading} onPress={handleCreateGroup}>
-                            {loading ? <Spinner color="$nightBase" /> : 'Valider'}
-                        </Button>
-                    </Sheet.Frame>
-                </Sheet>
-
-                {/* MODAL : REJOINDRE UN GROUPE */}
-                <Sheet modal open={isJoinOpen} onOpenChange={setIsJoinOpen} snapPoints={[40]} dismissOnSnapToBottom>
-                    <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-                    <Sheet.Handle />
-                    <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
-                        <H4 color="$color" textAlign="center">Rejoindre un Club</H4>
-                        <Input
-                            size="$5"
-                            placeholder="Code d'invitation (ex: POK-A8F2)"
-                            value={inviteCode}
-                            onChangeText={setInviteCode}
-                            backgroundColor="$backgroundStrong"
-                            borderColor="$borderColor"
-                            color="$color"
-                            autoCapitalize="characters"
-                        />
-                        <Button size="$5" backgroundColor="$accent" color="white" fontWeight="900" disabled={!inviteCode || loading} onPress={handleJoinGroup}>
-                            {loading ? <Spinner color="white" /> : 'Rejoindre'}
-                        </Button>
-                    </Sheet.Frame>
-                </Sheet>
-
-            </YStack>
+            </PokerBackground>
         </Theme>
     );
 }

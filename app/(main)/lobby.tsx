@@ -7,9 +7,8 @@ import { Play, Users } from '@tamagui/lucide-icons';
 
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { useGroupLogic } from '@/hooks/useGroupLogic';
-
-// --- IMPORT DU SOUS-COMPOSANT ---
 import { SelectionCard } from '@/components/lobby/SelectionCard';
+import { PokerBackground } from '@/components/ui/PokerBackground';
 
 export default function LobbyScreen() {
   const router = useRouter();
@@ -24,7 +23,6 @@ export default function LobbyScreen() {
   const [selectedGuests, setSelectedGuests] = useState<any[]>([]);
   const [isLaunching, setIsLaunching] = useState(false);
 
-  // L'hôte est toujours sélectionné
   useEffect(() => {
     if (user?.id && !selectedMembers.includes(user.id)) setSelectedMembers(prev => [...prev, user.id]);
   }, [user?.id]);
@@ -46,65 +44,67 @@ export default function LobbyScreen() {
     else alert("Erreur lors de la création.");
   };
 
-  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$potGold" /></YStack>;
+  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
 
   const totalPlayers = selectedMembers.length + selectedGuests.length;
 
   return (
     <Theme name="dark">
-      <YStack flex={1} backgroundColor="$background" paddingTop="$10">
+      <PokerBackground>
+        <YStack flex={1} paddingTop="$10">
 
-        <YStack alignItems="center" marginBottom="$4">
-          <Users size={40} color="$success" />
-          <H2 color="$color" fontWeight="900" marginTop="$2">Qui est là ce soir ?</H2>
-          <Text color="$colorMuted">Cochez les joueurs présents à la table</Text>
-        </YStack>
-
-        <Separator borderColor="$borderColor" marginBottom="$2" />
-
-        <ScrollView>
-          <YStack padding="$4" gap="$5">
-
-            <YStack gap="$3">
-              <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Membres Officiels</Text>
-              {memberDetails.map(member => (
-                <SelectionCard 
-                  key={member.id}
-                  isSelected={selectedMembers.includes(member.id)}
-                  isDisabled={member.id === user?.id}
-                  name={member.firstName || member.username}
-                  avatarUrl={member.imageUrl || member.avatarUrl}
-                  subtitle={member.id === user?.id ? "Hôte (Toi)" : undefined}
-                  onToggle={() => toggleMember(member.id)}
-                />
-              ))}
-            </YStack>
-
-            <YStack gap="$3">
-              <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Invités (Shadow Profiles)</Text>
-              {group.guests.length === 0 ? <Text color="$colorMuted" fontStyle="italic">Aucun invité.</Text> : 
-                group.guests.map(guest => (
-                  <SelectionCard 
-                    key={guest.id}
-                    isSelected={selectedGuests.some(g => g.id === guest.id)}
-                    name={guest.name}
-                    isGhost={true}
-                    onToggle={() => toggleGuest(guest)}
-                  />
-                ))
-              }
-            </YStack>
-
+          <YStack alignItems="center" marginBottom="$4">
+            <Users size={40} color="$potGold" />
+            <H2 color="white" fontWeight="900" marginTop="$2">Qui est là ?</H2>
+            <Text color="rgba(255,255,255,0.6)">Cochez les joueurs présents</Text>
           </YStack>
-        </ScrollView>
 
-        <YStack padding="$4" backgroundColor="$backgroundStrong" borderTopWidth={1} borderColor="$borderColor">
-          <Button size="$5" backgroundColor="$success" color="white" fontWeight="900" icon={isLaunching ? <Spinner color="white" /> : <Play size={20} />} disabled={isLaunching} onPress={handleStartGame}>
-            {isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers} joueurs)`}
-          </Button>
+          <Separator borderColor="rgba(255,255,255,0.1)" marginBottom="$2" />
+
+          <ScrollView>
+            <YStack padding="$4" gap="$5">
+
+              <YStack gap="$3">
+                <Text color="rgba(255,255,255,0.5)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Membres Officiels</Text>
+                {memberDetails.map(member => (
+                  <SelectionCard 
+                    key={member.id}
+                    isSelected={selectedMembers.includes(member.id)}
+                    isDisabled={member.id === user?.id}
+                    name={member.firstName || member.username}
+                    avatarUrl={member.imageUrl || member.avatarUrl}
+                    subtitle={member.id === user?.id ? "Hôte (Toi)" : undefined}
+                    onToggle={() => toggleMember(member.id)}
+                  />
+                ))}
+              </YStack>
+
+              <YStack gap="$3">
+                <Text color="rgba(255,255,255,0.5)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Invités</Text>
+                {group.guests.length === 0 ? <Text color="rgba(255,255,255,0.4)" fontStyle="italic">Aucun invité.</Text> : 
+                  group.guests.map(guest => (
+                    <SelectionCard 
+                      key={guest.id}
+                      isSelected={selectedGuests.some(g => g.id === guest.id)}
+                      name={guest.name}
+                      isGhost={true}
+                      onToggle={() => toggleGuest(guest)}
+                    />
+                  ))
+                }
+              </YStack>
+
+            </YStack>
+          </ScrollView>
+
+          <YStack padding="$4" backgroundColor="rgba(0,0,0,0.5)" borderTopWidth={1} borderColor="rgba(255,255,255,0.1)">
+            <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" icon={isLaunching ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isLaunching} onPress={handleStartGame}>
+              {isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers})`}
+            </Button>
+          </YStack>
+
         </YStack>
-
-      </YStack>
+      </PokerBackground>
     </Theme>
   );
 }

@@ -32,11 +32,11 @@ export function GameHeader({ totalPot, defaultBuyIn, lateRegLimit, lateRegSecond
   return (
     <YStack alignItems="center" paddingBottom="$4" paddingTop="$2" position="relative">
       <XStack position="absolute" top="$2" left="$4">
-        <Button size="$3" circular icon={<ChevronLeft size={20} color="$color" />} backgroundColor="$backgroundStrong" borderColor="$borderColor" borderWidth={1} onPress={onBackPress} />
+        <Button size="$3" circular icon={<ChevronLeft size={20} color="$color" />} backgroundColor="rgba(255, 255, 255, 0.05)" borderColor="$borderColor" borderWidth={1} onPress={onBackPress} />
       </XStack>
       <XStack position="absolute" top="$2" right="$4" gap="$2">
-        <Button size="$3" circular icon={<HelpCircle size={18} color="$colorMuted" />} backgroundColor="$backgroundStrong" borderColor="$borderColor" borderWidth={1} onPress={onHelpPress} />
-        <Button size="$3" circular icon={<ShareIcon size={18} color="$colorMuted" />} backgroundColor="$backgroundStrong" borderColor="$borderColor" borderWidth={1} onPress={onSharePress} />
+        <Button size="$3" circular icon={<HelpCircle size={18} color="$colorMuted" />} backgroundColor="rgba(255, 255, 255, 0.05)" borderColor="$borderColor" borderWidth={1} onPress={onHelpPress} />
+        <Button size="$3" circular icon={<ShareIcon size={18} color="$colorMuted" />} backgroundColor="rgba(255, 255, 255, 0.05)" borderColor="$borderColor" borderWidth={1} onPress={onSharePress} />
       </XStack>
 
       <Text color="$colorMuted" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={2}>Pot Total</Text>

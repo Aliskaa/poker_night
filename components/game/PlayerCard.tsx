@@ -9,41 +9,41 @@ export function PlayerCard({ player, defaultBuyIn, isLateRegOpen, onRebuy, onEli
     return (
         <Card
             bordered
-            // Les éliminés deviennent transparents/sombres, les actifs ressortent
-            backgroundColor={isEliminated ? "$background" : "$backgroundStrong"}
-            borderColor={isEliminated ? "$borderColor" : "$borderColor"}
-            opacity={isEliminated ? 0.6 : 1}
+            // Actif : Verre clair. Éliminé : Verre sombre quasi invisible.
+            backgroundColor={isEliminated ? "rgba(0,0,0,0.2)" : "rgba(255, 255, 255, 0.05)"}
+            borderColor={isEliminated ? "transparent" : "rgba(255, 255, 255, 0.1)"}
+            opacity={isEliminated ? 0.5 : 1}
         >
             <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
 
                 <XStack gap="$3" alignItems="center" flex={1}>
-                    <Avatar circular size="$4" borderColor={isEliminated ? "$borderColor" : "$success"} borderWidth={2}>
-                        <Avatar.Fallback backgroundColor="$background" />
+                    <Avatar circular size="$4" borderColor={isEliminated ? "transparent" : "$success"} borderWidth={2}>
+                        <Avatar.Fallback backgroundColor="rgba(0,0,0,0.3)" />
                     </Avatar>
                     <YStack>
-                        <H4 color={isEliminated ? "$colorMuted" : "$color"} textDecorationLine={isEliminated ? 'line-through' : 'none'}>
+                        <H4 color={isEliminated ? "rgba(255,255,255,0.4)" : "white"} textDecorationLine={isEliminated ? 'line-through' : 'none'}>
                             {player.name}
                         </H4>
-                        <Text color="$colorMuted" fontSize="$2">
+                        <Text color="rgba(255,255,255,0.5)" fontSize="$2">
                             Misé : {String(player.totalInvested)}€ ({String(player.buyInCount)} caves)
                         </Text>
                     </YStack>
                 </XStack>
 
                 {isEliminated ? (
-                    <XStack alignItems="center" gap="$1" backgroundColor="$backgroundStrong" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$4">
-                        <Trophy size={14} color="$colorMuted" />
-                        <Text color="$colorMuted" fontWeight="bold">Rang {String(player.finalRank)}</Text>
+                    <XStack alignItems="center" gap="$1" backgroundColor="rgba(0,0,0,0.3)" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$4">
+                        <Trophy size={14} color="rgba(255,255,255,0.5)" />
+                        <Text color="rgba(255,255,255,0.5)" fontWeight="bold">Rang {String(player.finalRank)}</Text>
                     </XStack>
                 ) : (
                     <XStack gap="$2">
                         <Button
                             size="$3"
                             circular
-                            icon={isLateRegOpen ? <Plus size={18} /> : <Lock size={16} />} // Cadenas si fermé
-                            backgroundColor={isLateRegOpen ? "$success" : "$gray8"} // Gris si fermé
+                            icon={isLateRegOpen ? <Plus size={18} /> : <Lock size={16} />}
+                            backgroundColor={isLateRegOpen ? "$success" : "rgba(255,255,255,0.1)"}
                             color="white"
-                            disabled={!isLateRegOpen} // Désactivé si fermé
+                            disabled={!isLateRegOpen}
                             onPress={onRebuy}
                             opacity={isLateRegOpen ? 1 : 0.6}
                         />
