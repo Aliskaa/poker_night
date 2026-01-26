@@ -17,30 +17,62 @@ export default function MainLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: '#121212', // Dark theme background
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
+        headerShown: false,
       }}
     >
-      <Stack.Screen 
-        name="home" 
+      {/* 1. LA ZONE AVEC LA BARRE DE NAVIGATION */}
+      <Stack.Screen name="(tabs)" />
+
+      {/* 2. LES ÉCRANS MODAUX (Plein écran, SANS la barre de navigation) */}
+      <Stack.Screen
+        name="create-game"
         options={{
-          title: "Dashboard",
-          // Petit bouton de déconnexion temporaire dans le header
-          headerRight: () => (
-            <Button size="$2" chromeless onPress={onPressSignOut} icon={<LogOut size={20} color="$red10"/>} />
-          )
-        }} 
+          presentation: 'modal',
+          headerShown: true,
+          title: 'Créer une Partie',
+          headerStyle: {
+            backgroundColor: '#121212', // Dark theme background
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
       />
-      {/* On prépare la route pour la table de jeu */}
-      <Stack.Screen 
-        name="game/[id]" 
-        options={{ title: "Table de jeu", headerShown: false }} 
+      <Stack.Screen
+        name="lobby"
+        options={{
+          presentation: 'modal',
+          headerShown: true,
+          title: 'Lobby de la Partie',
+          headerStyle: {
+            backgroundColor: '#121212', // Dark theme background
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
       />
+      <Stack.Screen
+        name="hand-ranking"
+        options={{
+          presentation: 'modal',
+          headerShown: true,
+          title: 'Classement des Combinaisons',
+          headerStyle: {
+            backgroundColor: '#121212', // Dark theme background
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+
+      {/* 3. L'ÉCRAN DE JEU (Plein écran) */}
+      <Stack.Screen name="game/[id]" />
+      <Stack.Screen name="groups/[id]" />
     </Stack>
   );
 }

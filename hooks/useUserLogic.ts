@@ -3,13 +3,7 @@ import { collection, doc, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { db } from '../services/firebase';
 import { useUser } from '@clerk/clerk-expo';
 import log from '@/services/logger';
-
-export type UserStats = {
-    netProfit: number;
-    gamesPlayed: number;
-    totalInvested?: number;
-    totalWinnings?: number;
-};
+import { UserStatistics } from '@/types/User';
 
 export type LeaderboardUser = {
     id: string;
@@ -22,7 +16,14 @@ export type LeaderboardUser = {
 
 export const useUserLogic = () => {
     const { user } = useUser();
-    const [currentUserStats, setCurrentUserStats] = useState<UserStats>({ netProfit: 0, gamesPlayed: 0 });
+    const [currentUserStats, setCurrentUserStats] = useState<UserStatistics>({
+        netProfit: 0,
+        gamesPlayed: 0,
+        bestRank: 9999,
+        wins: 0,
+        totalInvested: 0,
+        totalWinnings: 0,
+    });
     const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -35,7 +36,7 @@ export const useUserLogic = () => {
         const userRef = doc(db, 'users', user.id);
         const unsubscribe = onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists() && docSnap.data().statistics) {
-                setCurrentUserStats(docSnap.data().statistics);
+                setCurrentUserStats(docSnap.data().statistics as UserStatistics);
             }
         });
 
