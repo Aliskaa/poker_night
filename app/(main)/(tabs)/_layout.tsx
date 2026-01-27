@@ -1,4 +1,4 @@
-import { Home, Plus, Trophy, User, Users } from '@tamagui/lucide-icons';
+import { Home, Plus, TrendingUp, User, Users } from '@tamagui/lucide-icons';
 import { Tabs, useRouter } from 'expo-router';
 import { View } from 'tamagui';
 
@@ -30,7 +30,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="groups"
                 options={{
-                    title: 'Mes Clubs',
+                    title: 'Tables',
                     tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
                 }}
             />
@@ -70,10 +70,17 @@ export default function TabLayout() {
             />
 
             <Tabs.Screen
+                name="stats"
+                options={{
+                    title: 'Stats',
+                    tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
+                }}
+            />
+
+            <Tabs.Screen
                 name="leaderboard"
                 options={{
-                    title: 'Classement',
-                    tabBarIcon: ({ color, size }) => <Trophy color={color} size={size} />,
+                    href: null, // Redirect to stats instead
                 }}
             />
 

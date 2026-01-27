@@ -10240,6 +10240,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-camera@npm:~17.0.10":
+  version: 17.0.10
+  resolution: "expo-camera@npm:17.0.10"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native-web:
+      optional: true
+  checksum: 10/f46f3ebe48120d4cf4ea77c1de7f553e1fe76c108ad08de85f6e133575a58d57015fdfd2ecb508a0e87af1953f57c2c8a3bb436a633b3f4d974142cb9f030cf2
+  languageName: node
+  linkType: hard
+
+"expo-clipboard@npm:~8.0.8":
+  version: 8.0.8
+  resolution: "expo-clipboard@npm:8.0.8"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10/f51f5043c2bc7c6f4a7805607fa984952e674c401bd4f7c98a7569a49ceaa244f6e68fe3d18012fed0a0f5a35ac9395dcfc99ff3b2e3366ee083632d38b44d86
+  languageName: node
+  linkType: hard
+
 "expo-constants@npm:~18.0.10, expo-constants@npm:~18.0.8, expo-constants@npm:~18.0.9":
   version: 18.0.10
   resolution: "expo-constants@npm:18.0.10"
@@ -11078,6 +11106,17 @@ __metadata:
   version: 2.0.0
   resolution: "getenv@npm:2.0.0"
   checksum: 10/ba25153e26c0960199b5de1a0c7bdfc661226c00e27bb194f829ed129843510ce230f9daa3b4d06f10056298a9c4e9afbbd358fc7632a545f299e370772b047a
+  languageName: node
+  linkType: hard
+
+"gifted-charts-core@npm:0.1.72":
+  version: 0.1.72
+  resolution: "gifted-charts-core@npm:0.1.72"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-svg: "*"
+  checksum: 10/92d4c5b6cea5afdd240a40f2ba60dca67b2c0f822627b2537a1b8fbb00783048bd4f76c0f5cbeb0069c515af3528ed3560ee16a683398fc9b14ec9a442d9ef6f
   languageName: node
   linkType: hard
 
@@ -12409,7 +12448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0":
+"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
   dependencies:
@@ -13791,7 +13830,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-assign@npm:^4.0.1, object-assign@npm:^4.1.0":
+"object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: 10/fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
@@ -14329,6 +14368,8 @@ __metadata:
     expo: "npm:^54.0.23"
     expo-auth-session: "npm:~7.0.10"
     expo-build-properties: "npm:~1.0.9"
+    expo-camera: "npm:~17.0.10"
+    expo-clipboard: "npm:~8.0.8"
     expo-font: "npm:~14.0.9"
     expo-linear-gradient: "npm:~15.0.8"
     expo-linking: "npm:~8.0.8"
@@ -14342,7 +14383,9 @@ __metadata:
     react: "npm:19.1.0"
     react-dom: "npm:19.1.0"
     react-native: "npm:0.81.5"
+    react-native-gifted-charts: "npm:^1.4.70"
     react-native-logs: "npm:^5.5.0"
+    react-native-qrcode-svg: "npm:^6.3.21"
     react-native-reanimated: "npm:~4.1.1"
     react-native-safe-area-context: "npm:~5.6.0"
     react-native-screens: "npm:~4.16.0"
@@ -14494,6 +14537,17 @@ __metadata:
     kleur: "npm:^3.0.3"
     sisteransi: "npm:^1.0.5"
   checksum: 10/c52536521a4d21eff4f2f2aa4572446cad227464066365a7167e52ccf8d9839c099f9afec1aba0eed3d5a2514b3e79e0b3e7a1dc326b9acde6b75d27ed74b1a9
+  languageName: node
+  linkType: hard
+
+"prop-types@npm:^15.8.0":
+  version: 15.8.1
+  resolution: "prop-types@npm:15.8.1"
+  dependencies:
+    loose-envify: "npm:^1.4.0"
+    object-assign: "npm:^4.1.1"
+    react-is: "npm:^16.13.1"
+  checksum: 10/7d959caec002bc964c86cdc461ec93108b27337dabe6192fb97d69e16a0c799a03462713868b40749bfc1caf5f57ef80ac3e4ffad3effa636ee667582a75e2c0
   languageName: node
   linkType: hard
 
@@ -14705,7 +14759,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.7.0":
+"react-is@npm:^16.13.1, react-is@npm:^16.7.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: 10/5aa564a1cde7d391ac980bedee21202fc90bdea3b399952117f54fb71a932af1e5902020144fb354b4690b2414a0c7aafe798eb617b76a3d441d956db7726fdf
@@ -14733,6 +14787,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-gifted-charts@npm:^1.4.70":
+  version: 1.4.70
+  resolution: "react-native-gifted-charts@npm:1.4.70"
+  dependencies:
+    gifted-charts-core: "npm:0.1.72"
+  peerDependencies:
+    expo-linear-gradient: "*"
+    react: "*"
+    react-native: "*"
+    react-native-linear-gradient: "*"
+    react-native-svg: "*"
+  peerDependenciesMeta:
+    expo-linear-gradient:
+      optional: true
+    react-native-linear-gradient:
+      optional: true
+  checksum: 10/f27c588e1bc06c9d6dc32b18a268032a77c42022958ad10de03c4c3e9b8e8dafac76f08c9322f48b05153fdb3998b9f2b0f80441ae55a55e5cd010b52c7cf040
+  languageName: node
+  linkType: hard
+
 "react-native-is-edge-to-edge@npm:^1.1.6":
   version: 1.1.7
   resolution: "react-native-is-edge-to-edge@npm:1.1.7"
@@ -14757,6 +14831,21 @@ __metadata:
   version: 5.5.0
   resolution: "react-native-logs@npm:5.5.0"
   checksum: 10/d0e9592f49524bd4bcb41443eb6af38264f55f403cb144fa4b67aff51b7da5cc276b229fdbbfefabe0d337ce34c9f18d416b4ca0c5c06c4eaa915cfe5d119477
+  languageName: node
+  linkType: hard
+
+"react-native-qrcode-svg@npm:^6.3.21":
+  version: 6.3.21
+  resolution: "react-native-qrcode-svg@npm:6.3.21"
+  dependencies:
+    prop-types: "npm:^15.8.0"
+    qrcode: "npm:^1.5.4"
+    text-encoding: "npm:^0.7.0"
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.63.4"
+    react-native-svg: ">=14.0.0"
+  checksum: 10/83ce3e00502b42ecf7b5a1a3ef4323120532e0635e640ca00b0a5b69b7b61fd117e29604339af3b4a2d869bf00a701f85329f9a123afa81595798f9d7956c181
   languageName: node
   linkType: hard
 
@@ -16367,6 +16456,13 @@ __metadata:
     glob: "npm:^7.1.4"
     minimatch: "npm:^3.0.4"
   checksum: 10/8fccb2cb6c8fcb6bb4115394feb833f8b6cf4b9503ec2485c2c90febf435cac62abe882a0c5c51a37b9bbe70640cdd05acf5f45e486ac4583389f4b0855f69e5
+  languageName: node
+  linkType: hard
+
+"text-encoding@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "text-encoding@npm:0.7.0"
+  checksum: 10/c61b7a59a54c58f0714da0ef4c1f65732821bb1f761e6f21c3e681e51c6dd56fdefa4fcfccd3254bf47132d87420fbc9898da21a804c89e87861f4e1478d5f18
   languageName: node
   linkType: hard
 

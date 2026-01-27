@@ -13,6 +13,10 @@ import { Container, Section, Heading, Caption } from '@/components/primitives/La
 import { Button } from '@/components/primitives/Button';
 import { Divider } from '@/components/primitives/Cards';
 
+// ── COMPOSANTS POKER ──
+import { PotDisplay } from '@/components/poker/PotDisplay';
+import { Timer } from '@/components/poker/Timer';
+
 // ── COMPOSANTS UI ──
 import { PokerBackground } from '@/components/layouts/PokerBackground';
 import { GameHeader } from '@/components/features/game/GameHeader';
@@ -144,6 +148,28 @@ export default function GameScreen() {
                         onSharePress={onShareTable}
                         onBackPress={() => router.push('/(main)/(tabs)/groups')}
                     />
+
+                    {/* Pot Display */}
+                    <YStack paddingHorizontal="$4" paddingVertical="$3">
+                        <PotDisplay 
+                            amount={game.totalPot} 
+                            size="xl"
+                        />
+                    </YStack>
+
+                    {/* Timer (si late reg actif) */}
+                    {isLateRegOpen && lateRegSeconds !== null && lateRegSeconds > 0 && (
+                        <YStack paddingHorizontal="$4" paddingBottom="$3">
+                            <Timer 
+                                seconds={lateRegSeconds}
+                                isRunning={true}
+                                variant="linear"
+                                size="md"
+                                warningAt={300}
+                                dangerAt={60}
+                            />
+                        </YStack>
+                    )}
 
                     <Divider spacing="lg" />
 

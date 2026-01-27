@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native';
 import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { AlertTriangle, ChevronRight, Crown, Key, Plus, Users } from '@tamagui/lucide-icons';
 import { Avatar, Button, Card, H1, H4, Input, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
 
 export default function GroupsScreen() {
     const { user } = useUser();
