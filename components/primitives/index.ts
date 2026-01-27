@@ -4,6 +4,8 @@
 
 export { GlassCard } from './GlassCard';
 export { Button } from './Button';
+export { Badge } from './Badge';
+export { Avatar } from './Avatar';
 export { 
     Container, 
     Section, 
@@ -17,9 +19,7 @@ export {
     Mono,
 } from './Layout';
 export { 
-    Badge, 
     Dot, 
-    Avatar,
 } from './Indicators';
 export {
     Card,
