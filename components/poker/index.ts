@@ -8,4 +8,6 @@ export { Timer } from './Timer';
 export { PotDisplay } from './PotDisplay';
 export { DealerButton } from './DealerButton';
 export { HandRow } from './HandRow';
+export { PayoutTable, PAYOUT_STRUCTURES } from './PayoutTable';
+export { QRCodeShare, QRCodeScanner } from './QRCodeShare';
 export { MiniCard } from './MiniCard';
