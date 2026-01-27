@@ -10,8 +10,8 @@ export function HandRow({ hand }: { hand: PokerHand }) {
     return (
         <Card
             bordered
-            backgroundColor={isTop3 ? "rgba(251, 191, 36, 0.1)" : "rgba(255, 255, 255, 0.05)"}
-            borderColor={isTop3 ? "$potGold" : "rgba(255, 255, 255, 0.1)"}
+            backgroundColor={isTop3 ? "$goldBg" : "$glass2"}
+            borderColor={isTop3 ? "$primary" : "$borderColor"}
             borderWidth={1}
         >
             <Card.Header padded gap="$3">

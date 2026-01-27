@@ -6,7 +6,7 @@ export function OptionButton({ label, isSelected, onPress }: { label: string, is
     <Button
       size="$3" flex={1} minWidth={70}
       backgroundColor={isSelected ? "$potGold" : "$glass"}
-      borderColor={isSelected ? "$potGold" : "rgba(255,255,255,0.2)"}
+      borderColor={isSelected ? "$potGold" : "$glass2"}
       borderWidth={1}
       onPress={onPress}
     >

@@ -1,27 +1,45 @@
 import React from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
+import { ImageBackground } from 'react-native';
 import { YStack } from 'tamagui';
+import type { YStackProps } from 'tamagui';
 
-export const PokerBackground = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <YStack flex={1} backgroundColor="#064e3b"> {/* Vert Forêt Profond */}
-      
-      {/* 1. Lumière venue du haut (Spotlight) */}
-      {/* Donne l'impression qu'une lampe éclaire le centre de la table */}
-      <LinearGradient
-        colors={['rgba(34, 197, 94, 0.2)', 'transparent']} 
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '60%' }}
-      />
+// ═══════════════════════════════════════════════════════════════════
+// 🎴 POKER BACKGROUND - Fond poker avec texture
+// ═══════════════════════════════════════════════════════════════════
 
-      {/* 2. Ombres sur les bords (Vignettage) */}
-      {/* Assombrit le bas de l'écran pour l'immersion */}
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.9)']} 
-        locations={[0.5, 1]}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-      />
-      
-      {children}
-    </YStack>
-  );
+interface PokerBackgroundProps extends YStackProps {
+    children: React.ReactNode;
+    /** Utiliser une image de fond personnalisée */
+    source?: any;
+}
+
+export const PokerBackground = ({ 
+    children, 
+    source,
+    ...props 
+}: PokerBackgroundProps) => {
+    if (source) {
+        return (
+            <ImageBackground
+                source={source}
+                style={{ flex: 1 }}
+                resizeMode="cover"
+            >
+                <YStack flex={1} backgroundColor="$overlay4" {...props}>
+                    {children}
+                </YStack>
+            </ImageBackground>
+        );
+    }
+
+    // Fond dégradé par défaut sans image
+    return (
+        <YStack 
+            flex={1} 
+            backgroundColor="$background"
+            {...props}
+        >
+            {children}
+        </YStack>
+    );
 };

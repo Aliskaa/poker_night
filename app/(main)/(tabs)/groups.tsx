@@ -32,7 +32,7 @@ export default function GroupsScreen() {
         setIsJoinOpen(false);
     }
 
-    if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
+    if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$potGold" /></YStack>;
 
     return (
         <Theme name="dark">
@@ -41,10 +41,10 @@ export default function GroupsScreen() {
 
                     {/* EN-TÊTE */}
                     <YStack alignItems="center" marginBottom="$6">
-                        <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="rgba(251, 191, 36, 0.3)" borderWidth={1}>
+                        <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="$goldBorder" borderWidth={1}>
                             <Users size={32} color="$potGold" />
                         </YStack>
-                        <H1 color="white" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Mes Clubs</H1>
+                        <H1 color="white" fontWeight="900" letterSpacing={-1} textShadowColor="$shadowColor" textShadowRadius={5}>Mes Clubs</H1>
                         <Text color="$colorMuted" letterSpacing={1} textTransform="uppercase" fontSize="$2">
                             Gère tes QG de poker
                         </Text>
@@ -56,7 +56,7 @@ export default function GroupsScreen() {
                             flex={1} size="$4"
                             // Style Verre
                             backgroundColor="$borderColor"
-                            borderColor="rgba(255,255,255,0.2)" borderWidth={1}
+                            borderColor="$glass2" borderWidth={1}
                             icon={<Key size={18} color="$potGold" />}
                             onPress={() => setIsJoinOpen(true)}
                         >
@@ -90,15 +90,15 @@ export default function GroupsScreen() {
                                             key={group.id}
                                             bordered
                                             // Glassmorphism
-                                            backgroundColor="rgba(255, 255, 255, 0.05)"
-                                            borderColor={isOwner ? "$potGold" : "rgba(255, 255, 255, 0.1)"}
+                                            backgroundColor="$glass1"
+                                            borderColor={isOwner ? "$potGold" : "$glass2"}
                                             borderWidth={1}
-                                            pressStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', scale: 0.99 }}
+                                            pressStyle={{ backgroundColor: '$glass2', scale: 0.99 }}
                                             onPress={() => router.push(`/(main)/groups/${group.id}`)}
                                         >
                                             <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
-                                                <Avatar circular size="$5" borderColor={isOwner ? "$potGold" : "rgba(255,255,255,0.2)"} borderWidth={2}>
-                                                    <Avatar.Fallback backgroundColor="rgba(0,0,0,0.3)" />
+                                                <Avatar circular size="$5" borderColor={isOwner ? "$potGold" : "$glass2"} borderWidth={2}>
+                                                    <Avatar.Fallback backgroundColor="$overlay3" />
                                                     {/* Tu peux remettre Avatar.Image ici */}
                                                 </Avatar>
                                                 <YStack flex={1}>
@@ -106,9 +106,9 @@ export default function GroupsScreen() {
                                                         <H4 color="white" fontWeight="bold">{group.name}</H4>
                                                         {isOwner && <Crown size={14} color="$potGold" />}
                                                     </XStack>
-                                                    <Text color="rgba(255,255,255,0.5)" fontSize="$2">{group.members.length} membres</Text>
+                                                    <Text color="$text50" fontSize="$2">{group.members.length} membres</Text>
                                                 </YStack>
-                                                <ChevronRight size={20} color="rgba(255,255,255,0.3)" />
+                                                <ChevronRight size={20} color="$colorDim" />
                                             </Card.Header>
                                         </Card>
                                     );

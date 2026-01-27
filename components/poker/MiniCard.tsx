@@ -11,8 +11,8 @@ export function MiniCard({ value, suit }: { value: string, suit: Suit }) {
         switch (s) {
             case 'hearts': return <Heart size={size} color="$danger" fill="currentColor" />;
             case 'diamonds': return <Diamond size={size} color="$danger" fill="currentColor" />;
-            case 'clubs': return <Club size={size} color="#1c1917" fill="currentColor" />;
-            case 'spades': return <Spade size={size} color="#1c1917" fill="currentColor" />;
+            case 'clubs': return <Club size={size} color="$night900" fill="currentColor" />;
+            case 'spades': return <Spade size={size} color="$night900" fill="currentColor" />;
             default: return null;
         }
     };
@@ -26,7 +26,7 @@ export function MiniCard({ value, suit }: { value: string, suit: Suit }) {
             borderColor="#e5e5e5" borderWidth={1}
             shadowColor="black" shadowOpacity={0.2} shadowRadius={2}
         >
-            <Text color={isRed ? "$danger" : "#1c1917"} fontWeight="900" fontSize="$4" lineHeight={16}>
+            <Text color={isRed ? "$danger" : "$night900"} fontWeight="900" fontSize="$4" lineHeight={16}>
                 {value}
             </Text>
             <YStack marginTop={2}>

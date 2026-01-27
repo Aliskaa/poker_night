@@ -1,56 +1,123 @@
-import { Player } from '@/types/Player';
-import { Lock, Plus, Trophy, UserX } from '@tamagui/lucide-icons';
 import React from 'react';
-import { Avatar, Button, Card, H4, Text, XStack, YStack } from 'tamagui';
+import { XStack, YStack, Circle } from 'tamagui';
+import { Plus, UserX, Trophy, Lock } from '@tamagui/lucide-icons';
+import { Card, CardHeader, Row } from '@/components/primitives';
+import { Heading, Body, Caption } from '@/components/primitives/Layout';
+import { Badge, Avatar, Dot } from '@/components/primitives/Indicators';
+import { Button } from '@/components/primitives/Button';
+import type { Player } from '@/types/Player';
 
-export function PlayerCard({ player, defaultBuyIn, isLateRegOpen, onRebuy, onEliminate }: { player: Player, defaultBuyIn: number, isLateRegOpen: boolean, onRebuy: () => void, onEliminate: () => void }) {
+// ═══════════════════════════════════════════════════════════════════
+// 👤 PLAYER CARD - Carte joueur refactorisée
+// ═══════════════════════════════════════════════════════════════════
+
+interface PlayerCardProps {
+    player: Player;
+    defaultBuyIn: number;
+    isLateRegOpen: boolean;
+    onRebuy: () => void;
+    onEliminate: () => void;
+}
+
+export function PlayerCard({ 
+    player, 
+    defaultBuyIn, 
+    isLateRegOpen, 
+    onRebuy, 
+    onEliminate 
+}: PlayerCardProps) {
     const isEliminated = player.status === 'ELIMINATED';
+    const isActive = player.status === 'ACTIVE';
 
     return (
         <Card
-            bordered
-            // Actif : Verre clair. Éliminé : Verre sombre quasi invisible.
-            backgroundColor={isEliminated ? "rgba(0,0,0,0.2)" : "rgba(255, 255, 255, 0.05)"}
-            borderColor={isEliminated ? "transparent" : "rgba(255, 255, 255, 0.1)"}
-            opacity={isEliminated ? 0.5 : 1}
+            variant={isEliminated ? 'outlined' : 'glass'}
+            opacity={isEliminated ? 0.6 : 1}
+            padding="md"
         >
-            <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
-
-                <XStack gap="$3" alignItems="center" flex={1}>
-                    <Avatar circular size="$4" borderColor={isEliminated ? "transparent" : "$success"} borderWidth={2}>
-                        <Avatar.Fallback backgroundColor="rgba(0,0,0,0.3)" />
-                    </Avatar>
-                    <YStack>
-                        <H4 color={isEliminated ? "rgba(255,255,255,0.4)" : "white"} textDecorationLine={isEliminated ? 'line-through' : 'none'}>
-                            {player.name}
-                        </H4>
-                        <Text color="rgba(255,255,255,0.5)" fontSize="$2">
-                            Misé : {String(player.totalInvested)}€ ({String(player.buyInCount)} caves)
-                        </Text>
+            <Row justifyContent="space-between">
+                {/* Avatar + Info */}
+                <Row flex={1} gap="$3">
+                    {/* Avatar avec indicateur de statut */}
+                    <YStack position="relative">
+                        <Avatar 
+                            size="lg"
+                            backgroundColor="$surface4"
+                            borderWidth={isActive ? 2 : 0}
+                            borderColor={isActive ? '$success' : 'transparent'}
+                        >
+                            {/* Initiales */}
+                            <Heading size="sm" color="$colorPrimary">
+                                {player.name.substring(0, 2).toUpperCase()}
+                            </Heading>
+                        </Avatar>
+                        
+                        {/* Dot de statut en bas à droite */}
+                        {isActive && (
+                            <Circle
+                                size={12}
+                                backgroundColor="$success"
+                                borderWidth={2}
+                                borderColor="$background"
+                                position="absolute"
+                                bottom={-2}
+                                right={-2}
+                            />
+                        )}
                     </YStack>
-                </XStack>
 
+                    {/* Nom + Stats */}
+                    <YStack flex={1} gap="$1">
+                        <Heading 
+                            size="sm"
+                            color={isEliminated ? '$colorMuted' : '$colorPrimary'}
+                            textDecorationLine={isEliminated ? 'line-through' : 'none'}
+                        >
+                            {player.name}
+                        </Heading>
+                        <Row gap="$2">
+                            <Caption>
+                                Misé: {player.totalInvested}€
+                            </Caption>
+                            <Caption color="$colorDim">•</Caption>
+                            <Caption>
+                                {player.buyInCount} cave{player.buyInCount > 1 ? 's' : ''}
+                            </Caption>
+                        </Row>
+                    </YStack>
+                </Row>
+
+                {/* Actions / Statut */}
                 {isEliminated ? (
-                    <XStack alignItems="center" gap="$1" backgroundColor="rgba(0,0,0,0.3)" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$4">
-                        <Trophy size={14} color="rgba(255,255,255,0.5)" />
-                        <Text color="rgba(255,255,255,0.5)" fontWeight="bold">Rang {String(player.finalRank)}</Text>
-                    </XStack>
+                    <Badge variant="neutral" size="md">
+                        <Trophy size={14} color="$colorMuted" />
+                        <Body size="sm" variant="muted" fontWeight="700">
+                            #{player.finalRank}
+                        </Body>
+                    </Badge>
                 ) : (
-                    <XStack gap="$2">
+                    <Row gap="$2">
+                        {/* Bouton Recave */}
                         <Button
-                            size="$3"
+                            variant={isLateRegOpen ? 'success' : 'ghost'}
+                            size="sm"
                             circular
                             icon={isLateRegOpen ? <Plus size={18} /> : <Lock size={16} />}
-                            backgroundColor={isLateRegOpen ? "$success" : "$borderColor"}
-                            color="white"
                             disabled={!isLateRegOpen}
                             onPress={onRebuy}
-                            opacity={isLateRegOpen ? 1 : 0.6}
                         />
-                        <Button size="$3" circular icon={<UserX size={16} />} backgroundColor="$danger" color="white" onPress={onEliminate} />
-                    </XStack>
+                        
+                        {/* Bouton Éliminer */}
+                        <Button
+                            variant="danger"
+                            size="sm"
+                            circular
+                            icon={<UserX size={16} />}
+                            onPress={onEliminate}
+                        />
+                    </Row>
                 )}
-            </Card.Header>
+            </Row>
         </Card>
     );
 }

@@ -16,7 +16,7 @@ export function SelectionCard({ isSelected, isDisabled, name, avatarUrl, isGhost
   return (
     <Card 
       bordered 
-      backgroundColor={isSelected ? "rgba(16, 185, 129, 0.2)" : "rgba(255, 255, 255, 0.05)"}
+      backgroundColor={isSelected ? "$successBg" : "$glass2"}
       borderColor={isSelected ? "$success" : "$borderColor"} 
       pressStyle={{ scale: 0.98 }} 
       onPress={onToggle}

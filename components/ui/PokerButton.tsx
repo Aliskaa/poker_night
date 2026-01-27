@@ -1,59 +1,98 @@
 import React from 'react';
-import { Button, Text, YStack } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Button as TamaguiButton, YStack, XStack } from 'tamagui';
+import { Heading, Caption } from '@/components/primitives/Layout';
+import { Avatar } from '@/components/primitives/Indicators';
 
-export const PokerButton = ({ icon, title, subtitle, onPress, variant = 'gold' }: any) => {
+// ═══════════════════════════════════════════════════════════════════
+// 🎮 POKER BUTTON - Bouton avec gradient pour actions principales
+// ═══════════════════════════════════════════════════════════════════
+
+interface PokerButtonProps {
+    icon: React.ReactElement;
+    title: string;
+    subtitle?: string;
+    onPress?: () => void;
+    variant?: 'gold' | 'dark';
+    disabled?: boolean;
+}
+
+export const PokerButton = ({ 
+    icon, 
+    title, 
+    subtitle, 
+    onPress,
+    variant = 'gold',
+    disabled = false,
+}: PokerButtonProps) => {
     const isGold = variant === 'gold';
 
-    // Couleurs Or ou Métal sombre
     const gradientColors = isGold
-        ? ['#fcd34d', '#d97706'] as const // Jaune vers Orange (Or)
-        : ['#374151', '#111827'] as const; // Gris clair vers Gris foncé
+        ? ['#fcd34d', '#d97706'] as const  // Gold gradient
+        : ['#374151', '#111827'] as const; // Dark gradient
 
-    const textColor = isGold ? '#451a03' : '#e5e7eb';
-    const borderColor = isGold ? '#f59e0b' : '#4b5563';
+    const textColor = isGold ? '$night900' : '$text90';
+    const borderColor = isGold ? '$gold500' : '$slate600';
 
     return (
-        <Button
+        <TamaguiButton
             onPress={onPress}
             padding={0}
             overflow="hidden"
-            height={80} // Plus haut
-            borderRadius="$6"
-            borderWidth={1}
+            height={80}
+            borderRadius="$7"
+            borderWidth={2}
             borderColor={borderColor}
             pressStyle={{ scale: 0.97, opacity: 0.9 }}
-            elevation={5} // Ombre Android
-            shadowColor="black" // Ombre iOS
-            shadowOpacity={0.5}
-            shadowRadius={5}
+            disabled={disabled}
+            opacity={disabled ? 0.5 : 1}
+            shadowColor="$shadowColor"
+            shadowOpacity={0.3}
+            shadowRadius={8}
             shadowOffset={{ width: 0, height: 4 }}
+            elevation={4}
+            animation="quick"
         >
             <LinearGradient
                 colors={gradientColors}
-                style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 10, padding: 15 }}
+                style={{ 
+                    flex: 1, 
+                    width: '100%', 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    paddingHorizontal: 20,
+                }}
             >
-                <YStack
-                    backgroundColor="rgba(0,0,0,0.2)"
-                    padding="$2"
-                    borderRadius="$10"
-                    borderColor="rgba(255,255,255,0.2)"
-                    borderWidth={1}
-                >
-                    {React.cloneElement(icon, { color: textColor, size: 24 })}
-                </YStack>
+                <XStack alignItems="center" gap="$3" width="100%">
+                    <Avatar 
+                        size="md" 
+                        backgroundColor="$overlay2"
+                        borderWidth={1}
+                        borderColor="$glass4"
+                    >
+                        {React.cloneElement(icon, { 
+                            color: textColor, 
+                            size: 24 
+                        })}
+                    </Avatar>
 
-                <YStack flex={1}>
-                    <Text color={textColor} fontFamily="$body" fontWeight="900" fontSize="$5" textTransform="uppercase">
-                        {title}
-                    </Text>
-                    {subtitle && (
-                        <Text color={textColor} opacity={0.8} fontSize="$2" fontWeight="600">
-                            {subtitle}
-                        </Text>
-                    )}
-                </YStack>
+                    <YStack flex={1} alignItems="flex-start">
+                        <Heading 
+                            size="md" 
+                            color={textColor}
+                            textTransform="uppercase"
+                            letterSpacing={0.5}
+                        >
+                            {title}
+                        </Heading>
+                        {subtitle && (
+                            <Caption color={isGold ? '$night700' : '$text60'}>
+                                {subtitle}
+                            </Caption>
+                        )}
+                    </YStack>
+                </XStack>
             </LinearGradient>
-        </Button>
+        </TamaguiButton>
     );
 };

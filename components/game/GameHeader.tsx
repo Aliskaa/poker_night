@@ -1,61 +1,161 @@
 import React from 'react';
-import { XStack, YStack, Text, H1, Button, Separator } from 'tamagui';
-import { Coins, HelpCircle, Share as ShareIcon, ChevronLeft, Lock, Infinity, Timer } from '@tamagui/lucide-icons';
+import { XStack, YStack, Circle } from 'tamagui';
+import { 
+    Coins, 
+    HelpCircle, 
+    Share as ShareIcon, 
+    ChevronLeft, 
+    Lock, 
+    Infinity, 
+    Timer 
+} from '@tamagui/lucide-icons';
+import { Row, Section, Heading, Body, Caption } from '@/components/primitives/Layout';
+import { Badge, Dot } from '@/components/primitives/Indicators';
+import { Button } from '@/components/primitives/Button';
+import { Divider } from '@/components/primitives/Cards';
 
-type GameHeaderProps = {
-  totalPot: number;
-  defaultBuyIn: number;
-  lateRegLimit: number;
-  lateRegSeconds: number | null;
-  onHelpPress: () => void;
-  onSharePress: () => void;
-  onBackPress: () => void;
-};
+// ═══════════════════════════════════════════════════════════════════
+// 🎮 GAME HEADER - En-tête de partie refactorisée
+// ═══════════════════════════════════════════════════════════════════
 
-export function GameHeader({ totalPot, defaultBuyIn, lateRegLimit, lateRegSeconds, onHelpPress, onSharePress, onBackPress }: GameHeaderProps) {
-  
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
-
-  const renderLateRegBadge = () => {
-    if (lateRegLimit === 0) return <Badge icon={<Infinity size={14} color="$success" />} text="Ouvert" color="$success" bg="rgba(16, 185, 129, 0.15)" />;
-    if (lateRegSeconds !== null && lateRegSeconds > 0) {
-      const isUrgent = lateRegSeconds < 300;
-      return <Badge icon={<Timer size={14} color={isUrgent ? "$warning" : "$success"} />} text={formatTime(lateRegSeconds)} color={isUrgent ? "$warning" : "$success"} bg={isUrgent ? "rgba(245, 158, 11, 0.15)" : "rgba(16, 185, 129, 0.15)"} />;
-    }
-    return <Badge icon={<Lock size={14} color="$danger" />} text="Fermé" color="$danger" bg="rgba(239, 68, 68, 0.15)" />;
-  };
-
-  return (
-    <YStack alignItems="center" paddingBottom="$4" paddingTop="$2" position="relative">
-      <XStack position="absolute" top="$2" left="$4">
-        <Button size="$3" circular icon={<ChevronLeft size={20} color="$color" />} backgroundColor="rgba(255, 255, 255, 0.05)" borderColor="$borderColor" borderWidth={1} onPress={onBackPress} />
-      </XStack>
-      <XStack position="absolute" top="$2" right="$4" gap="$2">
-        <Button size="$3" circular icon={<HelpCircle size={18} color="$colorMuted" />} backgroundColor="rgba(255, 255, 255, 0.05)" borderColor="$borderColor" borderWidth={1} onPress={onHelpPress} />
-        <Button size="$3" circular icon={<ShareIcon size={18} color="$colorMuted" />} backgroundColor="rgba(255, 255, 255, 0.05)" borderColor="$borderColor" borderWidth={1} onPress={onSharePress} />
-      </XStack>
-
-      <Text color="$colorMuted" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={2}>Pot Total</Text>
-      <XStack alignItems="center" gap="$2">
-        <Coins size={40} color="$potGold" />
-        <H1 fontSize="$9" color="$potGold" fontWeight="900" letterSpacing={-2}>{String(totalPot)} €</H1>
-      </XStack>
-
-      <XStack alignItems="center" gap="$3" marginTop="$2">
-        <XStack alignItems="center" gap="$1.5"><Coins size={14} color="$colorMuted" /><Text color="$colorMuted" fontSize="$2">Buy-in: {String(defaultBuyIn)}€</Text></XStack>
-        <Separator vertical borderColor="$borderColor" height={12} />
-        <XStack alignItems="center" gap="$1.5"><Text color="$colorMuted" fontSize="$2">Inscriptions :</Text>{renderLateRegBadge()}</XStack>
-      </XStack>
-    </YStack>
-  );
+interface GameHeaderProps {
+    totalPot: number;
+    defaultBuyIn: number;
+    lateRegLimit: number;
+    lateRegSeconds: number | null;
+    onHelpPress: () => void;
+    onSharePress: () => void;
+    onBackPress: () => void;
 }
 
-const Badge = ({ icon, text, color, bg }: any) => (
-  <XStack alignItems="center" gap="$1.5" backgroundColor={bg} paddingHorizontal="$2" paddingVertical="$1" borderRadius="$3">
-    {icon}<Text color={color} fontSize="$2" fontWeight="bold">{text}</Text>
-  </XStack>
-);
+export function GameHeader({ 
+    totalPot, 
+    defaultBuyIn, 
+    lateRegLimit, 
+    lateRegSeconds, 
+    onHelpPress, 
+    onSharePress, 
+    onBackPress 
+}: GameHeaderProps) {
+    
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    };
+
+    const renderLateRegBadge = () => {
+        // Inscriptions infinies
+        if (lateRegLimit === 0) {
+            return (
+                <Badge variant="success" size="md">
+                    <Infinity size={14} color="$success" />
+                    <Body size="sm" color="$success" fontWeight="700">
+                        Ouvert
+                    </Body>
+                </Badge>
+            );
+        }
+        
+        // Compte à rebours actif
+        if (lateRegSeconds !== null && lateRegSeconds > 0) {
+            const isUrgent = lateRegSeconds < 300; // < 5 minutes
+            return (
+                <Badge variant={isUrgent ? 'warning' : 'success'} size="md">
+                    <Timer size={14} color={isUrgent ? '$warning' : '$success'} />
+                    <Body 
+                        size="sm" 
+                        color={isUrgent ? '$warning' : '$success'}
+                        fontWeight="700"
+                    >
+                        {formatTime(lateRegSeconds)}
+                    </Body>
+                </Badge>
+            );
+        }
+        
+        // Inscriptions fermées
+        return (
+            <Badge variant="danger" size="md">
+                <Lock size={14} color="$danger" />
+                <Body size="sm" color="$danger" fontWeight="700">
+                    Fermé
+                </Body>
+            </Badge>
+        );
+    };
+
+    return (
+        <YStack alignItems="center" paddingBottom="$4" paddingTop="$2" position="relative">
+            {/* Bouton retour (gauche) */}
+            <XStack position="absolute" top="$2" left="$4" zIndex="$1">
+                <Button
+                    variant="glass"
+                    size="sm"
+                    circular
+                    icon={<ChevronLeft size={20} color="$colorPrimary" />}
+                    onPress={onBackPress}
+                />
+            </XStack>
+
+            {/* Boutons aide + partage (droite) */}
+            <XStack position="absolute" top="$2" right="$4" gap="$2" zIndex="$1">
+                <Button
+                    variant="glass"
+                    size="sm"
+                    circular
+                    icon={<HelpCircle size={18} color="$colorSecondary" />}
+                    onPress={onHelpPress}
+                />
+                <Button
+                    variant="glass"
+                    size="sm"
+                    circular
+                    icon={<ShareIcon size={18} color="$colorSecondary" />}
+                    onPress={onSharePress}
+                />
+            </XStack>
+
+            {/* Pot total */}
+            <Section alignItems="center" gap="$2" marginBottom="$2">
+                <Caption textTransform="uppercase" letterSpacing={1.5}>
+                    Pot Total
+                </Caption>
+                
+                <Row alignItems="center" gap="$2">
+                    <Coins size={40} color="$primary" />
+                    <Heading 
+                        size="xl" 
+                        color="$primary"
+                        fontWeight="900"
+                        letterSpacing={-1.5}
+                    >
+                        {totalPot} €
+                    </Heading>
+                </Row>
+            </Section>
+
+            {/* Infos buy-in + late reg */}
+            <Row alignItems="center" gap="$3">
+                <Row alignItems="center" gap="$1.5">
+                    <Coins size={14} color="$colorMuted" />
+                    <Caption>
+                        Buy-in: {defaultBuyIn}€
+                    </Caption>
+                </Row>
+                
+                <Divider 
+                    orientation="vertical" 
+                    spacing="sm"
+                    height={14}
+                    marginVertical={0}
+                />
+                
+                <Row alignItems="center" gap="$2">
+                    <Caption>Inscriptions:</Caption>
+                    {renderLateRegBadge()}
+                </Row>
+            </Row>
+        </YStack>
+    );
+}

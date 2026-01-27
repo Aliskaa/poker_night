@@ -36,7 +36,7 @@ export default function HomeScreen() {
 
             {/* 4. ACTIONS SECONDAIRES (Style Verre Fumé) */}
             <YStack gap="$3">
-              <Text color="$textSecondary" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
+              <Text color="$colorSecondary" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
                 Accès Rapide
               </Text>
               <XStack gap="$3">

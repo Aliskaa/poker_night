@@ -45,8 +45,8 @@ export default function RootLayout() {
 
       <Stack
         screenOptions={{
-          headerShown: false, // On gère nos propres headers avec Tamagui souvent, ou on active au cas par cas
-          contentStyle: { backgroundColor: '#121212' } // Fond sombre par défaut
+          headerShown: false,
+          contentStyle: { backgroundColor: '$background' }
         }}
       >
         {/* L'index vérifie l'auth */}

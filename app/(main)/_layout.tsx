@@ -21,9 +21,9 @@ export default function MainLayout() {
           headerShown: true,
           title: 'Créer une Partie',
           headerStyle: {
-            backgroundColor: '#121212', // Dark theme background
-          },
-          headerTintColor: '#fff',
+            backgroundColor: '$backgroundStrong',
+          }},
+          headerTintColor: '$colorPrimary',
           headerTitleStyle: {
             fontWeight: 'bold',
           },
@@ -36,9 +36,9 @@ export default function MainLayout() {
           headerShown: true,
           title: 'Lobby de la Partie',
           headerStyle: {
-            backgroundColor: '#121212', // Dark theme background
-          },
-          headerTintColor: '#fff',
+            backgroundColor: '$backgroundStrong',
+          }},
+          headerTintColor: '$colorPrimary',
           headerTitleStyle: {
             fontWeight: 'bold',
           },
@@ -51,9 +51,9 @@ export default function MainLayout() {
           headerShown: true,
           title: 'Classement des Combinaisons',
           headerStyle: {
-            backgroundColor: '#121212', // Dark theme background
-          },
-          headerTintColor: '#fff',
+            backgroundColor: '$backgroundStrong',
+          }},
+          headerTintColor: '$colorPrimary',
           headerTitleStyle: {
             fontWeight: 'bold',
           },

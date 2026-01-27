@@ -18,7 +18,7 @@ export default function HandRankingScreen() {
                     <YStack paddingHorizontal="$4" marginBottom="$4">
                         <Button 
                             size="$3" circular icon={<ChevronLeft size={20} color="white" />} 
-                            backgroundColor="$borderColor" borderColor="rgba(255,255,255,0.2)" borderWidth={1} 
+                            backgroundColor="$surface3" borderColor="$borderColor" borderWidth={1} 
                             onPress={() => router.back()} alignSelf="flex-start" marginBottom="$2"
                         />
                         <YStack alignItems="center">

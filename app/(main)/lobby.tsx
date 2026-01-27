@@ -44,7 +44,7 @@ export default function LobbyScreen() {
     else alert("Erreur lors de la création.");
   };
 
-  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
+  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
 
   const totalPlayers = selectedMembers.length + selectedGuests.length;
 
@@ -54,8 +54,8 @@ export default function LobbyScreen() {
         <YStack flex={1} paddingTop="$10">
 
           <YStack alignItems="center" marginBottom="$4">
-            <Users size={40} color="$potGold" />
-            <H2 color="white" fontWeight="900" marginTop="$2">Qui est là ?</H2>
+            <Users size={40} color="$primary" />
+            <H2 color="$colorPrimary" fontWeight="900" marginTop="$2">Qui est là ?</H2>
             <Text color="$colorMuted">Cochez les joueurs présents</Text>
           </YStack>
 
@@ -65,7 +65,7 @@ export default function LobbyScreen() {
             <YStack padding="$4" gap="$5">
 
               <YStack gap="$3">
-                <Text color="rgba(255,255,255,0.5)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Membres Officiels</Text>
+                <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Membres Officiels</Text>
                 {memberDetails.map(member => (
                   <SelectionCard 
                     key={member.id}
@@ -80,8 +80,8 @@ export default function LobbyScreen() {
               </YStack>
 
               <YStack gap="$3">
-                <Text color="rgba(255,255,255,0.5)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Invités</Text>
-                {group.guests.length === 0 ? <Text color="rgba(255,255,255,0.4)" fontStyle="italic">Aucun invité.</Text> : 
+                <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Invités</Text>
+                {group.guests.length === 0 ? <Text color="$colorDim" fontStyle="italic">Aucun invité.</Text> : 
                   group.guests.map(guest => (
                     <SelectionCard 
                       key={guest.id}
@@ -97,7 +97,7 @@ export default function LobbyScreen() {
             </YStack>
           </ScrollView>
 
-          <YStack padding="$4" backgroundColor="rgba(0,0,0,0.5)" borderTopWidth={1} borderColor="$borderColor">
+          <YStack padding="$4" backgroundColor="$overlay5" borderTopWidth={1} borderColor="$borderColor">
             <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" icon={isLaunching ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isLaunching} onPress={handleStartGame}>
               {isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers})`}
             </Button>

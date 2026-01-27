@@ -1,25 +1,48 @@
 import React from 'react';
-import { Card, Text, XStack, YStack } from 'tamagui';
+import { XStack } from 'tamagui';
 import { ChevronRight } from '@tamagui/lucide-icons';
+import { GlassCard } from '@/components/primitives/GlassCard';
+import { Row, Heading, Caption } from '@/components/primitives/Layout';
+import { Avatar } from '@/components/primitives/Indicators';
 
-export const GlassCard = ({ icon, title, subtitle, onPress }: any) => (
-    <Card
+// ═══════════════════════════════════════════════════════════════════
+// 💎 GLASS CARD - Refactorisé avec primitives
+// ═══════════════════════════════════════════════════════════════════
+
+interface GlassCardComponentProps {
+    icon: React.ReactElement;
+    title: string;
+    subtitle?: string;
+    onPress?: () => void;
+}
+
+export const GlassCardComponent = ({ 
+    icon, 
+    title, 
+    subtitle, 
+    onPress 
+}: GlassCardComponentProps) => (
+    <GlassCard
+        glassLevel={2}
         bordered
-        backgroundColor="rgba(255, 255, 255, 0.05)" // Très transparent
-        borderColor="rgba(255, 255, 255, 0.1)"
-        pressStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+        hoverable
+        pressable
         onPress={onPress}
-        padding="$3"
     >
-        <XStack alignItems="center" gap="$3">
-            <YStack backgroundColor="rgba(0,0,0,0.3)" padding="$2" borderRadius="$4">
-                {React.cloneElement(icon, { color: '#fbbf24', size: 20 })}
-            </YStack>
-            <YStack flex={1}>
-                <Text color="white" fontWeight="bold" fontSize="$4">{title}</Text>
-                <Text color="rgba(255,255,255,0.5)" fontSize="$2">{subtitle}</Text>
-            </YStack>
-            <ChevronRight color="rgba(255,255,255,0.3)" size={20} />
-        </XStack>
-    </Card>
+        <Row>
+            <Avatar size="sm" backgroundColor="$overlay3">
+                {React.cloneElement(icon, { 
+                    color: '$primary', 
+                    size: 20 
+                })}
+            </Avatar>
+            
+            <XStack flex={1} flexDirection="column" gap="$1">
+                <Heading size="sm">{title}</Heading>
+                {subtitle && <Caption>{subtitle}</Caption>}
+            </XStack>
+            
+            <ChevronRight color="$colorMuted" size={20} />
+        </Row>
+    </GlassCard>
 );

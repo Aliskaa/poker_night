@@ -51,7 +51,7 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
           {games.map((game, index) => (
-            <Card key={game.id || `game-${index}`} bordered width={280} backgroundColor="rgba(5, 150, 105, 0.1)" borderColor="$success">
+            <Card key={game.id || `game-${index}`} bordered width={280} backgroundColor="$successBg" borderColor="$success">
               <Card.Header padded>
                 <XStack justifyContent="space-between" alignItems="center">
                   <YStack>

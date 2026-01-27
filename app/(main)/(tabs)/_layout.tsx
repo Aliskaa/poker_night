@@ -8,17 +8,16 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                headerShown: false, // On cache les en-têtes natifs par défaut
+                headerShown: false,
                 tabBarShowLabel: true,
-                tabBarStyle: {
-                    backgroundColor: '#0b0f19', // Ton fond sombre
-                    borderTopColor: '#1f2937', // $borderColor
+                tabBarStyle: {{
+                    backgroundColor: '$night900',
+                    borderTopColor: '$borderColor',
                     height: 60,
                     paddingBottom: 8,
-                    // paddingTop: 8,
-                },
-                tabBarActiveTintColor: '#fbbf24', // $potGold (Jaune/Or)
-                tabBarInactiveTintColor: '#9ca3af', // $colorMuted (Gris)
+                }},
+                tabBarActiveTintColor: '$primary',
+                tabBarInactiveTintColor: '$colorMuted',
             }}
         >
             <Tabs.Screen

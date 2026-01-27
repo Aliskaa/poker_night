@@ -9,10 +9,15 @@ export function HomeHeader({ user }: { user: any }) {
         <Avatar.Fallback backgroundColor="$accent" />
       </Avatar>
       <YStack flex={1}>
-        <Text color="$colorMuted" fontSize="$3" letterSpacing={1} textTransform="uppercase">
+        <Text 
+          color="$colorMuted" 
+          fontSize="$3" 
+          letterSpacing={1} 
+          textTransform="uppercase"
+        >
           Bienvenue à la table
         </Text>
-        <H3 color="$color" fontWeight="900" letterSpacing={-0.5}>
+        <H3 color="$colorPrimary" fontWeight="900" letterSpacing={-0.5}>
           {user?.firstName || user?.username || "Joueur"}
         </H3>
       </YStack>

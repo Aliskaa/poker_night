@@ -1,48 +1,36 @@
 import React from 'react';
-import { Button, Text, YStack, XStack } from 'tamagui';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Play } from '@tamagui/lucide-icons';
+import { Circle } from 'tamagui';
+import { Body } from '@/components/primitives/Layout';
 
-export const DealerButton = ({ onPress }: { onPress: () => void }) => {
-    return (
-        <Button
-            onPress={onPress}
-            unstyled // On retire le style par défaut de Tamagui
-            scale={0.9}
-            pressStyle={{ scale: 0.85, opacity: 0.9 }} // Effet d'enfoncement réaliste
+// ═══════════════════════════════════════════════════════════════════
+// 🎯 DEALER BUTTON - Bouton dealer pour le poker
+// ═══════════════════════════════════════════════════════════════════
+
+interface DealerButtonProps {
+    size?: number;
+}
+
+export const DealerButton = ({ size = 32 }: DealerButtonProps) => (
+    <Circle
+        size={size}
+        backgroundColor="$primary"
+        borderWidth={2}
+        borderColor="$night900"
+        alignItems="center"
+        justifyContent="center"
+        shadowColor="$shadowColor"
+        shadowOpacity={0.4}
+        shadowRadius={4}
+        shadowOffset={{ width: 0, height: 2 }}
+        elevation={3}
+    >
+        <Body 
+            size="sm" 
+            variant="primary"
+            color="$night900" 
+            fontWeight="900"
         >
-            {/* OMBRE PORTÉE SOUS LE JETON */}
-            <YStack
-                width={180} height={180} borderRadius={90}
-                backgroundColor="black" opacity={0.3}
-                position="absolute" top={10} left={0}
-            />
-
-            {/* LE CORPS DU JETON (Dégradé Or/Blanc) */}
-            <LinearGradient
-                colors={['#fef3c7', '#f59e0b', '#b45309']} // Blanc -> Or -> Bronze
-                start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}
-                style={{
-                    width: 180, height: 180, borderRadius: 90,
-                    justifyContent: 'center', alignItems: 'center',
-                    borderWidth: 1, borderColor: '#fff'
-                }}
-            >
-                {/* CERCLE INTERNE (Effet strie) */}
-                <YStack
-                    width={150} height={150} borderRadius={75}
-                    borderWidth={4} borderColor="rgba(255,255,255,0.3)" borderStyle="dashed" // Les pointillés du jeton
-                    justifyContent="center" alignItems="center"
-                    backgroundColor="#d97706" // Fond orange sombre au centre
-                >
-                    {/* TEXTE CENTRAL */}
-                    <YStack alignItems="center">
-                        <Text color="#fff" fontSize="$2" fontWeight="bold" letterSpacing={2} opacity={0.8}>START</Text>
-                        <Text color="#fff" fontSize="$9" fontWeight="900" letterSpacing={-1} lineHeight={60}>GAME</Text>
-                        <Play size={24} color="white" fill="white" style={{ marginTop: 5 }} />
-                    </YStack>
-                </YStack>
-            </LinearGradient>
-        </Button>
-    );
-};
+            D
+        </Body>
+    </Circle>
+);
