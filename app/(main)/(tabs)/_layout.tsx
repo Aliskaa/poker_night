@@ -1,9 +1,8 @@
+import { Home, Plus, Trophy, User, Users } from '@tamagui/lucide-icons';
 import { Tabs, useRouter } from 'expo-router';
-import { Home, Users, Trophy, Plus, User } from '@tamagui/lucide-icons';
-import { useTheme, View } from 'tamagui';
+import { View } from 'tamagui';
 
 export default function TabLayout() {
-    const theme = useTheme();
     const router = useRouter();
 
     return (

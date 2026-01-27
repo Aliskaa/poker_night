@@ -40,7 +40,7 @@ export default function GroupDetailScreen() {
     Alert.alert("Supprimer le Club", "Es-tu sûr de vouloir supprimer définitivement ce Club et tous ses invités ?", [
       { text: "Annuler", style: "cancel" },
       { text: "Supprimer", style: "destructive", onPress: async () => {
-          if (await deleteGroup()) router.replace('/(main)/groups');
+          if (await deleteGroup()) router.replace('/(main)/(tabs)/groups');
         } 
       }
     ]);

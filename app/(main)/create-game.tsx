@@ -1,13 +1,14 @@
+import { ConfigSection } from '@/components/create-game/ConfigSection';
+import { OptionButton } from '@/components/create-game/OptionButton';
+import { PayoutCard } from '@/components/create-game/PayoutCard';
+import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PAYOUT_MODELS } from '@/constants/game';
+import { useGameLogic } from '@/hooks/useGameLogic';
+import { Clock, Coins, Play, Settings2, Timer, Trophy } from '@tamagui/lucide-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button, H2, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
-import { Clock, Coins, Play, Settings2, Timer, Trophy } from '@tamagui/lucide-icons';
-import { useGameLogic } from '@/hooks/useGameLogic';
-import { ConfigSection } from '@/components/create-game/ConfigSection';
-import { PayoutCard } from '@/components/create-game/PayoutCard';
-import { PAYOUT_MODELS } from '@/constants/game';
-import { PokerBackground } from '@/components/ui/PokerBackground';
 
 export default function CreateGameScreen() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function CreateGameScreen() {
   const [buyIn, setBuyIn] = useState(10);
   const [blindDuration, setBlindDuration] = useState(15);
   const [lateReg, setLateReg] = useState(60);
-  const [payoutModel, setPayoutModel] = useState<'50_30_20' | 'winner_takes_all'>('50_30_20');
+  const [payoutModel, setPayoutModel] = useState<keyof typeof PAYOUT_MODELS>('50_30_20');
 
   const handleLaunchGame = async () => {
     const gameConfig = { defaultBuyIn: buyIn, defaultTimeBlindDuration: blindDuration, lateRegLimit: lateReg, payoutModel };
@@ -86,20 +87,5 @@ export default function CreateGameScreen() {
         </YStack>
       </PokerBackground>
     </Theme>
-  );
-}
-
-// Sous-composant bouton mis à jour pour le style Glass/Gold
-function OptionButton({ label, isSelected, onPress }: { label: string, isSelected: boolean, onPress: () => void }) {
-  return (
-    <Button 
-      size="$3" flex={1} minWidth={70} 
-      backgroundColor={isSelected ? "$potGold" : "rgba(255,255,255,0.05)"} 
-      borderColor={isSelected ? "$potGold" : "rgba(255,255,255,0.2)"} 
-      borderWidth={1} 
-      onPress={onPress}
-    >
-      <Text color={isSelected ? "$nightBase" : "white"} fontWeight={isSelected ? "900" : "600"}>{label}</Text>
-    </Button>
   );
 }

@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 import { Button, H2, Text, Theme, YStack } from 'tamagui';
 import { ChevronLeft, Trophy } from '@tamagui/lucide-icons';
 import { PokerBackground } from '@/components/ui/PokerBackground';
-import { HAND_RANKINGS } from '@/constants/poker';      // <-- Import données
-import { HandRow } from '@/components/poker/HandRow';   // <-- Import composant
+import { HAND_RANKINGS } from '@/constants/poker';
+import { HandRow } from '@/components/poker/HandRow';
 
 export default function HandRankingScreen() {
     const router = useRouter();

@@ -6,9 +6,8 @@ import { YStack, Spinner, Text, Theme, Separator, Button } from 'tamagui';
 import { AlertTriangle, Trophy } from '@tamagui/lucide-icons';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { useUser } from '@clerk/clerk-expo';
-import { PokerBackground } from '@/components/ui/PokerBackground'; // <-- Tapis Vert
+import { PokerBackground } from '@/components/ui/PokerBackground';
 
-// Import des sous-composants (Assure-toi de les avoir passés en mode "Glass" aussi)
 import { AddGuestFooter } from '@/components/game/AddGuestFooter';
 import { HelpBottomSheet } from '@/components/game/HelpBottomSheet';
 import { GamePodium } from '@/components/game/GamePodium';

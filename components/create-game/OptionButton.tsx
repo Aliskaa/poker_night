@@ -3,8 +3,14 @@ import { Button, Text } from 'tamagui';
 
 export function OptionButton({ label, isSelected, onPress }: { label: string, isSelected: boolean, onPress: () => void }) {
   return (
-    <Button size="$3" flex={1} minWidth={70} backgroundColor={isSelected ? "$potGold" : "$backgroundStrong"} borderColor={isSelected ? "$potGold" : "$borderColor"} borderWidth={1} onPress={onPress}>
-      <Text color={isSelected ? "$nightBase" : "$color"} fontWeight={isSelected ? "900" : "600"}>{label}</Text>
+    <Button
+      size="$3" flex={1} minWidth={70}
+      backgroundColor={isSelected ? "$potGold" : "rgba(255,255,255,0.05)"}
+      borderColor={isSelected ? "$potGold" : "rgba(255,255,255,0.2)"}
+      borderWidth={1}
+      onPress={onPress}
+    >
+      <Text color={isSelected ? "$nightBase" : "white"} fontWeight={isSelected ? "900" : "600"}>{label}</Text>
     </Button>
   );
 }

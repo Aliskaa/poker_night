@@ -1,18 +1,8 @@
-import { router, Stack } from 'expo-router';
-import { useAuth } from '@clerk/clerk-expo';
-import { Button, XStack } from 'tamagui';
-import { LogOut } from '@tamagui/lucide-icons';
 import { useSyncUser } from '@/hooks/useSyncUser';
+import { Stack } from 'expo-router';
 
 export default function MainLayout() {
-  const { signOut } = useAuth();
-
   useSyncUser();
-
-  const onPressSignOut = async () => {
-    await signOut();
-    router.replace('/(auth)/login');
-  }
 
   return (
     <Stack
