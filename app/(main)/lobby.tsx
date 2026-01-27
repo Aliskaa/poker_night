@@ -8,7 +8,7 @@ import { Play, Users } from '@tamagui/lucide-icons';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { SelectionCard } from '@/components/lobby/SelectionCard';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
 
 export default function LobbyScreen() {
   const router = useRouter();

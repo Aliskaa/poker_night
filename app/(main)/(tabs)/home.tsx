@@ -5,11 +5,11 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 import { Text, Theme, XStack, YStack } from 'tamagui';
 
-import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
-import { HeroPlayCard } from '@/components/home/HeroPlayCard';
-import { HomeHeader } from '@/components/home/HomeHeader';
-import { QuickAction } from '@/components/home/QuickAction';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { ActiveGamesSlider } from '@/components/features/home/ActiveGamesSlider';
+import { HeroPlayCard } from '@/components/features/home/HeroPlayCard';
+import { HomeHeader } from '@/components/features/home/HomeHeader';
+import { QuickAction } from '@/components/features/home/QuickAction';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
 import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 
 export default function HomeScreen() {

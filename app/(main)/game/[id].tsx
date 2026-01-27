@@ -14,12 +14,12 @@ import { Button } from '@/components/primitives/Button';
 import { Divider } from '@/components/primitives/Cards';
 
 // ── COMPOSANTS UI ──
-import { PokerBackground } from '@/components/ui/PokerBackground';
-import { GameHeader } from '@/components/game/GameHeader';
-import { PlayerCard } from '@/components/game/PlayerCard';
-import { AddGuestFooter } from '@/components/game/AddGuestFooter';
-import { HelpBottomSheet } from '@/components/game/HelpBottomSheet';
-import { GamePodium } from '@/components/game/GamePodium';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
+import { GameHeader } from '@/components/features/game/GameHeader';
+import { PlayerCard } from '@/components/features/game/PlayerCard';
+import { AddGuestFooter } from '@/components/features/game/AddGuestFooter';
+import { HelpBottomSheet } from '@/components/features/game/HelpBottomSheet';
+import { GamePodium } from '@/components/features/game/GamePodium';
 
 // ═══════════════════════════════════════════════════════════════════
 // 🎮 GAME SCREEN - Écran de partie refactorisé

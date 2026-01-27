@@ -1,7 +1,7 @@
 import { Game } from "@/types/Game";
 import { Trophy } from "@tamagui/lucide-icons";
 import { Button, Card, H1, H3, H4, ScrollView, Text, Theme, XStack, YStack } from "tamagui";
-import { PokerBackground } from "@/components/ui/PokerBackground";
+import { PokerBackground } from "@/components/layouts/PokerBackground";
 
 export function GamePodium({ game, onClose }: { game: Game, onClose: () => void }) {
     const finalRankings = [...game.players].sort((a, b) => (a.finalRank || 99) - (b.finalRank || 99));

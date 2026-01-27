@@ -1,7 +1,7 @@
-import { ConfigSection } from '@/components/create-game/ConfigSection';
-import { OptionButton } from '@/components/create-game/OptionButton';
-import { PayoutCard } from '@/components/create-game/PayoutCard';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { ConfigSection } from '@/components/features/create/ConfigSection';
+import { OptionButton } from '@/components/features/create/OptionButton';
+import { PayoutCard } from '@/components/features/create/PayoutCard';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
 import { PAYOUT_MODELS } from '@/constants/game';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { Clock, Coins, Play, Settings2, Timer, Trophy } from '@tamagui/lucide-icons';

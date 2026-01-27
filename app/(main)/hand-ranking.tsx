@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Button, H2, Text, Theme, YStack } from 'tamagui';
 import { ChevronLeft, Trophy } from '@tamagui/lucide-icons';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
 import { HAND_RANKINGS } from '@/constants/poker';
 import { HandRow } from '@/components/poker/HandRow';
 

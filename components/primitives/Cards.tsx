@@ -20,7 +20,8 @@ export const Card = styled(YStack, {
                 backgroundColor: '$backgroundCard',
             },
             glass: {
-                backgroundColor: '$glass2',
+                backgroundColor: '$glass3',
+                borderColor: '$borderColor',
             },
             elevated: {
                 backgroundColor: '$backgroundCard',
@@ -36,6 +37,14 @@ export const Card = styled(YStack, {
                 borderColor: '$borderColor',
             },
         },
+        glassLevel: {
+            1: { backgroundColor: '$glass1' },
+            2: { backgroundColor: '$glass2' },
+            3: { backgroundColor: '$glass3' },
+            4: { backgroundColor: '$glass4' },
+            5: { backgroundColor: '$glass5' },
+            6: { backgroundColor: '$glass6' },
+        },
         hoverable: {
             true: {
                 hoverStyle: {
@@ -44,6 +53,15 @@ export const Card = styled(YStack, {
                 },
                 pressStyle: {
                     scale: 0.98,
+                },
+                animation: 'quick',
+            },
+        },
+        pressable: {
+            true: {
+                pressStyle: {
+                    scale: 0.98,
+                    backgroundColor: '$backgroundPress',
                 },
                 animation: 'quick',
             },
@@ -61,6 +79,9 @@ export const Card = styled(YStack, {
         padding: 'md',
     },
 });
+
+// Alias pour rétrocompatibilité
+export const GlassCard = Card;
 
 export const CardHeader = styled(YStack, {
     name: 'CardHeader',

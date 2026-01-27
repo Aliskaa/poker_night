@@ -2,7 +2,6 @@
 // 🎨 PRIMITIVES - Composants de base réutilisables
 // ═══════════════════════════════════════════════════════════════════
 
-export { GlassCard } from './GlassCard';
 export { Button } from './Button';
 export { Badge } from './Badge';
 export { Avatar } from './Avatar';
@@ -23,6 +22,7 @@ export {
 } from './Indicators';
 export {
     Card,
+    GlassCard,
     CardHeader,
     CardBody,
     CardFooter,

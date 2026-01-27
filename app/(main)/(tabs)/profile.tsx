@@ -1,7 +1,7 @@
 import { PerformanceCard } from '@/components/profile/PerformanceCard';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ProfileMenu } from '@/components/profile/ProfileMenu';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
 import { useUserLogic } from '@/hooks/useUserLogic';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';

@@ -4,7 +4,7 @@ import { useRouter, Link } from 'expo-router';
 import { YStack, Input, Button, Text, H1, XStack, Spinner, Theme } from 'tamagui';
 import { Mail, Lock, User, CheckCircle2, Crown } from '@tamagui/lucide-icons';
 import log from '@/services/logger';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerBackground } from '@/components/layouts/PokerBackground';
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
