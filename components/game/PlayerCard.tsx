@@ -41,7 +41,7 @@ export function PlayerCard({ player, defaultBuyIn, isLateRegOpen, onRebuy, onEli
                             size="$3"
                             circular
                             icon={isLateRegOpen ? <Plus size={18} /> : <Lock size={16} />}
-                            backgroundColor={isLateRegOpen ? "$success" : "rgba(255,255,255,0.1)"}
+                            backgroundColor={isLateRegOpen ? "$success" : "$borderColor"}
                             color="white"
                             disabled={!isLateRegOpen}
                             onPress={onRebuy}

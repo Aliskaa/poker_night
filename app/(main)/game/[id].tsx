@@ -13,65 +13,25 @@ import { HelpBottomSheet } from '@/components/game/HelpBottomSheet';
 import { GamePodium } from '@/components/game/GamePodium';
 import { GameHeader } from '@/components/game/GameHeader';
 import { PlayerCard } from '@/components/game/PlayerCard';
+import { useGameTimers } from '@/hooks/useGameTimers';
 
 export default function GameScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame, joinGame, isLateRegOpen } = useGameLogic(id);
   const { user } = useUser();
+  
+  // 🎮 Hook des timers - gère automatiquement les 2 timers
+  const { 
+    timerSeconds, 
+    isTimerRunning, 
+    toggleTimer,
+    resetTimer,
+    lateRegSeconds 
+  } = useGameTimers(game);
 
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const DEFAULT_TIME = 1200;
-  const [timerSeconds, setTimerSeconds] = useState(DEFAULT_TIME);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [lateRegSeconds, setLateRegSeconds] = useState<number | null>(null);
 
   useEffect(() => { if (game && user) joinGame(); }, [game?.id, user?.id]);
-
-  // ---------------------------------------------------------------------------
-  // CHRONO 1 : Timer des Blindes (Bottom Sheet)
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    let interval: number;
-    if (isTimerRunning && timerSeconds > 0) {
-      interval = setInterval(() => setTimerSeconds((prev) => prev - 1), 1000);
-    } else if (timerSeconds === 0) {
-      setIsTimerRunning(false);
-    }
-    return () => clearInterval(interval);
-  }, [isTimerRunning, timerSeconds]);
-
-
-  // ---------------------------------------------------------------------------
-  // CHRONO 2 : Compte à rebours du Late Registration (En-tête)
-  // ---------------------------------------------------------------------------
-  useEffect(() => {
-    if (!game || game.config.lateRegLimit === 0) return;
-
-    // Calcul de la date de départ robuste (Firestore Timestamp -> Date JS)
-    let startTime = Date.now();
-    if (game.createdAt) {
-      if (typeof (game.createdAt as any).toDate === 'function') {
-        startTime = (game.createdAt as any).toDate().getTime();
-      } else if ((game.createdAt as any).seconds) {
-        startTime = (game.createdAt as any).seconds * 1000;
-      } else if (game.createdAt instanceof Date) {
-        startTime = game.createdAt.getTime();
-      }
-    }
-
-    const endTime = startTime + (game.config.lateRegLimit * 60 * 1000);
-
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const diffInSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
-      setLateRegSeconds(diffInSeconds);
-
-      // Si le temps est écoulé, on arrête l'intervalle
-      if (diffInSeconds <= 0) clearInterval(interval);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [game?.createdAt, game?.config.lateRegLimit]);
 
   // --- ACTIONS GLOBALES ---
   const onShareTable = async () => {
@@ -95,17 +55,17 @@ export default function GameScreen() {
       <PokerBackground>
         <YStack flex={1} paddingTop="$10">
 
-          <GameHeader 
-            totalPot={game.totalPot} 
-            defaultBuyIn={game.config.defaultBuyIn} 
-            lateRegLimit={game.config.lateRegLimit} 
-            lateRegSeconds={lateRegSeconds} 
-            onHelpPress={() => setIsHelpOpen(true)} 
-            onSharePress={onShareTable} 
-            onBackPress={() => router.push('/(main)/(tabs)/groups')} 
+          <GameHeader
+            totalPot={game.totalPot}
+            defaultBuyIn={game.config.defaultBuyIn}
+            lateRegLimit={game.config.lateRegLimit}
+            lateRegSeconds={lateRegSeconds}
+            onHelpPress={() => setIsHelpOpen(true)}
+            onSharePress={onShareTable}
+            onBackPress={() => router.push('/(main)/(tabs)/groups')}
           />
 
-          <Separator borderColor="rgba(255,255,255,0.1)" marginVertical="$4" />
+          <Separator borderColor="$borderColor" marginVertical="$4" />
 
           <ScrollView style={{ flex: 1 }}>
             <YStack padding="$4" gap="$3">
@@ -132,19 +92,19 @@ export default function GameScreen() {
             </YStack>
           </ScrollView>
 
-          <AddGuestFooter 
-            isLateRegOpen={isLateRegOpen} 
-            onAddGuest={(name) => addGuestPlayer(name, game.config.defaultBuyIn)} 
+          <AddGuestFooter
+            isLateRegOpen={isLateRegOpen}
+            onAddGuest={(name) => addGuestPlayer(name, game.config.defaultBuyIn)}
           />
 
-        <HelpBottomSheet 
-          isOpen={isHelpOpen} 
-          onOpenChange={setIsHelpOpen} 
-          timerSeconds={timerSeconds} 
-          isTimerRunning={isTimerRunning} 
-          onToggleTimer={() => setIsTimerRunning(!isTimerRunning)} 
-          onResetTimer={() => { setIsTimerRunning(false); setTimerSeconds(DEFAULT_TIME); }} 
-        />
+          <HelpBottomSheet
+            isOpen={isHelpOpen}
+            onOpenChange={setIsHelpOpen}
+            timerSeconds={timerSeconds}
+            isTimerRunning={isTimerRunning}
+            onToggleTimer={toggleTimer}
+            onResetTimer={resetTimer}
+          />
 
         </YStack>
       </PokerBackground>

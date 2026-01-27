@@ -18,13 +18,13 @@ export default function HandRankingScreen() {
                     <YStack paddingHorizontal="$4" marginBottom="$4">
                         <Button 
                             size="$3" circular icon={<ChevronLeft size={20} color="white" />} 
-                            backgroundColor="rgba(255,255,255,0.1)" borderColor="rgba(255,255,255,0.2)" borderWidth={1} 
+                            backgroundColor="$borderColor" borderColor="rgba(255,255,255,0.2)" borderWidth={1} 
                             onPress={() => router.back()} alignSelf="flex-start" marginBottom="$2"
                         />
                         <YStack alignItems="center">
                             <Trophy size={40} color="$potGold" />
                             <H2 color="white" fontWeight="900" marginTop="$2" textAlign="center">Combinaisons</H2>
-                            <Text color="rgba(255,255,255,0.6)" textAlign="center">De la plus forte à la plus faible</Text>
+                            <Text color="$colorMuted" textAlign="center">De la plus forte à la plus faible</Text>
                         </YStack>
                     </YStack>
 

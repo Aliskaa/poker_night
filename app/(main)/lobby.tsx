@@ -56,10 +56,10 @@ export default function LobbyScreen() {
           <YStack alignItems="center" marginBottom="$4">
             <Users size={40} color="$potGold" />
             <H2 color="white" fontWeight="900" marginTop="$2">Qui est là ?</H2>
-            <Text color="rgba(255,255,255,0.6)">Cochez les joueurs présents</Text>
+            <Text color="$colorMuted">Cochez les joueurs présents</Text>
           </YStack>
 
-          <Separator borderColor="rgba(255,255,255,0.1)" marginBottom="$2" />
+          <Separator borderColor="$borderColor" marginBottom="$2" />
 
           <ScrollView>
             <YStack padding="$4" gap="$5">
@@ -97,7 +97,7 @@ export default function LobbyScreen() {
             </YStack>
           </ScrollView>
 
-          <YStack padding="$4" backgroundColor="rgba(0,0,0,0.5)" borderTopWidth={1} borderColor="rgba(255,255,255,0.1)">
+          <YStack padding="$4" backgroundColor="rgba(0,0,0,0.5)" borderTopWidth={1} borderColor="$borderColor">
             <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" icon={isLaunching ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isLaunching} onPress={handleStartGame}>
               {isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers})`}
             </Button>

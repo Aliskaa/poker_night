@@ -41,7 +41,7 @@ export default function CreateGameScreen() {
           <YStack alignItems="center" marginBottom="$4">
             <Settings2 size={40} color="$potGold" />
             <H2 color="white" fontWeight="900" marginTop="$2">Configuration</H2>
-            <Text color="rgba(255,255,255,0.6)">Règles de la table</Text>
+            <Text color="$colorMuted">Règles de la table</Text>
           </YStack>
 
           <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
@@ -79,7 +79,7 @@ export default function CreateGameScreen() {
             </YStack>
           </ScrollView>
 
-          <YStack position="absolute" bottom="$0" left="$0" right="$0" padding="$4" backgroundColor="rgba(0,0,0,0.8)" borderTopWidth={1} borderColor="rgba(255,255,255,0.1)">
+          <YStack position="absolute" bottom="$0" left="$0" right="$0" padding="$4" backgroundColor="rgba(0,0,0,0.8)" borderTopWidth={1} borderColor="$borderColor">
             <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" icon={isCreating ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isCreating} onPress={handleLaunchGame}>
               {isCreating ? "Création..." : "Ouvrir la table"}
             </Button>

@@ -20,7 +20,7 @@ export function HandRow({ hand }: { hand: PokerHand }) {
                     <XStack alignItems="center" gap="$3">
                         <YStack
                             width={28} height={28} borderRadius={14}
-                            backgroundColor={isTop3 ? "$potGold" : "rgba(255,255,255,0.1)"}
+                            backgroundColor={isTop3 ? "$potGold" : "$borderColor"}
                             justifyContent="center" alignItems="center"
                         >
                             <Text color={isTop3 ? "$nightBase" : "white"} fontWeight="900" fontSize="$3">#{hand.rank}</Text>
@@ -30,7 +30,7 @@ export function HandRow({ hand }: { hand: PokerHand }) {
                 </XStack>
 
                 {/* Description */}
-                <Text color="rgba(255,255,255,0.6)" fontSize="$3">{hand.desc}</Text>
+                <Text color="$colorMuted" fontSize="$3">{hand.desc}</Text>
 
                 {/* VISUALISATION DES CARTES */}
                 <XStack gap="$2" marginTop="$2" justifyContent="flex-start">

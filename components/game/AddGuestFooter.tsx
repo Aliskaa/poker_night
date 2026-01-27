@@ -7,18 +7,18 @@ export function AddGuestFooter({ isLateRegOpen, onAddGuest }: { isLateRegOpen: b
 
   return (
     // Fond semi-transparent pour laisser voir le tapis dessous
-    <YStack padding="$4" backgroundColor="rgba(0,0,0,0.4)" borderTopWidth={1} borderColor="rgba(255,255,255,0.1)">
+    <YStack padding="$4" backgroundColor="rgba(0,0,0,0.4)" borderTopWidth={1} borderColor="$borderColor">
       <XStack gap="$2">
         <Input
           flex={1} size="$4" 
-          backgroundColor="rgba(255,255,255,0.1)" borderColor="rgba(255,255,255,0.2)" color="white"
+          backgroundColor="$borderColor" borderColor="rgba(255,255,255,0.2)" color="white"
           placeholder={isLateRegOpen ? "Ajouter un invité..." : "Inscriptions closes"}
           placeholderTextColor="rgba(255,255,255,0.4)"
           value={newGuestName} onChangeText={setNewGuestName} editable={isLateRegOpen} opacity={isLateRegOpen ? 1 : 0.5}
         />
         <Button
           size="$4" icon={isLateRegOpen ? <UserPlus size={20} /> : <Lock size={20} />}
-          backgroundColor={isLateRegOpen ? "$accent" : "rgba(255,255,255,0.1)"} color="white" fontWeight="bold"
+          backgroundColor={isLateRegOpen ? "$accent" : "$borderColor"} color="white" fontWeight="bold"
           disabled={!newGuestName || !isLateRegOpen}
           onPress={() => { onAddGuest(newGuestName); setNewGuestName(''); }}
         >

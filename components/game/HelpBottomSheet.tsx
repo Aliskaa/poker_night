@@ -18,10 +18,10 @@ export function HelpBottomSheet({ isOpen, onOpenChange, timerSeconds, isTimerRun
             <Sheet.Frame padding="$4" gap="$4" backgroundColor="#064e3b">
 
                 {/* TIMER PREMIUM */}
-                <Card bordered backgroundColor="rgba(0,0,0,0.3)" borderColor="rgba(255,255,255,0.1)" padding="$4">
+                <Card bordered backgroundColor="rgba(0,0,0,0.3)" borderColor="$borderColor" padding="$4">
                     <XStack justifyContent="space-between" alignItems="center">
                         <YStack>
-                            <Text color="rgba(255,255,255,0.6)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Prochaine Blinde</Text>
+                            <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Prochaine Blinde</Text>
                             <H1 color={timerSeconds < 60 ? "$danger" : "$potGold"} fontSize="$8" fontWeight="900">
                                 {formatTime(timerSeconds)}
                             </H1>
@@ -33,11 +33,11 @@ export function HelpBottomSheet({ isOpen, onOpenChange, timerSeconds, isTimerRun
                     </XStack>
                 </Card>
 
-                <Separator borderColor="rgba(255,255,255,0.1)" />
+                <Separator borderColor="$borderColor" />
 
                 {/* AIDE MAINS (Réutilisée !) */}
                 <YStack flex={1} gap="$3">
-                    <Text color="rgba(255,255,255,0.6)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Hiérarchie des mains</Text>
+                    <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Hiérarchie des mains</Text>
                     <ScrollView>
                         <YStack gap="$3" paddingBottom="$10">
                             {HAND_RANKINGS.map((hand) => (

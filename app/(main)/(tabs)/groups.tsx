@@ -41,11 +41,11 @@ export default function GroupsScreen() {
 
                     {/* EN-TÊTE */}
                     <YStack alignItems="center" marginBottom="$6">
-                        <YStack backgroundColor="rgba(251, 191, 36, 0.1)" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="rgba(251, 191, 36, 0.3)" borderWidth={1}>
+                        <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="rgba(251, 191, 36, 0.3)" borderWidth={1}>
                             <Users size={32} color="$potGold" />
                         </YStack>
                         <H1 color="white" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Mes Clubs</H1>
-                        <Text color="rgba(255,255,255,0.6)" letterSpacing={1} textTransform="uppercase" fontSize="$2">
+                        <Text color="$colorMuted" letterSpacing={1} textTransform="uppercase" fontSize="$2">
                             Gère tes QG de poker
                         </Text>
                     </YStack>
@@ -55,7 +55,7 @@ export default function GroupsScreen() {
                         <Button
                             flex={1} size="$4"
                             // Style Verre
-                            backgroundColor="rgba(255,255,255,0.1)"
+                            backgroundColor="$borderColor"
                             borderColor="rgba(255,255,255,0.2)" borderWidth={1}
                             icon={<Key size={18} color="$potGold" />}
                             onPress={() => setIsJoinOpen(true)}
