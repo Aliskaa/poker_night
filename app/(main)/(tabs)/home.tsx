@@ -3,14 +3,14 @@ import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
 import { Theme, YStack, Text, XStack, Button } from 'tamagui';
-import { Search, Users, Palette } from '@tamagui/lucide-icons';
+import { Search, Users, Palette, Plus } from '@tamagui/lucide-icons';
 
 import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { HeroPlayCard } from '@/components/home/HeroPlayCard';
-import { PokerBackground } from '@/components/ui/PokerBackground'; // <-- Import du tapis
-import { UIShowcase } from '@/components/ui/UIShowcase';
+import { PokerBackground } from '@/components/ui/PokerBackground';
+import { FAB } from '@/components/ui/FAB';
 
 export default function HomeScreen() {
   const { user } = useUser();
@@ -65,6 +65,14 @@ export default function HomeScreen() {
 
           </YStack>
         </ScrollView>
+        
+        {/* FAB flottant pour créer une partie */}
+        <FAB 
+          icon={<Plus size={28} color="$night900" />}
+          fabPosition="bottom-right"
+          offset={70}
+          onPress={() => router.push('/(main)/create-game')}
+        />
       </PokerBackground>
     </Theme>
   );

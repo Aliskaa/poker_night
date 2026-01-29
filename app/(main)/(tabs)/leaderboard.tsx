@@ -1,14 +1,17 @@
 import { useUserLogic } from '@/hooks/useUserLogic';
 import { useUser } from '@clerk/clerk-expo';
-import { Medal, Minus, TrendingDown, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import { Medal, Minus, TrendingDown, TrendingUp, Trophy, Plus } from '@tamagui/lucide-icons';
 import React from 'react';
 import { ScrollView } from 'react-native';
 import { Avatar, Card, H1, H4, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 import { PokerBackground } from '@/components/ui/PokerBackground';
+import { FAB } from '@/components/ui/FAB';
+import { useRouter } from 'expo-router';
 
 export default function LeaderboardScreen() {
   const { user: currentUser } = useUser();
   const { leaderboard: players, loading } = useUserLogic();
+  const router = useRouter();
 
   if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
 
@@ -85,6 +88,14 @@ export default function LeaderboardScreen() {
             </YStack>
           </ScrollView>
         </YStack>
+        
+        {/* FAB flottant pour créer une partie */}
+        <FAB 
+          icon={<Plus size={28} color="$night900" />}
+          fabPosition="bottom-right"
+          offset={70}
+          onPress={() => router.push('/(main)/create-game')}
+        />
       </PokerBackground>
     </Theme>
   );

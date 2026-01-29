@@ -7,6 +7,7 @@ import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { AlertTriangle, ChevronRight, Crown, Key, Plus, Users } from '@tamagui/lucide-icons';
 import { Avatar, Button, Card, H1, H4, Input, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 import { PokerBackground } from '@/components/ui/PokerBackground';
+import { FAB } from '@/components/ui/FAB';
 
 export default function GroupsScreen() {
     const { user } = useUser();
@@ -144,6 +145,14 @@ export default function GroupsScreen() {
                     </Sheet>
 
                 </YStack>
+                
+                {/* FAB flottant pour créer une partie */}
+                <FAB 
+                    icon={<Plus size={28} color="$night900" />}
+                    fabPosition="bottom-right"
+                    offset={70}
+                    onPress={() => router.push('/(main)/create-game')}
+                />
             </PokerBackground>
         </Theme>
     );
