@@ -1,154 +1,232 @@
-import React, { useEffect, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
-import { ScrollView, Share } from 'react-native';
-import * as Linking from 'expo-linking';
-import { YStack, Spinner, Text, Theme, Separator, Button } from 'tamagui';
-import { AlertTriangle, Trophy } from '@tamagui/lucide-icons';
-import { useGameLogic } from '@/hooks/useGameLogic';
-import { useUser } from '@clerk/clerk-expo';
-import { PokerBackground } from '@/components/ui/PokerBackground'; // <-- Tapis Vert
+import React, { useEffect, useState } from 'react'
+import { router, useLocalSearchParams } from 'expo-router'
+import { ScrollView, Share } from 'react-native'
+import * as Linking from 'expo-linking'
+import { YStack, Spinner, Text, Theme, Button, XStack } from 'tamagui'
+import { AlertTriangle, Trophy, ArrowUp } from '@tamagui/lucide-icons'
+import { useGameLogic } from '@/hooks/useGameLogic'
+import { useUser } from '@clerk/clerk-expo'
+import { PokerBackground } from '@/components/ui/PokerBackground'
 
-// Import des sous-composants (Assure-toi de les avoir passés en mode "Glass" aussi)
-import { AddGuestFooter } from '@/components/game/AddGuestFooter';
-import { HelpBottomSheet } from '@/components/game/HelpBottomSheet';
-import { GamePodium } from '@/components/game/GamePodium';
-import { GameHeader } from '@/components/game/GameHeader';
-import { PlayerCard } from '@/components/game/PlayerCard';
+// Nouveaux composants
+import { GameStatusBar } from '@/components/game/GameStatusBar'
+import { PotDisplay } from '@/components/game/PotDisplay'
+import { PlayerCard } from '@/components/game/PlayerCard'
+import { BlindTimer } from '@/components/game/BlindTimer'
+import { BlindLevel } from '@/components/game/BlindLevel'
+
+// Anciens composants conservés
+import { AddGuestFooter } from '@/components/game/AddGuestFooter'
+import { GamePodium } from '@/components/game/GamePodium'
 
 export default function GameScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame, joinGame, isLateRegOpen } = useGameLogic(id);
-  const { user } = useUser();
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame, joinGame, isLateRegOpen } = useGameLogic(id)
+  const { user } = useUser()
 
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const DEFAULT_TIME = 1200;
-  const [timerSeconds, setTimerSeconds] = useState(DEFAULT_TIME);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [lateRegSeconds, setLateRegSeconds] = useState<number | null>(null);
+  const DEFAULT_TIME = 1200
+  const [timerSeconds, setTimerSeconds] = useState(DEFAULT_TIME)
+  const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [lateRegSeconds, setLateRegSeconds] = useState<number | null>(null)
 
-  useEffect(() => { if (game && user) joinGame(); }, [game?.id, user?.id]);
+  useEffect(() => { 
+    if (game && user) joinGame()
+  }, [game?.id, user?.id])
 
-  // ---------------------------------------------------------------------------
-  // CHRONO 1 : Timer des Blindes (Bottom Sheet)
-  // ---------------------------------------------------------------------------
+  // Timer des Blindes
   useEffect(() => {
-    let interval: number;
+    let interval: number
     if (isTimerRunning && timerSeconds > 0) {
-      interval = setInterval(() => setTimerSeconds((prev) => prev - 1), 1000);
+      interval = setInterval(() => setTimerSeconds((prev) => prev - 1), 1000)
     } else if (timerSeconds === 0) {
-      setIsTimerRunning(false);
+      setIsTimerRunning(false)
     }
-    return () => clearInterval(interval);
-  }, [isTimerRunning, timerSeconds]);
+    return () => clearInterval(interval)
+  }, [isTimerRunning, timerSeconds])
 
-
-  // ---------------------------------------------------------------------------
-  // CHRONO 2 : Compte à rebours du Late Registration (En-tête)
-  // ---------------------------------------------------------------------------
+  // Compte à rebours Late Registration
   useEffect(() => {
-    if (!game || game.config.lateRegLimit === 0) return;
+    if (!game || game.config.lateRegLimit === 0) return
 
-    // Calcul de la date de départ robuste (Firestore Timestamp -> Date JS)
-    let startTime = Date.now();
+    let startTime = Date.now()
     if (game.createdAt) {
       if (typeof (game.createdAt as any).toDate === 'function') {
-        startTime = (game.createdAt as any).toDate().getTime();
+        startTime = (game.createdAt as any).toDate().getTime()
       } else if ((game.createdAt as any).seconds) {
-        startTime = (game.createdAt as any).seconds * 1000;
+        startTime = (game.createdAt as any).seconds * 1000
       } else if (game.createdAt instanceof Date) {
-        startTime = game.createdAt.getTime();
+        startTime = game.createdAt.getTime()
       }
     }
 
-    const endTime = startTime + (game.config.lateRegLimit * 60 * 1000);
+    const endTime = startTime + (game.config.lateRegLimit * 60 * 1000)
 
     const interval = setInterval(() => {
-      const now = Date.now();
-      const diffInSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
-      setLateRegSeconds(diffInSeconds);
+      const now = Date.now()
+      const diffInSeconds = Math.max(0, Math.floor((endTime - now) / 1000))
+      setLateRegSeconds(diffInSeconds)
+      if (diffInSeconds <= 0) clearInterval(interval)
+    }, 1000)
 
-      // Si le temps est écoulé, on arrête l'intervalle
-      if (diffInSeconds <= 0) clearInterval(interval);
-    }, 1000);
+    return () => clearInterval(interval)
+  }, [game?.createdAt, game?.config.lateRegLimit])
 
-    return () => clearInterval(interval);
-  }, [game?.createdAt, game?.config.lateRegLimit]);
-
-  // --- ACTIONS GLOBALES ---
   const onShareTable = async () => {
-    const url = Linking.createURL(`/(main)/game/${id}`, { scheme: 'pokernight' });
+    const url = Linking.createURL(`/(main)/game/${id}`, { scheme: 'pokernight' })
     try {
-      await Share.share({ message: `♠️ Viens jouer au Poker ! La table est ouverte. \nBuy-in: ${String(game?.config.defaultBuyIn)}€ \n\nClique ici pour rejoindre : ${url}` });
-    } catch (error) { console.error("Erreur partage :", error); }
+      await Share.share({ 
+        message: `♠️ Viens jouer au Poker ! La table est ouverte.\nBuy-in: ${game?.config.defaultBuyIn}€\n\nClique ici pour rejoindre : ${url}` 
+      })
+    } catch (error) { 
+      console.error("Erreur partage :", error)
+    }
   }
 
-  if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
-  if (!game) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><AlertTriangle size={48} color="$danger" /><Text color="white">Partie introuvable</Text></YStack>;
+  const toggleTimer = () => setIsTimerRunning(!isTimerRunning)
+  const resetTimer = () => {
+    setIsTimerRunning(false)
+    setTimerSeconds(DEFAULT_TIME)
+  }
 
-  if (game.status === 'FINISHED') return <GamePodium game={game} onClose={() => router.replace('/(main)/(tabs)/groups')} />;
+  if (loading) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background">
+        <Spinner size="large" color="$primary" />
+      </YStack>
+    )
+  }
 
-  const activePlayers = game.players.filter(p => p.status === 'ACTIVE');
-  const isHeadsUpFinished = activePlayers.length <= 1 && game.players.length > 1;
-  const sortedPlayers = [...game.players].sort((a, b) => { /* ... ton tri ... */ return 0; });
+  if (!game) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background" gap="$4">
+        <AlertTriangle size={48} color="$danger" />
+        <Text color="$colorPrimary" fontSize="$6">Partie introuvable</Text>
+      </YStack>
+    )
+  }
+
+  if (game.status === 'FINISHED') {
+    return <GamePodium game={game} onClose={() => router.replace('/(main)/(tabs)/groups')} />
+  }
+
+  const activePlayers = game.players.filter(p => p.status === 'ACTIVE')
+  const isHeadsUpFinished = activePlayers.length <= 1 && game.players.length > 1
+  const sortedPlayers = [...game.players].sort((a, b) => {
+    if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1
+    if (a.status !== 'ACTIVE' && b.status === 'ACTIVE') return 1
+    if (a.status === 'ELIMINATED' && b.status === 'ELIMINATED') {
+      return (a.finalRank || 0) - (b.finalRank || 0)
+    }
+    return 0
+  })
 
   return (
     <Theme name="dark">
       <PokerBackground>
-        <YStack flex={1} paddingTop="$10">
-
-          <GameHeader 
-            totalPot={game.totalPot} 
-            defaultBuyIn={game.config.defaultBuyIn} 
-            lateRegLimit={game.config.lateRegLimit} 
-            lateRegSeconds={lateRegSeconds} 
-            onHelpPress={() => setIsHelpOpen(true)} 
-            onSharePress={onShareTable} 
-            onBackPress={() => router.push('/(main)/(tabs)/groups')} 
+        <YStack flex={1}>
+          
+          {/* BARRE DE STATUS FIXE */}
+          <GameStatusBar 
+            currentSmallBlind={50}
+            currentBigBlind={100}
+            currentAnte={0}
+            timerSeconds={timerSeconds}
+            isTimerRunning={isTimerRunning}
+            lateRegSeconds={lateRegSeconds}
+            lateRegLimit={game.config.lateRegLimit}
+            onBackPress={() => router.push('/(main)/(tabs)/groups')}
+            onSharePress={onShareTable}
           />
 
-          <Separator borderColor="rgba(255,255,255,0.1)" marginVertical="$4" />
-
+          {/* CONTENU SCROLLABLE */}
           <ScrollView style={{ flex: 1 }}>
-            <YStack padding="$4" gap="$3">
+            <YStack padding="$4" gap="$5">
+              
+              {/* POT PRINCIPAL */}
+              <PotDisplay
+                totalPot={game.totalPot}
+                playerCount={game.players.length}
+                payoutModel={game.config.payoutModel}
+                defaultBuyIn={game.config.defaultBuyIn}
+                showPayoutPreview={true}
+              />
+
+              {/* BLIND CONTROLS */}
+              <YStack gap="$3">
+                <BlindLevel
+                  currentSmallBlind={50}
+                  currentBigBlind={100}
+                  currentAnte={0}
+                  nextSmallBlind={75}
+                  nextBigBlind={150}
+                  nextAnte={0}
+                  showNext={true}
+                />
+                
+                <BlindTimer
+                  seconds={timerSeconds}
+                  isRunning={isTimerRunning}
+                  onToggle={toggleTimer}
+                  onReset={resetTimer}
+                  showResetButton={true}
+                />
+              </YStack>
+
+              {/* BOUTON FIN DE PARTIE */}
               {isHeadsUpFinished && (
-                <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" icon={<Trophy size={20} color="black" />} onPress={endGame} mb="$4">
+                <Button 
+                  size="$5" 
+                  backgroundColor="$primary"
+                  color="$night900"
+                  fontWeight="900"
+                  icon={<Trophy size={20} color="$night900" />}
+                  onPress={endGame}
+                  pressStyle={{ scale: 0.98 }}
+                >
                   Terminer la partie
                 </Button>
               )}
 
-              <Text color="rgba(255,255,255,0.5)" fontWeight="bold" fontSize="$3" letterSpacing={1} textTransform="uppercase">
-                Joueurs ({String(game.players.length)})
-              </Text>
+              {/* LISTE DES JOUEURS */}
+              <YStack gap="$3">
+                <XStack justifyContent="space-between" alignItems="center">
+                  <Text 
+                    color="$colorTertiary"
+                    fontWeight="700"
+                    fontSize="$3"
+                    letterSpacing={1}
+                    textTransform="uppercase"
+                  >
+                    Joueurs ({game.players.length})
+                  </Text>
+                  <XStack gap="$2">
+                    <Text color="$success" fontSize="$2" fontWeight="600">
+                      {activePlayers.length} actifs
+                    </Text>
+                  </XStack>
+                </XStack>
 
-              {sortedPlayers.map((player) => (
-                <PlayerCard
-                  key={player.id}
-                  player={player}
-                  defaultBuyIn={game.config.defaultBuyIn}
-                  isLateRegOpen={isLateRegOpen}
-                  onRebuy={() => addRebuy(player.id, game.config.defaultBuyIn)}
-                  onEliminate={() => eliminatePlayer(player.id)}
-                />
-              ))}
+                {sortedPlayers.map((player) => (
+                  <PlayerCard
+                    key={player.id}
+                    player={player}
+                    defaultBuyIn={game.config.defaultBuyIn}
+                    isLateRegOpen={isLateRegOpen}
+                    onRebuy={() => addRebuy(player.id, game.config.defaultBuyIn)}
+                    onEliminate={() => eliminatePlayer(player.id)}
+                  />
+                ))}
+              </YStack>
             </YStack>
           </ScrollView>
 
+          {/* FOOTER : AJOUT INVITÉ */}
           <AddGuestFooter 
             isLateRegOpen={isLateRegOpen} 
             onAddGuest={(name) => addGuestPlayer(name, game.config.defaultBuyIn)} 
           />
-
-        <HelpBottomSheet 
-          isOpen={isHelpOpen} 
-          onOpenChange={setIsHelpOpen} 
-          timerSeconds={timerSeconds} 
-          isTimerRunning={isTimerRunning} 
-          onToggleTimer={() => setIsTimerRunning(!isTimerRunning)} 
-          onResetTimer={() => { setIsTimerRunning(false); setTimerSeconds(DEFAULT_TIME); }} 
-        />
-
         </YStack>
       </PokerBackground>
     </Theme>
-  );
+  )
 }
