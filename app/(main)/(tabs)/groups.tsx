@@ -122,9 +122,13 @@ export default function GroupsScreen() {
                         <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
                             <H4 color="$color" textAlign="center">Nouveau Club</H4>
                             <Input size="$5" placeholder="Nom du Club" value={newGroupName} onChangeText={setNewGroupName} backgroundColor="$background" borderColor="$borderColor" />
-                            <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" disabled={!newGroupName || loading} onPress={handleCreateGroup}>
-                                {loading ? <Spinner color="$backgroundStrong" /> : 'Valider'}
-                            </Button>
+                            <PokerButton
+                                variant="primary"
+                                icon={loading ? <Spinner color="$night900" /> : <Plus />}
+                                title={loading ? "Création..." : "Valider"}
+                                disabled={loading}
+                                onPress={handleCreateGroup}
+                            />
                         </Sheet.Frame>
                     </Sheet>
 
@@ -134,10 +138,14 @@ export default function GroupsScreen() {
                         <Sheet.Handle />
                         <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
                             <H4 color="$color" textAlign="center">Rejoindre</H4>
-                            <Input size="$5" placeholder="Code d'invitation" value={inviteCode} onChangeText={setInviteCode} backgroundColor="$background" borderColor="$borderColor" autoCapitalize="characters" />
-                            <Button size="$5" backgroundColor="$accent" color="white" fontWeight="900" disabled={!inviteCode || loading} onPress={handleJoinGroup}>
-                                {loading ? <Spinner color="white" /> : 'Rejoindre'}
-                            </Button>
+                            <Input size="$16" placeholder="Code d'invitation" value={inviteCode} onChangeText={setInviteCode} backgroundColor="$background" borderColor="$borderColor" autoCapitalize="characters" />
+                            <PokerButton
+                                variant="secondary"
+                                icon={loading ? <Spinner color="$night900" /> : <Plus />}
+                                title={loading ? "Création..." : "Rejoindre"}
+                                disabled={loading}
+                                onPress={handleJoinGroup}
+                            />
                         </Sheet.Frame>
                     </Sheet>
 
