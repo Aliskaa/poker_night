@@ -9,6 +9,8 @@ import { useGameLogic } from '@/hooks/useGameLogic';
 import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { SelectionCard } from '@/components/lobby/SelectionCard';
 import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerButton } from '@/components/ui/PokerButton';
+import { GlassCard } from '@/components/ui/GlassCard';
 
 export default function LobbyScreen() {
   const router = useRouter();
@@ -53,19 +55,25 @@ export default function LobbyScreen() {
       <PokerBackground>
         <YStack flex={1} paddingTop="$10">
 
-          <YStack alignItems="center" marginBottom="$4">
+          <YStack 
+            alignItems="center" 
+            marginBottom="$4" 
+            paddingHorizontal="$4"
+            paddingBottom="$4"
+            backgroundColor="$overlay9"
+            borderBottomWidth={1}
+            borderBottomColor="$overlay3"
+          >
             <Users size={40} color="$primary" />
-            <H2 color="white" fontWeight="900" marginTop="$2">Qui est là ?</H2>
-            <Text color="rgba(255,255,255,0.6)">Cochez les joueurs présents</Text>
+            <H2 color="$text95" fontWeight="900" marginTop="$2">Qui est là ?</H2>
+            <Text color="$text60">Cochez les joueurs présents</Text>
           </YStack>
-
-          <Separator borderColor="rgba(255,255,255,0.1)" marginBottom="$2" />
 
           <ScrollView>
             <YStack padding="$4" gap="$5">
 
               <YStack gap="$3">
-                <Text color="rgba(255,255,255,0.5)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Membres Officiels</Text>
+                <Text color="$text60" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Membres Officiels</Text>
                 {memberDetails.map(member => (
                   <SelectionCard 
                     key={member.id}
@@ -80,8 +88,17 @@ export default function LobbyScreen() {
               </YStack>
 
               <YStack gap="$3">
-                <Text color="rgba(255,255,255,0.5)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Invités</Text>
-                {group.guests.length === 0 ? <Text color="rgba(255,255,255,0.4)" fontStyle="italic">Aucun invité.</Text> : 
+                <Text color="$text60" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Invités</Text>
+                {group.guests.length === 0 ? 
+                  <YStack 
+                    padding="$4" 
+                    backgroundColor="$glass2" 
+                    borderRadius="$5" 
+                    borderWidth={1} 
+                    borderColor="$glass4"
+                  >
+                    <Text color="$text40" fontStyle="italic" textAlign="center">Aucun invité pour le moment</Text>
+                  </YStack> : 
                   group.guests.map(guest => (
                     <SelectionCard 
                       key={guest.id}
@@ -97,10 +114,19 @@ export default function LobbyScreen() {
             </YStack>
           </ScrollView>
 
-          <YStack padding="$4" backgroundColor="rgba(0,0,0,0.5)" borderTopWidth={1} borderColor="rgba(255,255,255,0.1)">
-            <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" icon={isLaunching ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isLaunching} onPress={handleStartGame}>
-              {isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers})`}
-            </Button>
+          <YStack 
+            padding="$4" 
+            backgroundColor="$overlay9" 
+            borderTopWidth={1} 
+            borderTopColor="$overlay3"
+          >
+            <PokerButton 
+              variant="primary" 
+              icon={isLaunching ? <Spinner color="$backgroundStrong" /> : <Play size={20} />} 
+              title={isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers})`}
+              disabled={isLaunching} 
+              onPress={handleStartGame}
+            />
           </YStack>
 
         </YStack>

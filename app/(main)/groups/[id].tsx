@@ -11,6 +11,7 @@ import { MemberList } from '@/components/group/MemberList';
 import { GuestList } from '@/components/group/GuestList';
 import { GroupActions } from '@/components/group/GroupActions';
 import { AddGuestSheet } from '@/components/group/AddGuestSheet';
+import { PokerBackground } from '@/components/ui/PokerBackground';
 
 // --- IMPORT DES SOUS-COMPOSANTS ---
 
@@ -40,7 +41,7 @@ export default function GroupDetailScreen() {
     Alert.alert("Supprimer le Club", "Es-tu sûr de vouloir supprimer définitivement ce Club et tous ses invités ?", [
       { text: "Annuler", style: "cancel" },
       { text: "Supprimer", style: "destructive", onPress: async () => {
-          if (await deleteGroup()) router.replace('/(main)/groups');
+          if (await deleteGroup()) router.replace('/(main)/(tabs)/groups');
         } 
       }
     ]);
@@ -52,26 +53,26 @@ export default function GroupDetailScreen() {
 
   return (
     <Theme name="dark">
-      <YStack flex={1} backgroundColor="$background" paddingTop="$10">
+      <PokerBackground>
+        <YStack flex={1} paddingTop="$10">
 
-        <GroupHeader name={group.name} totalPlayers={group.members.length + group.guests.length} />
+          <GroupHeader name={group.name} totalPlayers={group.members.length + group.guests.length} />
 
-        <InviteCodeCard code={group.inviteCode} onShare={shareInviteCode} />
+          <InviteCodeCard code={group.inviteCode} onShare={shareInviteCode} />
 
-        <Separator borderColor="$borderColor" />
+          <ScrollView style={{ flex: 1 }}>
+            <YStack padding="$4" gap="$5">
+              <MemberList members={memberDetails} ownerId={group.ownerId} currentUserId={user?.id} />
+              <GuestList guests={group.guests} isOwner={isOwner} onAddGuest={() => setIsGuestSheetOpen(true)} />
+            </YStack>
+          </ScrollView>
 
-        <ScrollView style={{ flex: 1 }}>
-          <YStack padding="$4" gap="$5">
-            <MemberList members={memberDetails} ownerId={group.ownerId} currentUserId={user?.id} />
-            <GuestList guests={group.guests} isOwner={isOwner} onAddGuest={() => setIsGuestSheetOpen(true)} />
-          </YStack>
-        </ScrollView>
+          <GroupActions isOwner={isOwner} onConfigureGame={handleLaunchGroupGame} onDeleteGroup={handleDeleteGroup} />
 
-        <GroupActions isOwner={isOwner} onConfigureGame={handleLaunchGroupGame} onDeleteGroup={handleDeleteGroup} />
+          <AddGuestSheet isOpen={isGuestSheetOpen} onOpenChange={setIsGuestSheetOpen} onAddGuest={(name) => addGuestToGroup(name)} />
 
-        <AddGuestSheet isOpen={isGuestSheetOpen} onOpenChange={setIsGuestSheetOpen} onAddGuest={(name) => addGuestToGroup(name)} />
-
-      </YStack>
+        </YStack>
+      </PokerBackground>
     </Theme>
   );
 }
