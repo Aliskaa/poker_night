@@ -1,12 +1,13 @@
-import React from 'react';
-import { ScrollView } from 'react-native';
-import { useAuth, useUser } from '@clerk/clerk-expo';
-import { useRouter } from 'expo-router';
-import { Avatar, Button, Card, H3, Separator, Text, Theme, XStack, YStack } from 'tamagui';
-import { LogOut, Settings, BookOpen, ShieldCheck, Calendar, Wallet, Trophy, TrendingUp } from '@tamagui/lucide-icons';
-import { useUserLogic } from '@/hooks/useUserLogic';
+import { ChipStack } from '@/components/ui/ChipStack';
+import { GlassCard } from '@/components/ui/GlassCard';
 import { PokerBackground } from '@/components/ui/PokerBackground';
-import { PokerButton } from '@/components/ui';
+import { PokerButton } from '@/components/ui/PokerButton';
+import { useUserLogic } from '@/hooks/useUserLogic';
+import { useAuth, useUser } from '@clerk/clerk-expo';
+import { BookOpen, Calendar, LogOut, Medal, Settings, ShieldCheck, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { Avatar, H3, ScrollView, Separator, Text, Theme, XStack, YStack } from 'tamagui';
 
 export default function ProfileScreen() {
     const { user } = useUser();
@@ -24,107 +25,177 @@ export default function ProfileScreen() {
     return (
         <Theme name="dark">
             <PokerBackground>
-                <YStack flex={1}>
-                    {/* 1. HEADER PASSEPORT TRANSPARENT */}
-                    <YStack
-                        backgroundColor="rgba(0,0,0,0.6)" // Fond sombre semi-transparent
-                        paddingHorizontal="$4" paddingTop="$10" paddingBottom="$6"
-                        borderBottomLeftRadius={30} borderBottomRightRadius={30}
-                        borderBottomWidth={1} borderColor="rgba(255,255,255,0.1)"
-                    >
-                        <XStack alignItems="center" gap="$4">
-                            <Avatar circular size="$10" borderWidth={4} borderColor="$primary">
-                                <Avatar.Image src={user?.imageUrl} />
-                                <Avatar.Fallback backgroundColor="$accent" />
-                            </Avatar>
-                            <YStack flex={1}>
-                                <H3 color="white" fontWeight="900">{user?.fullName || user?.username}</H3>
-                                <Text color="rgba(255,255,255,0.7)" fontSize="$3">{user?.primaryEmailAddress?.emailAddress}</Text>
+                <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+                    <YStack paddingTop="$8">
 
-                                <XStack alignItems="center" gap="$1.5" marginTop="$2" backgroundColor="rgba(255,255,255,0.1)" alignSelf="flex-start" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$4">
-                                    <Calendar size={12} color="rgba(255,255,255,0.7)" />
-                                    <Text color="rgba(255,255,255,0.7)" fontSize="$2">Membre depuis {memberSince}</Text>
-                                </XStack>
-                            </YStack>
-                        </XStack>
+                        {/* 1. HEADER PASSEPORT */}
+                        <YStack
+                            paddingHorizontal="$4"
+                            paddingTop="$10"
+                            paddingBottom="$6"
+                            borderBottomLeftRadius={30}
+                            borderBottomRightRadius={30}
+                            borderBottomWidth={1}
+                            borderColor="$overlay3"
+                            gap="$4"
+                        >
+                            <XStack alignItems="center" gap="$4">
+                                <Avatar circular size="$10" borderWidth={4} borderColor="$primary">
+                                    <Avatar.Image src={user?.imageUrl} />
+                                    <Avatar.Fallback backgroundColor="$glass4" />
+                                </Avatar>
+                                <YStack flex={1}>
+                                    <H3 color="$text95" fontWeight="900">{user?.fullName || user?.username}</H3>
+                                    <Text color="$text60" fontSize="$3">{user?.primaryEmailAddress?.emailAddress}</Text>
 
-                        {/* STATS */}
-                        <XStack marginTop="$6" justifyContent="space-around" backgroundColor="rgba(255,255,255,0.05)" padding="$3" borderRadius="$6" borderColor="rgba(255,255,255,0.1)" borderWidth={1}>
-                            <StatItem label="Parties" value={String(currentUserStats.gamesPlayed)} />
-                            <Separator vertical borderColor="rgba(255,255,255,0.1)" height={30} />
-                            <StatItem label="Victoires" value={String(currentUserStats.wins || 0)} color="$primary" />
-                            <Separator vertical borderColor="rgba(255,255,255,0.1)" height={30} />
-                            <StatItem label="ROI" value="N/A" />
-                        </XStack>
-                    </YStack>
+                                    <XStack
+                                        alignItems="center"
+                                        gap="$1.5"
+                                        marginTop="$2"
+                                        backgroundColor="$glass2"
+                                        alignSelf="flex-start"
+                                        paddingHorizontal="$2"
+                                        paddingVertical="$1"
+                                        borderRadius="$4"
+                                    >
+                                        <Calendar size={12} color="$text60" />
+                                        <Text color="$text60" fontSize="$2">Membre depuis {memberSince}</Text>
+                                    </XStack>
+                                </YStack>
+                            </XStack>
 
-                    <ScrollView>
-                        <YStack padding="$4" gap="$5" paddingBottom="$10">
-
-                            {/* 2. FINANCE */}
+                            {/* STATS *PERFORMANCE */}
                             <YStack gap="$3">
-                                <Text color="rgba(255,255,255,0.5)" fontWeight="bold" fontSize="$2" textTransform="uppercase" letterSpacing={1}>Performance</Text>
-                                <Card flex={2} bordered backgroundColor="rgba(0,0,0,0.3)" borderColor={currentUserStats.netProfit >= 0 ? "$success" : "$danger"} padding="$3">
-                                    <YStack>
-                                        <XStack alignItems="center" gap="$2" marginBottom="$1">
-                                            <Wallet size={16} color={currentUserStats.netProfit >= 0 ? "$success" : "$danger"} />
-                                            <Text color={currentUserStats.netProfit >= 0 ? "$success" : "$danger"} fontWeight="bold">Profit Net</Text>
-                                        </XStack>
-                                        <Text color="white" fontSize="$8" fontWeight="900">{currentUserStats.netProfit > 0 ? "+" : ""}{currentUserStats.netProfit}€</Text>
-                                    </YStack>
-                                </Card>
+                                <Text color="$text60" fontWeight="bold" fontSize="$2" textTransform="uppercase" letterSpacing={1}>
+                                    Performance
+                                </Text>
+
+                                {/* Profit Net - Hero Card */}
+                                <YStack
+                                    padding="$5"
+                                    backgroundColor={currentUserStats.netProfit >= 0 ? "$successBg" : "$dangerBg"}
+                                    borderColor={currentUserStats.netProfit >= 0 ? "$success" : "$danger"}
+                                    borderWidth={2}
+                                    borderRadius="$6"
+                                    gap="$2"
+                                >
+                                    <XStack alignItems="center" gap="$2">
+                                        <Target size={20} color={currentUserStats.netProfit >= 0 ? "$success" : "$danger"} />
+                                        <Text
+                                            color={currentUserStats.netProfit >= 0 ? "$success" : "$danger"}
+                                            fontWeight="bold"
+                                            fontSize="$3"
+                                        >
+                                            Profit Net
+                                        </Text>
+                                    </XStack>
+                                    <ChipStack
+                                        amount={currentUserStats.netProfit}
+                                        variant={currentUserStats.netProfit >= 0 ? 'pot' : 'default'}
+                                        size="lg"
+                                    />
+                                </YStack>
+
+                                {/* Stats secondaires */}
                                 <XStack gap="$3">
-                                    <DetailCard label="Investi" value={`${currentUserStats.totalInvested}€`} icon={<TrendingUp size={14} />} />
-                                    <DetailCard label="Gagné" value={`${currentUserStats.totalWinnings}€`} icon={<Trophy size={14} />} />
+                                    <YStack
+                                        flex={1}
+                                        padding="$4"
+                                        backgroundColor="$glass2"
+                                        borderColor="$glass4"
+                                        borderWidth={1}
+                                        borderRadius="$5"
+                                        gap="$2"
+                                    >
+                                        <XStack alignItems="center" gap="$2">
+                                            <TrendingUp size={16} color="$text60" />
+                                            <Text color="$text60" fontSize="$2">Investi</Text>
+                                        </XStack>
+                                        <ChipStack amount={currentUserStats.totalInvested} size="md" />
+                                    </YStack>
+
+                                    <YStack
+                                        flex={1}
+                                        padding="$4"
+                                        backgroundColor="$glass2"
+                                        borderColor="$glass4"
+                                        borderWidth={1}
+                                        borderRadius="$5"
+                                        gap="$2"
+                                    >
+                                        <XStack alignItems="center" gap="$2">
+                                            <Trophy size={16} color="$primary" />
+                                            <Text color="$text60" fontSize="$2">Gagné</Text>
+                                        </XStack>
+                                        <ChipStack amount={currentUserStats.totalWinnings} size="md" variant="pot" />
+                                    </YStack>
                                 </XStack>
+
+                                {/* Meilleur classement */}
+                                {currentUserStats.bestRank < 9999 && (
+                                    <YStack
+                                        padding="$4"
+                                        backgroundColor="$goldBg"
+                                        borderColor="$primary"
+                                        borderWidth={1}
+                                        borderRadius="$5"
+                                    >
+                                        <XStack alignItems="center" gap="$2" justifyContent="space-between">
+                                            <XStack alignItems="center" gap="$2">
+                                                <Medal size={18} color="$primary" />
+                                                <Text color="$text95" fontSize="$3" fontWeight="600">
+                                                    Meilleur classement
+                                                </Text>
+                                            </XStack>
+                                            <Text color="$primary" fontSize="$6" fontWeight="900">
+                                                #{currentUserStats.bestRank}
+                                            </Text>
+                                        </XStack>
+                                    </YStack>
+                                )}
                             </YStack>
 
-                            <Separator borderColor="rgba(255,255,255,0.1)" />
+                            <Separator borderColor="$overlay3" />
 
                             {/* 3. MENU */}
-                            <YStack gap="$1">
-                                <ListItem icon={<BookOpen />} title="Règles & Combinaisons" subtitle="Mémo" onPress={() => router.push('/(main)/hand-ranking')} />
-                                <ListItem icon={<Settings />} title="Paramètres" onPress={() => { }} />
-                                <ListItem icon={<ShieldCheck />} title="Confidentialité" onPress={() => { }} isLast />
+                            <YStack gap="$3">
+                                <Text color="$text60" fontWeight="bold" fontSize="$2" textTransform="uppercase" letterSpacing={1}>
+                                    Paramètres
+                                </Text>
+
+                                <GlassCard
+                                    icon={<BookOpen size={20} />}
+                                    title="Règles & Combinaisons"
+                                    subtitle="Mémo poker"
+                                    onPress={() => router.push('/(main)/hand-ranking')}
+                                />
+                                <GlassCard
+                                    icon={<Settings size={20} />}
+                                    title="Paramètres"
+                                    subtitle="Préférences"
+                                    onPress={() => { }}
+                                />
+                                <GlassCard
+                                    icon={<ShieldCheck size={20} />}
+                                    title="Confidentialité"
+                                    subtitle="Données & sécurité"
+                                    onPress={() => { }}
+                                />
                             </YStack>
 
-                            <PokerButton size="$1" variant="danger" icon={<LogOut />} title="Se déconnecter" onPress={handleSignOut} />
+                            <Separator borderColor="$overlay3" marginVertical="$2" />
 
+                            <PokerButton
+                                variant="danger"
+                                icon={<LogOut size={20} />}
+                                title="Se déconnecter"
+                                onPress={handleSignOut}
+                            />
 
                         </YStack>
-                    </ScrollView>
-                </YStack>
+                    </YStack>
+                </ScrollView>
             </PokerBackground>
         </Theme>
     );
 }
-
-const StatItem = ({ label, value, color = "white" }: any) => (
-    <YStack alignItems="center">
-        <Text color="rgba(255,255,255,0.5)" fontSize="$2" fontWeight="600">{label}</Text>
-        <Text color={color} fontSize="$5" fontWeight="900">{value}</Text>
-    </YStack>
-);
-
-const DetailCard = ({ label, value, icon }: any) => (
-    <Card flex={1} bordered backgroundColor="rgba(255,255,255,0.05)" borderColor="rgba(255,255,255,0.1)" padding="$3">
-        <XStack alignItems="center" gap="$2" marginBottom="$1">
-            {React.cloneElement(icon, { color: '#9ca3af' })}
-            <Text color="rgba(255,255,255,0.5)" fontSize="$2">{label}</Text>
-        </XStack>
-        <Text color="white" fontSize="$5" fontWeight="bold">{value}</Text>
-    </Card>
-);
-
-const ListItem = ({ icon, title, onPress, isLast }: any) => (
-    <YStack>
-        <XStack paddingVertical="$4" paddingHorizontal="$2" alignItems="center" justifyContent="space-between" onPress={onPress} pressStyle={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
-            <XStack alignItems="center" gap="$3">
-                {React.cloneElement(icon, { size: 20, color: '#fbbf24' })}
-                <Text color="white" fontSize="$4" fontWeight="600">{title}</Text>
-            </XStack>
-            <Text color="rgba(255,255,255,0.3)">›</Text>
-        </XStack>
-        {!isLast && <Separator borderColor="rgba(255,255,255,0.1)" />}
-    </YStack>
-);
