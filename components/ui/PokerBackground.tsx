@@ -4,7 +4,7 @@ import { YStack } from 'tamagui';
 
 export const PokerBackground = ({ children }: { children: React.ReactNode }) => {
   return (
-    <YStack flex={1} backgroundColor="#064e3b"> {/* Vert Forêt Profond */}
+    <YStack flex={1} backgroundColor="$background"> {/* Vert Forêt Profond */}
       
       {/* 1. Lumière venue du haut (Spotlight) */}
       {/* Donne l'impression qu'une lampe éclaire le centre de la table */}

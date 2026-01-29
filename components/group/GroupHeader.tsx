@@ -5,7 +5,7 @@ import { Users } from '@tamagui/lucide-icons';
 export function GroupHeader({ name, totalPlayers }: { name: string, totalPlayers: number }) {
   return (
     <YStack alignItems="center" marginBottom="$4">
-      <Avatar circular size="$6" borderColor="$potGold" borderWidth={2} marginBottom="$2">
+      <Avatar circular size="$6" borderColor="$primary" borderWidth={2} marginBottom="$2">
         <Avatar.Fallback backgroundColor="$backgroundStrong" />
       </Avatar>
       <H1 color="$color" fontWeight="900" letterSpacing={-1}>{name}</H1>

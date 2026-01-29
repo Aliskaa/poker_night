@@ -12,8 +12,8 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
           <YStack flex={1} padding="$4" paddingTop="$10" gap="$4">
             
             <YStack alignItems="center" marginVertical="$6">
-              <Trophy size={64} color="$potGold" style={{ shadowColor: '#fbbf24', shadowRadius: 10, shadowOpacity: 0.5 }} />
-              <H1 color="$potGold" marginTop="$2" fontWeight="900" textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Résultats</H1>
+              <Trophy size={64} color="$primary" style={{ shadowColor: '#fbbf24', shadowRadius: 10, shadowOpacity: 0.5 }} />
+              <H1 color="$primary" marginTop="$2" fontWeight="900" textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Résultats</H1>
               <Text color="rgba(255,255,255,0.7)" fontSize="$4">Pot final: {String(game.totalPot)}€</Text>
             </YStack>
 
@@ -30,12 +30,12 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
                       bordered
                       // Le vainqueur en Gold transparent, les autres en Verre
                       backgroundColor={isWinner ? "rgba(251, 191, 36, 0.15)" : "rgba(255, 255, 255, 0.05)"}
-                      borderColor={isWinner ? "$potGold" : "rgba(255, 255, 255, 0.1)"}
+                      borderColor={isWinner ? "$primary" : "rgba(255, 255, 255, 0.1)"}
                       borderWidth={isWinner ? 2 : 1}
                     >
                       <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
                         <XStack gap="$3" alignItems="center">
-                          <H3 fontWeight="900" color={isWinner ? "$potGold" : "rgba(255,255,255,0.5)"}>
+                          <H3 fontWeight="900" color={isWinner ? "$primary" : "rgba(255,255,255,0.5)"}>
                             #{String(player.finalRank)}
                           </H3>
                           <YStack>
@@ -56,7 +56,7 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
               </YStack>
             </ScrollView>
 
-            <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" onPress={onClose}>
+            <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" onPress={onClose}>
               Fermer la table
             </Button>
           </YStack>

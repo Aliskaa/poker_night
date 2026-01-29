@@ -15,14 +15,14 @@ export function HelpBottomSheet({ isOpen, onOpenChange, timerSeconds, isTimerRun
         <Sheet modal open={isOpen} onOpenChange={onOpenChange} snapPoints={[85]} dismissOnSnapToBottom>
             <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
             <Sheet.Handle backgroundColor="rgba(255,255,255,0.2)" />
-            <Sheet.Frame padding="$4" gap="$4" backgroundColor="#064e3b">
+            <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
 
                 {/* TIMER PREMIUM */}
                 <Card bordered backgroundColor="rgba(0,0,0,0.3)" borderColor="rgba(255,255,255,0.1)" padding="$4">
                     <XStack justifyContent="space-between" alignItems="center">
                         <YStack>
                             <Text color="rgba(255,255,255,0.6)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Prochaine Blinde</Text>
-                            <H1 color={timerSeconds < 60 ? "$danger" : "$potGold"} fontSize="$8" fontWeight="900">
+                            <H1 color={timerSeconds < 60 ? "$danger" : "$primary"} fontSize="$8" fontWeight="900">
                                 {formatTime(timerSeconds)}
                             </H1>
                         </YStack>

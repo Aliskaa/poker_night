@@ -11,7 +11,7 @@ export function InviteCodeCard({ code, onShare }: { code: string, onShare: () =>
             Code d'invitation du Club
           </Text>
           <XStack alignItems="center" gap="$3">
-            <Text color="$potGold" fontSize="$8" fontWeight="900" letterSpacing={4}>{code}</Text>
+            <Text color="$primary" fontSize="$8" fontWeight="900" letterSpacing={4}>{code}</Text>
             <Button circular size="$4" backgroundColor="$accent" icon={<Share2 size={18} color="white" />} onPress={onShare} />
           </XStack>
         </YStack>

@@ -18,7 +18,7 @@ export default function TabLayout() {
                     paddingBottom: 8,
                     // paddingTop: 8,
                 },
-                tabBarActiveTintColor: '#fbbf24', // $potGold (Jaune/Or)
+                tabBarActiveTintColor: '#fbbf24', // $primary (Jaune/Or)
                 tabBarInactiveTintColor: '#9ca3af', // $colorMuted (Gris)
             }}
         >
@@ -46,7 +46,7 @@ export default function TabLayout() {
                             style={{
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#fbbf24', // $potGold
+                                backgroundColor: '#fbbf24', // $primary
                                 height: 56,
                                 width: 56,
                                 borderRadius: 28,

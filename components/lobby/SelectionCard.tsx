@@ -34,7 +34,7 @@ export function SelectionCard({ isSelected, isDisabled, name, avatarUrl, isGhost
 
         <YStack flex={1}>
           <Text color={isSelected ? "$success" : "$color"} fontWeight="bold">{name}</Text>
-          {subtitle && <Text color="$potGold" fontSize="$2">{subtitle}</Text>}
+          {subtitle && <Text color="$primary" fontSize="$2">{subtitle}</Text>}
         </YStack>
       </Card.Header>
     </Card>

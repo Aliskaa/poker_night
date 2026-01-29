@@ -44,7 +44,7 @@ export default function LobbyScreen() {
     else alert("Erreur lors de la création.");
   };
 
-  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
+  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
 
   const totalPlayers = selectedMembers.length + selectedGuests.length;
 
@@ -54,7 +54,7 @@ export default function LobbyScreen() {
         <YStack flex={1} paddingTop="$10">
 
           <YStack alignItems="center" marginBottom="$4">
-            <Users size={40} color="$potGold" />
+            <Users size={40} color="$primary" />
             <H2 color="white" fontWeight="900" marginTop="$2">Qui est là ?</H2>
             <Text color="rgba(255,255,255,0.6)">Cochez les joueurs présents</Text>
           </YStack>
@@ -98,7 +98,7 @@ export default function LobbyScreen() {
           </ScrollView>
 
           <YStack padding="$4" backgroundColor="rgba(0,0,0,0.5)" borderTopWidth={1} borderColor="rgba(255,255,255,0.1)">
-            <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" icon={isLaunching ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isLaunching} onPress={handleStartGame}>
+            <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" icon={isLaunching ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isLaunching} onPress={handleStartGame}>
               {isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers})`}
             </Button>
           </YStack>

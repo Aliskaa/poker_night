@@ -32,7 +32,7 @@ export default function GroupsScreen() {
         setIsJoinOpen(false);
     }
 
-    if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
+    if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
 
     return (
         <Theme name="dark">
@@ -42,7 +42,7 @@ export default function GroupsScreen() {
                     {/* EN-TÊTE */}
                     <YStack alignItems="center" marginBottom="$6">
                         <YStack backgroundColor="rgba(251, 191, 36, 0.1)" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="rgba(251, 191, 36, 0.3)" borderWidth={1}>
-                            <Users size={32} color="$potGold" />
+                            <Users size={32} color="$primary" />
                         </YStack>
                         <H1 color="white" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Mes Clubs</H1>
                         <Text color="rgba(255,255,255,0.6)" letterSpacing={1} textTransform="uppercase" fontSize="$2">
@@ -57,7 +57,7 @@ export default function GroupsScreen() {
                             // Style Verre
                             backgroundColor="rgba(255,255,255,0.1)"
                             borderColor="rgba(255,255,255,0.2)" borderWidth={1}
-                            icon={<Key size={18} color="$potGold" />}
+                            icon={<Key size={18} color="$primary" />}
                             onPress={() => setIsJoinOpen(true)}
                         >
                             <Text color="white" fontWeight="bold">Rejoindre</Text>
@@ -65,12 +65,12 @@ export default function GroupsScreen() {
                         <Button
                             flex={1} size="$4"
                             // Style Or Premium
-                            backgroundColor="$potGold"
-                            icon={<Plus size={18} color="$nightBase" />}
+                            backgroundColor="$primary"
+                            icon={<Plus size={18} color="$backgroundStrong" />}
                             onPress={() => setIsCreateOpen(true)}
                             pressStyle={{ opacity: 0.9, scale: 0.98 }}
                         >
-                            <Text color="$nightBase" fontWeight="900">Créer un Club</Text>
+                            <Text color="$backgroundStrong" fontWeight="900">Créer un Club</Text>
                         </Button>
                     </XStack>
 
@@ -91,20 +91,20 @@ export default function GroupsScreen() {
                                             bordered
                                             // Glassmorphism
                                             backgroundColor="rgba(255, 255, 255, 0.05)"
-                                            borderColor={isOwner ? "$potGold" : "rgba(255, 255, 255, 0.1)"}
+                                            borderColor={isOwner ? "$primary" : "rgba(255, 255, 255, 0.1)"}
                                             borderWidth={1}
                                             pressStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', scale: 0.99 }}
                                             onPress={() => router.push(`/(main)/groups/${group.id}`)}
                                         >
                                             <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
-                                                <Avatar circular size="$5" borderColor={isOwner ? "$potGold" : "rgba(255,255,255,0.2)"} borderWidth={2}>
+                                                <Avatar circular size="$5" borderColor={isOwner ? "$primary" : "rgba(255,255,255,0.2)"} borderWidth={2}>
                                                     <Avatar.Fallback backgroundColor="rgba(0,0,0,0.3)" />
                                                     {/* Tu peux remettre Avatar.Image ici */}
                                                 </Avatar>
                                                 <YStack flex={1}>
                                                     <XStack alignItems="center" gap="$2">
                                                         <H4 color="white" fontWeight="bold">{group.name}</H4>
-                                                        {isOwner && <Crown size={14} color="$potGold" />}
+                                                        {isOwner && <Crown size={14} color="$primary" />}
                                                     </XStack>
                                                     <Text color="rgba(255,255,255,0.5)" fontSize="$2">{group.members.length} membres</Text>
                                                 </YStack>
@@ -124,8 +124,8 @@ export default function GroupsScreen() {
                         <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
                             <H4 color="$color" textAlign="center">Nouveau Club</H4>
                             <Input size="$5" placeholder="Nom du Club" value={newGroupName} onChangeText={setNewGroupName} backgroundColor="$background" borderColor="$borderColor" />
-                            <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" disabled={!newGroupName || loading} onPress={handleCreateGroup}>
-                                {loading ? <Spinner color="$nightBase" /> : 'Valider'}
+                            <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" disabled={!newGroupName || loading} onPress={handleCreateGroup}>
+                                {loading ? <Spinner color="$backgroundStrong" /> : 'Valider'}
                             </Button>
                         </Sheet.Frame>
                     </Sheet>

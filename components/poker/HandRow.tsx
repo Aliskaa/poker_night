@@ -11,7 +11,7 @@ export function HandRow({ hand }: { hand: PokerHand }) {
         <Card
             bordered
             backgroundColor={isTop3 ? "rgba(251, 191, 36, 0.1)" : "rgba(255, 255, 255, 0.05)"}
-            borderColor={isTop3 ? "$potGold" : "rgba(255, 255, 255, 0.1)"}
+            borderColor={isTop3 ? "$primary" : "rgba(255, 255, 255, 0.1)"}
             borderWidth={1}
         >
             <Card.Header padded gap="$3">
@@ -20,12 +20,12 @@ export function HandRow({ hand }: { hand: PokerHand }) {
                     <XStack alignItems="center" gap="$3">
                         <YStack
                             width={28} height={28} borderRadius={14}
-                            backgroundColor={isTop3 ? "$potGold" : "rgba(255,255,255,0.1)"}
+                            backgroundColor={isTop3 ? "$primary" : "rgba(255,255,255,0.1)"}
                             justifyContent="center" alignItems="center"
                         >
-                            <Text color={isTop3 ? "$nightBase" : "white"} fontWeight="900" fontSize="$3">#{hand.rank}</Text>
+                            <Text color={isTop3 ? "$backgroundStrong" : "white"} fontWeight="900" fontSize="$3">#{hand.rank}</Text>
                         </YStack>
-                        <Text color={isTop3 ? "$potGold" : "white"} fontWeight="bold" fontSize="$5">{hand.name}</Text>
+                        <Text color={isTop3 ? "$primary" : "white"} fontWeight="bold" fontSize="$5">{hand.name}</Text>
                     </XStack>
                 </XStack>
 

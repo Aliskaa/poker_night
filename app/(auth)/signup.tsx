@@ -116,7 +116,7 @@ export default function SignUpScreen() {
         {/* EN-TÊTE */}
         <YStack gap="$2" marginBottom="$6" alignItems="center">
             <YStack backgroundColor="rgba(251, 191, 36, 0.1)" padding="$3" borderRadius="$5" marginBottom="$2">
-                <Crown size={40} color="$potGold" />
+                <Crown size={40} color="$primary" />
             </YStack>
             <H1 textAlign="center" color="$color" fontWeight="900">Nouveau Joueur</H1>
             <Text textAlign="center" color="$colorMuted" letterSpacing={1} textTransform="uppercase" fontSize="$2">
@@ -143,19 +143,19 @@ export default function SignUpScreen() {
           <Button 
             size="$5" 
             onPress={onSignUpPress} 
-            backgroundColor="$potGold" 
-            color="$nightBase" 
+            backgroundColor="$primary" 
+            color="$backgroundStrong" 
             fontWeight="900"
             disabled={loading}
           >
-            {loading ? <Spinner color="$nightBase" /> : "Rejoindre la table"}
+            {loading ? <Spinner color="$backgroundStrong" /> : "Rejoindre la table"}
           </Button>
         </YStack>
 
         <XStack justifyContent="center" marginTop="$4">
           <Text color="$colorMuted">Déjà inscrit ? </Text>
           <Link href="/(auth)/login" asChild>
-            <Text color="$potGold" fontWeight="bold">Se connecter</Text>
+            <Text color="$primary" fontWeight="bold">Se connecter</Text>
           </Link>
         </XStack>
         </YStack>

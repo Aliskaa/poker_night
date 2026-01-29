@@ -10,6 +10,7 @@ import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { HeroPlayCard } from '@/components/home/HeroPlayCard';
 import { PokerBackground } from '@/components/ui/PokerBackground'; // <-- Import du tapis
+import { UIShowcase } from '@/components/ui/UIShowcase';
 
 export default function HomeScreen() {
   const { user } = useUser();
@@ -21,6 +22,7 @@ export default function HomeScreen() {
       {/* ON ENGLOBE TOUT DANS LE TAPIS VERT */}
       <PokerBackground>
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+        <UIShowcase />
           <YStack padding="$4" paddingTop="$8" gap="$6">
 
             {/* 1. HEADER */}

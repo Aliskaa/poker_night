@@ -82,8 +82,8 @@ export default function GameScreen() {
     } catch (error) { console.error("Erreur partage :", error); }
   }
 
-  if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
-  if (!game) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><AlertTriangle size={48} color="$danger" /><Text color="white">Partie introuvable</Text></YStack>;
+  if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
+  if (!game) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><AlertTriangle size={48} color="$danger" /><Text color="white">Partie introuvable</Text></YStack>;
 
   if (game.status === 'FINISHED') return <GamePodium game={game} onClose={() => router.replace('/(main)/(tabs)/groups')} />;
 
@@ -111,7 +111,7 @@ export default function GameScreen() {
           <ScrollView style={{ flex: 1 }}>
             <YStack padding="$4" gap="$3">
               {isHeadsUpFinished && (
-                <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" icon={<Trophy size={20} color="black" />} onPress={endGame} mb="$4">
+                <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" icon={<Trophy size={20} color="black" />} onPress={endGame} mb="$4">
                   Terminer la partie
                 </Button>
               )}

@@ -32,7 +32,7 @@ export default function ProfileScreen() {
                         borderBottomWidth={1} borderColor="rgba(255,255,255,0.1)"
                     >
                         <XStack alignItems="center" gap="$4">
-                            <Avatar circular size="$10" borderWidth={4} borderColor="$potGold">
+                            <Avatar circular size="$10" borderWidth={4} borderColor="$primary">
                                 <Avatar.Image src={user?.imageUrl} />
                                 <Avatar.Fallback backgroundColor="$accent" />
                             </Avatar>
@@ -51,7 +51,7 @@ export default function ProfileScreen() {
                         <XStack marginTop="$6" justifyContent="space-around" backgroundColor="rgba(255,255,255,0.05)" padding="$3" borderRadius="$6" borderColor="rgba(255,255,255,0.1)" borderWidth={1}>
                             <StatItem label="Parties" value={String(currentUserStats.gamesPlayed)} />
                             <Separator vertical borderColor="rgba(255,255,255,0.1)" height={30} />
-                            <StatItem label="Victoires" value={String(currentUserStats.wins || 0)} color="$potGold" />
+                            <StatItem label="Victoires" value={String(currentUserStats.wins || 0)} color="$primary" />
                             <Separator vertical borderColor="rgba(255,255,255,0.1)" height={30} />
                             <StatItem label="ROI" value="N/A" />
                         </XStack>

@@ -10,7 +10,7 @@ export default function LeaderboardScreen() {
   const { user: currentUser } = useUser();
   const { leaderboard: players, loading } = useUserLogic();
 
-  if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="#064e3b"><Spinner size="large" color="$potGold" /></YStack>;
+  if (loading) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
 
   return (
     <Theme name="dark">
@@ -18,8 +18,8 @@ export default function LeaderboardScreen() {
         <YStack flex={1} paddingTop="$10">
 
           <YStack alignItems="center" marginBottom="$4">
-            <Trophy size={56} color="$potGold" style={{ shadowColor: 'black', shadowRadius: 10 }} />
-            <H1 color="$potGold" marginTop="$2" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Hall of Fame</H1>
+            <Trophy size={56} color="$primary" style={{ shadowColor: 'black', shadowRadius: 10 }} />
+            <H1 color="$primary" marginTop="$2" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Hall of Fame</H1>
             <Text color="rgba(255,255,255,0.6)" letterSpacing={1} textTransform="uppercase" fontSize="$3">
               Classement Général
             </Text>
@@ -33,7 +33,7 @@ export default function LeaderboardScreen() {
                 const isThird = player.rank === 3;
                 const isMe = player.id === currentUser?.id;
 
-                const rankColor = isFirst ? "$potGold" : isSecond ? "#e2e8f0" : isThird ? "#b45309" : "rgba(255,255,255,0.5)";
+                const rankColor = isFirst ? "$primary" : isSecond ? "#e2e8f0" : isThird ? "#b45309" : "rgba(255,255,255,0.5)";
                 const profitColor = player.netProfit > 0 ? "$success" : player.netProfit < 0 ? "$danger" : "$colorMuted";
 
                 return (
@@ -42,7 +42,7 @@ export default function LeaderboardScreen() {
                     bordered
                     // LE PREMIER A UN FOND GOLD LÉGER, LES AUTRES SONT GLASS
                     backgroundColor={isFirst ? "rgba(251, 191, 36, 0.15)" : "rgba(255, 255, 255, 0.05)"}
-                    borderColor={isMe ? "$accent" : isFirst ? "$potGold" : "rgba(255,255,255,0.1)"}
+                    borderColor={isMe ? "$accent" : isFirst ? "$primary" : "rgba(255,255,255,0.1)"}
                     borderWidth={isFirst || isMe ? 2 : 1}
                   >
                     <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">

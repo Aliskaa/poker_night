@@ -46,7 +46,7 @@ export default function GroupDetailScreen() {
     ]);
   };
 
-  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$potGold" /></YStack>;
+  if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
 
   const isOwner = group.ownerId === user?.id;
 

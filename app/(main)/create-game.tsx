@@ -38,14 +38,14 @@ export default function CreateGameScreen() {
       <PokerBackground>
         <YStack flex={1} paddingTop="$10">
           <YStack alignItems="center" marginBottom="$4">
-            <Settings2 size={40} color="$potGold" />
+            <Settings2 size={40} color="$primary" />
             <H2 color="white" fontWeight="900" marginTop="$2">Configuration</H2>
             <Text color="rgba(255,255,255,0.6)">Règles de la table</Text>
           </YStack>
 
           <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
             <YStack padding="$4" gap="$5">
-              <ConfigSection title="Mise de départ" icon={<Coins size={18} color="$potGold" />}>
+              <ConfigSection title="Mise de départ" icon={<Coins size={18} color="$primary" />}>
                 <XStack gap="$2" flexWrap="wrap">
                   {[5, 10, 20, 50].map((val) => (
                     <OptionButton key={val} label={`${val}€`} isSelected={buyIn === val} onPress={() => setBuyIn(val)} />
@@ -79,7 +79,7 @@ export default function CreateGameScreen() {
           </ScrollView>
 
           <YStack position="absolute" bottom="$0" left="$0" right="$0" padding="$4" backgroundColor="rgba(0,0,0,0.8)" borderTopWidth={1} borderColor="rgba(255,255,255,0.1)">
-            <Button size="$5" backgroundColor="$potGold" color="$nightBase" fontWeight="900" icon={isCreating ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isCreating} onPress={handleLaunchGame}>
+            <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" icon={isCreating ? <Spinner color="black" /> : <Play size={20} color="black" />} disabled={isCreating} onPress={handleLaunchGame}>
               {isCreating ? "Création..." : "Ouvrir la table"}
             </Button>
           </YStack>
@@ -94,12 +94,12 @@ function OptionButton({ label, isSelected, onPress }: { label: string, isSelecte
   return (
     <Button 
       size="$3" flex={1} minWidth={70} 
-      backgroundColor={isSelected ? "$potGold" : "rgba(255,255,255,0.05)"} 
-      borderColor={isSelected ? "$potGold" : "rgba(255,255,255,0.2)"} 
+      backgroundColor={isSelected ? "$primary" : "rgba(255,255,255,0.05)"} 
+      borderColor={isSelected ? "$primary" : "rgba(255,255,255,0.2)"} 
       borderWidth={1} 
       onPress={onPress}
     >
-      <Text color={isSelected ? "$nightBase" : "white"} fontWeight={isSelected ? "900" : "600"}>{label}</Text>
+      <Text color={isSelected ? "$backgroundStrong" : "white"} fontWeight={isSelected ? "900" : "600"}>{label}</Text>
     </Button>
   );
 }

@@ -86,9 +86,9 @@ export default function LoginScreen() {
                 {/* EN-TÊTE : Logo et Titre */}
                 <YStack gap="$2" marginBottom="$6" alignItems="center">
                     <YStack backgroundColor="rgba(251, 191, 36, 0.1)" padding="$3" borderRadius="$5" marginBottom="$2">
-                        <Spade size={40} color="$potGold" />
+                        <Spade size={40} color="$primary" />
                     </YStack>
-                    <H1 textAlign="center" color="$potGold" fontWeight="900" letterSpacing={-1}>
+                    <H1 textAlign="center" color="$primary" fontWeight="900" letterSpacing={-1}>
                         Poker Night
                     </H1>
                     <Text textAlign="center" color="$colorMuted" letterSpacing={1} textTransform="uppercase" fontSize="$2">
@@ -134,11 +134,11 @@ export default function LoginScreen() {
                     <Button
                         size="$5"
                         onPress={onSignInPress}
-                        backgroundColor="$potGold"
-                        color="$nightBase"
+                        backgroundColor="$primary"
+                        color="$backgroundStrong"
                         fontWeight="900"
                         disabled={loading}
-                        icon={loading ? <Spinner color="$nightBase" /> : <LogIn size={20} color="$nightBase" />}
+                        icon={loading ? <Spinner color="$backgroundStrong" /> : <LogIn size={20} color="$backgroundStrong" />}
                         pressStyle={{ scale: 0.98, opacity: 0.8 }}
                     >
                         {loading ? 'Connexion...' : 'Se connecter'}
@@ -172,7 +172,7 @@ export default function LoginScreen() {
                 <XStack justifyContent="center" marginTop="$4">
                     <Text color="$colorMuted">Pas encore inscrit ? </Text>
                     <Link href="/(auth)/signup" asChild>
-                        <Text color="$potGold" fontWeight="bold">Créer un compte</Text>
+                        <Text color="$primary" fontWeight="bold">Créer un compte</Text>
                     </Link>
                 </XStack>
 

@@ -22,7 +22,7 @@ export default function HandRankingScreen() {
                             onPress={() => router.back()} alignSelf="flex-start" marginBottom="$2"
                         />
                         <YStack alignItems="center">
-                            <Trophy size={40} color="$potGold" />
+                            <Trophy size={40} color="$primary" />
                             <H2 color="white" fontWeight="900" marginTop="$2" textAlign="center">Combinaisons</H2>
                             <Text color="rgba(255,255,255,0.6)" textAlign="center">De la plus forte à la plus faible</Text>
                         </YStack>

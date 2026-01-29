@@ -13,7 +13,7 @@ export function MemberList({ members, ownerId, currentUserId }: { members: any[]
         const isMe = member.id === currentUserId;
 
         return (
-          <XStack key={member.id} alignItems="center" gap="$3" backgroundColor="$backgroundStrong" padding="$3" borderRadius="$4" borderWidth={1} borderColor={isGroupOwner ? "$potGold" : "$borderColor"}>
+          <XStack key={member.id} alignItems="center" gap="$3" backgroundColor="$backgroundStrong" padding="$3" borderRadius="$4" borderWidth={1} borderColor={isGroupOwner ? "$primary" : "$borderColor"}>
             <Avatar circular size="$4">
               <Avatar.Image src={member.imageUrl || member.avatarUrl} />
               <Avatar.Fallback backgroundColor="$accent" />
@@ -23,7 +23,7 @@ export function MemberList({ members, ownerId, currentUserId }: { members: any[]
                 {member.firstName || member.username || "Joueur"} {isMe && "(Moi)"}
               </Text>
               {isGroupOwner ? (
-                <XStack alignItems="center" gap="$1"><Crown size={12} color="$potGold" /><Text color="$potGold" fontSize="$2" fontWeight="bold">Créateur</Text></XStack>
+                <XStack alignItems="center" gap="$1"><Crown size={12} color="$primary" /><Text color="$primary" fontSize="$2" fontWeight="bold">Créateur</Text></XStack>
               ) : (
                 <Text color="$colorMuted" fontSize="$2">Membre</Text>
               )}

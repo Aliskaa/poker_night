@@ -41,8 +41,8 @@ export function GameHeader({ totalPot, defaultBuyIn, lateRegLimit, lateRegSecond
 
       <Text color="$colorMuted" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={2}>Pot Total</Text>
       <XStack alignItems="center" gap="$2">
-        <Coins size={40} color="$potGold" />
-        <H1 fontSize="$9" color="$potGold" fontWeight="900" letterSpacing={-2}>{String(totalPot)} €</H1>
+        <Coins size={40} color="$primary" />
+        <H1 fontSize="$9" color="$primary" fontWeight="900" letterSpacing={-2}>{String(totalPot)} €</H1>
       </XStack>
 
       <XStack alignItems="center" gap="$3" marginTop="$2">
