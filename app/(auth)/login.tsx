@@ -85,7 +85,7 @@ export default function LoginScreen() {
                 
                 {/* EN-TÊTE : Logo et Titre */}
                 <YStack gap="$2" marginBottom="$6" alignItems="center">
-                    <YStack backgroundColor="rgba(251, 191, 36, 0.1)" padding="$3" borderRadius="$5" marginBottom="$2">
+                    <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$5" marginBottom="$2">
                         <Spade size={40} color="$primary" />
                     </YStack>
                     <H1 textAlign="center" color="$primary" fontWeight="900" letterSpacing={-1}>

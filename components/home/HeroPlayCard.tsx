@@ -36,16 +36,16 @@ export function HeroPlayCard({ onPress }: { onPress: () => void }) {
                 <XStack alignItems="center" justifyContent="space-between">
 
                     <YStack gap="$1">
-                        <XStack alignItems="center" gap="$2" backgroundColor="rgba(0,0,0,0.2)" alignSelf="flex-start" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$4">
-                            <Text color="white" fontSize="$2" fontWeight="bold" letterSpacing={1} textTransform="uppercase">
+                        <XStack alignItems="center" gap="$2" backgroundColor="$overlay9" alignSelf="flex-start" paddingHorizontal="$2" paddingVertical="$1" borderRadius="$4">
+                            <Text color="$text95" fontSize="$2" fontWeight="bold" letterSpacing={1} textTransform="uppercase">
                                 Texas Hold'em
                             </Text>
                         </XStack>
 
-                        <H2 color="white" fontWeight="900" fontSize="$9" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.3)" textShadowRadius={4}>
+                        <H2 color="$text95" fontWeight="900" fontSize="$9" letterSpacing={-1}>
                             JOUER
                         </H2>
-                        <Text color="rgba(255,255,255,0.8)" fontSize="$4" fontWeight="600">
+                        <Text color="$text80" fontSize="$4" fontWeight="600">
                             Lancer une nouvelle table
                         </Text>
                     </YStack>

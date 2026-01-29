@@ -14,30 +14,30 @@ export function HelpBottomSheet({ isOpen, onOpenChange, timerSeconds, isTimerRun
     return (
         <Sheet modal open={isOpen} onOpenChange={onOpenChange} snapPoints={[85]} dismissOnSnapToBottom>
             <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-            <Sheet.Handle backgroundColor="rgba(255,255,255,0.2)" />
+            <Sheet.Handle backgroundColor="$glass5" />
             <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
 
                 {/* TIMER PREMIUM */}
-                <Card bordered backgroundColor="rgba(0,0,0,0.3)" borderColor="rgba(255,255,255,0.1)" padding="$4">
+                <Card bordered backgroundColor="$glass3" borderColor="$glass5" padding="$4">
                     <XStack justifyContent="space-between" alignItems="center">
                         <YStack>
-                            <Text color="rgba(255,255,255,0.6)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Prochaine Blinde</Text>
+                            <Text color="$text60" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Prochaine Blinde</Text>
                             <H1 color={timerSeconds < 60 ? "$danger" : "$primary"} fontSize="$8" fontWeight="900">
                                 {formatTime(timerSeconds)}
                             </H1>
                         </YStack>
                         <XStack gap="$2">
-                            <Button circular size="$5" backgroundColor="transparent" borderColor="rgba(255,255,255,0.2)" borderWidth={1} icon={<RotateCcw size={20} color="white" />} onPress={onResetTimer} />
-                            <Button circular size="$5" backgroundColor={isTimerRunning ? "$danger" : "$success"} color="white" icon={isTimerRunning ? <Pause size={20} /> : <Play size={20} />} onPress={onToggleTimer} />
+                            <Button circular size="$5" backgroundColor="$glass2" borderColor="$glass4" borderWidth={1} icon={<RotateCcw size={20} color="$text95" />} onPress={onResetTimer} />
+                            <Button circular size="$5" backgroundColor={isTimerRunning ? "$danger" : "$success"} color="$text95" icon={isTimerRunning ? <Pause size={20} /> : <Play size={20} />} onPress={onToggleTimer} />
                         </XStack>
                     </XStack>
                 </Card>
 
-                <Separator borderColor="rgba(255,255,255,0.1)" />
+                <Separator borderColor="$overlay3" />
 
                 {/* AIDE MAINS (Réutilisée !) */}
                 <YStack flex={1} gap="$3">
-                    <Text color="rgba(255,255,255,0.6)" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Hiérarchie des mains</Text>
+                    <Text color="$text60" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Hiérarchie des mains</Text>
                     <ScrollView>
                         <YStack gap="$3" paddingBottom="$10">
                             {HAND_RANKINGS.map((hand) => (

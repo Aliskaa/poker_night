@@ -22,8 +22,8 @@ export default function LeaderboardScreen() {
 
           <YStack alignItems="center" marginBottom="$4">
             <Trophy size={56} color="$primary" style={{ shadowColor: 'black', shadowRadius: 10 }} />
-            <H1 color="$primary" marginTop="$2" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Hall of Fame</H1>
-            <Text color="rgba(255,255,255,0.6)" letterSpacing={1} textTransform="uppercase" fontSize="$3">
+            <H1 color="$primary" marginTop="$2" fontWeight="900" letterSpacing={-1}>Hall of Fame</H1>
+            <Text color="$text60" letterSpacing={1} textTransform="uppercase" fontSize="$3">
               Classement Général
             </Text>
           </YStack>
@@ -36,16 +36,15 @@ export default function LeaderboardScreen() {
                 const isThird = player.rank === 3;
                 const isMe = player.id === currentUser?.id;
 
-                const rankColor = isFirst ? "$primary" : isSecond ? "#e2e8f0" : isThird ? "#b45309" : "rgba(255,255,255,0.5)";
-                const profitColor = player.netProfit > 0 ? "$success" : player.netProfit < 0 ? "$danger" : "$colorMuted";
+                const rankColor = isFirst ? "$primary" : isSecond ? "#e2e8f0" : isThird ? "#b45309" : "$text60";
+                const profitColor = player.netProfit > 0 ? "$success" : player.netProfit < 0 ? "$danger" : "$text60";
 
                 return (
                   <Card
                     key={player.id}
                     bordered
-                    // LE PREMIER A UN FOND GOLD LÉGER, LES AUTRES SONT GLASS
-                    backgroundColor={isFirst ? "rgba(251, 191, 36, 0.15)" : "rgba(255, 255, 255, 0.05)"}
-                    borderColor={isMe ? "$accent" : isFirst ? "$primary" : "rgba(255,255,255,0.1)"}
+                    backgroundColor={isFirst ? "$goldBg" : "$glass2"}
+                    borderColor={isMe ? "$accent" : isFirst ? "$primary" : "$glass4"}
                     borderWidth={isFirst || isMe ? 2 : 1}
                   >
                     <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
@@ -54,19 +53,19 @@ export default function LeaderboardScreen() {
                         <YStack width={24} alignItems="center">
                           {isFirst ? <Trophy size={24} color={rankColor} /> :
                             isSecond || isThird ? <Medal size={24} color={rankColor} /> :
-                              <Text color="rgba(255,255,255,0.5)" fontSize="$5" fontWeight="900">#{player.rank}</Text>}
+                              <Text color="$text60" fontSize="$5" fontWeight="900">#{player.rank}</Text>}
                         </YStack>
 
                         <Avatar circular size="$4" borderColor={rankColor} borderWidth={2}>
                           <Avatar.Image src={player.avatarUrl} />
-                          <Avatar.Fallback backgroundColor="rgba(0,0,0,0.5)" />
+                          <Avatar.Fallback backgroundColor="$glass4" />
                         </Avatar>
 
                         <YStack flex={1}>
-                          <H4 color="white" fontWeight={isMe ? "900" : "700"} numberOfLines={1}>
+                          <H4 color="$text95" fontWeight={isMe ? "900" : "700"} numberOfLines={1}>
                             {isMe ? "Moi" : player.name}
                           </H4>
-                          <Text color="rgba(255,255,255,0.5)" fontSize="$2">{player.gamesPlayed} parties</Text>
+                          <Text color="$text60" fontSize="$2">{player.gamesPlayed} parties</Text>
                         </YStack>
                       </XStack>
 

@@ -1,5 +1,6 @@
 import { XStack, YStack, Text, Button, type XStackProps } from 'tamagui'
 import { Timer, Play, Pause, RotateCcw } from '@tamagui/lucide-icons'
+import { IconButton } from '../ui/IconButton'
 
 interface BlindTimerProps extends Omit<XStackProps, 'children'> {
   seconds: number
@@ -71,26 +72,19 @@ export function BlindTimer({
       </Text>
       
       <XStack gap="$2">
-        <Button 
-          size="$3" 
-          circular 
-          icon={isRunning ? <Pause size={14} /> : <Play size={14} />}
+        <IconButton
+          icon={isRunning ? Pause : Play}
           backgroundColor={isRunning ? '$warning' : '$success'}
           color="$night900"
-          pressStyle={{ scale: 0.9 }}
           onPress={onToggle}
         />
         
         {showResetButton && onReset && (
-          <Button 
-            size="$3" 
-            circular 
-            icon={<RotateCcw size={14} />}
+          <IconButton 
+            icon={RotateCcw}
             backgroundColor="$glass3"
             borderColor="$glass5"
-            borderWidth={1}
             color="$colorSecondary"
-            pressStyle={{ scale: 0.9 }}
             onPress={onReset}
           />
         )}

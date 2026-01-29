@@ -16,23 +16,23 @@ export function CurrentToast() {
   const config = {
     success: {
       icon: <CheckCircle2 size={24} color="$success" />,
-      bg: "rgba(16, 185, 129, 0.15)", // Fond vert translucide
+      bg: "$successBg",
       border: "$success"
     },
     error: {
       icon: <AlertCircle size={24} color="$danger" />,
-      bg: "rgba(239, 68, 68, 0.15)", // Fond rouge translucide
+      bg: "$dangerBg",
       border: "$danger"
     },
     warning: {
       icon: <AlertTriangle size={24} color="$warning" />,
-      bg: "rgba(245, 158, 11, 0.15)", // Fond orange translucide
+      bg: "$warningBg",
       border: "$warning"
     },
     info: {
       icon: <Info size={24} color="$accent" />,
-      bg: "$backgroundStrong",
-      border: "$borderColor"
+      bg: "$glass3",
+      border: "$glass5"
     },
   }[type as 'success' | 'error' | 'warning' | 'info'];
 

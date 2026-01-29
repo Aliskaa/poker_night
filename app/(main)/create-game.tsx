@@ -65,7 +65,7 @@ export default function CreateGameScreen() {
             <YStack alignItems="center" marginBottom="$4">
               <Settings2 size={40} color="$primary" />
               <H2 color="white" fontWeight="900" marginTop="$2">Nouvelle Partie</H2>
-              <Text color="rgba(255,255,255,0.6)">Configuration en {currentStep}/4 étapes</Text>
+              <Text color="$text60">Configuration en {currentStep}/4 étapes</Text>
             </YStack>
 
             <Stepper

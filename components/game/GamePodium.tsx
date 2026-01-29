@@ -13,8 +13,8 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
             
             <YStack alignItems="center" marginVertical="$6">
               <Trophy size={64} color="$primary" style={{ shadowColor: '#fbbf24', shadowRadius: 10, shadowOpacity: 0.5 }} />
-              <H1 color="$primary" marginTop="$2" fontWeight="900" textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Résultats</H1>
-              <Text color="rgba(255,255,255,0.7)" fontSize="$4">Pot final: {String(game.totalPot)}€</Text>
+              <H1 color="$primary" marginTop="$2" fontWeight="900">Résultats</H1>
+              <Text color="$text70" fontSize="$4">Pot final: {String(game.totalPot)}€</Text>
             </YStack>
 
             <ScrollView>
@@ -28,26 +28,25 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
                     <Card
                       key={player.id}
                       bordered
-                      // Le vainqueur en Gold transparent, les autres en Verre
-                      backgroundColor={isWinner ? "rgba(251, 191, 36, 0.15)" : "rgba(255, 255, 255, 0.05)"}
-                      borderColor={isWinner ? "$primary" : "rgba(255, 255, 255, 0.1)"}
+                      backgroundColor={isWinner ? "$goldBg" : "$glass2"}
+                      borderColor={isWinner ? "$primary" : "$glass4"}
                       borderWidth={isWinner ? 2 : 1}
                     >
                       <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
                         <XStack gap="$3" alignItems="center">
-                          <H3 fontWeight="900" color={isWinner ? "$primary" : "rgba(255,255,255,0.5)"}>
+                          <H3 fontWeight="900" color={isWinner ? "$primary" : "$text60"}>
                             #{String(player.finalRank)}
                           </H3>
                           <YStack>
-                            <H4 color="white">{player.name}</H4>
+                            <H4 color="$text95">{player.name}</H4>
                             <Text color={profitColor} fontWeight="bold">
                               {profit >= 0 ? "+" : ""}{String(profit)}€ profit
                             </Text>
                           </YStack>
                         </XStack>
                         <YStack alignItems="flex-end">
-                          <Text color="white" fontWeight="900" fontSize="$6">{String(player.payout)}€</Text>
-                          <Text color="rgba(255,255,255,0.5)" fontSize="$2">Misé: {String(player.totalInvested)}€</Text>
+                          <Text color="$text95" fontWeight="900" fontSize="$6">{String(player.payout)}€</Text>
+                          <Text color="$text60" fontSize="$2">Misé: {String(player.totalInvested)}€</Text>
                         </YStack>
                       </Card.Header>
                     </Card>

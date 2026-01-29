@@ -58,7 +58,6 @@ export function PotDisplay({
       padding="$4"
       gap="$3"
       alignItems="center"
-      elevation={8}
       shadowColor="$primary"
       shadowOpacity={0.3}
       shadowRadius={16}
@@ -94,7 +93,7 @@ export function PotDisplay({
       {/* Preview distribution */}
       {showPayoutPreview && payouts.length > 0 && totalPot > 0 && (
         <YStack 
-          backgroundColor="rgba(0,0,0,0.2)"
+          backgroundColor="$glass4"
           borderRadius="$5"
           padding="$3"
           width="100%"

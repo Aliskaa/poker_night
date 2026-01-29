@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react'
-import { router, useLocalSearchParams } from 'expo-router'
-import { ScrollView, Share } from 'react-native'
-import * as Linking from 'expo-linking'
-import { YStack, Spinner, Text, Theme, Button, XStack } from 'tamagui'
-import { AlertTriangle, Trophy, ArrowUp } from '@tamagui/lucide-icons'
+import { PokerBackground } from '@/components/ui/PokerBackground'
+import { PokerButton } from '@/components/ui/PokerButton'
 import { useGameLogic } from '@/hooks/useGameLogic'
 import { useUser } from '@clerk/clerk-expo'
-import { PokerBackground } from '@/components/ui/PokerBackground'
+import { AlertTriangle, Trophy } from '@tamagui/lucide-icons'
+import * as Linking from 'expo-linking'
+import { router, useLocalSearchParams } from 'expo-router'
+import React, { useEffect, useState } from 'react'
+import { ScrollView, Share } from 'react-native'
+import { Spinner, Text, Theme, XStack, YStack } from 'tamagui'
 
 // Nouveaux composants
-import { GameStatusBar } from '@/components/game/GameStatusBar'
-import { PotDisplay } from '@/components/game/PotDisplay'
-import { PlayerCard } from '@/components/game/PlayerCard'
-import { BlindTimer } from '@/components/game/BlindTimer'
 import { BlindLevel } from '@/components/game/BlindLevel'
+import { BlindTimer } from '@/components/game/BlindTimer'
+import { GameStatusBar } from '@/components/game/GameStatusBar'
+import { PlayerCard } from '@/components/game/PlayerCard'
+import { PotDisplay } from '@/components/game/PotDisplay'
 
 // Anciens composants conservés
 import { AddGuestFooter } from '@/components/game/AddGuestFooter'
@@ -134,7 +135,7 @@ export default function GameScreen() {
             isTimerRunning={isTimerRunning}
             lateRegSeconds={lateRegSeconds}
             lateRegLimit={game.config.lateRegLimit}
-            onBackPress={() => router.push('/(main)/(tabs)/groups')}
+            onBackPress={() => router.push('/(main)/(tabs)/home')}
             onSharePress={onShareTable}
           />
 
@@ -174,17 +175,12 @@ export default function GameScreen() {
 
               {/* BOUTON FIN DE PARTIE */}
               {isHeadsUpFinished && (
-                <Button 
-                  size="$5" 
-                  backgroundColor="$primary"
-                  color="$night900"
-                  fontWeight="900"
-                  icon={<Trophy size={20} color="$night900" />}
+                <PokerButton
+                  variant="primary"
+                  icon={<Trophy size={20} />}
+                  title="Terminer la partie"
                   onPress={endGame}
-                  pressStyle={{ scale: 0.98 }}
-                >
-                  Terminer la partie
-                </Button>
+                />
               )}
 
               {/* LISTE DES JOUEURS */}

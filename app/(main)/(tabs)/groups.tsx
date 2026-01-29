@@ -8,6 +8,7 @@ import { AlertTriangle, ChevronRight, Crown, Key, Plus, Users } from '@tamagui/l
 import { Avatar, Button, Card, H1, H4, Input, Sheet, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 import { FAB } from '@/components/ui/FAB';
+import { PokerButton } from '@/components/ui';
 
 export default function GroupsScreen() {
     const { user } = useUser();
@@ -42,37 +43,34 @@ export default function GroupsScreen() {
 
                     {/* EN-TÊTE */}
                     <YStack alignItems="center" marginBottom="$6">
-                        <YStack backgroundColor="rgba(251, 191, 36, 0.1)" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="rgba(251, 191, 36, 0.3)" borderWidth={1}>
+                        <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$10" marginBottom="$2" borderColor="$primary" borderWidth={1}>
                             <Users size={32} color="$primary" />
                         </YStack>
-                        <H1 color="white" fontWeight="900" letterSpacing={-1} textShadowColor="rgba(0,0,0,0.5)" textShadowRadius={5}>Mes Clubs</H1>
-                        <Text color="rgba(255,255,255,0.6)" letterSpacing={1} textTransform="uppercase" fontSize="$2">
+                        <H1 color="$text95" fontWeight="900" letterSpacing={-1}>Mes Clubs</H1>
+                        <Text color="$text60" letterSpacing={1} textTransform="uppercase" fontSize="$2">
                             Gère tes QG de poker
                         </Text>
                     </YStack>
 
                     {/* ACTIONS */}
                     <XStack paddingHorizontal="$4" gap="$3" marginBottom="$6">
-                        <Button
-                            flex={1} size="$4"
-                            // Style Verre
-                            backgroundColor="rgba(255,255,255,0.1)"
-                            borderColor="rgba(255,255,255,0.2)" borderWidth={1}
+                        <PokerButton
+                            flex={1}
+                            variant='secondary'
+                            fontsizeTitle='$4'
+                            title="Rejoindre"
                             icon={<Key size={18} color="$primary" />}
                             onPress={() => setIsJoinOpen(true)}
-                        >
-                            <Text color="white" fontWeight="bold">Rejoindre</Text>
-                        </Button>
-                        <Button
-                            flex={1} size="$4"
-                            // Style Or Premium
-                            backgroundColor="$primary"
+                            pressStyle={{ backgroundColor: "$glass3" }}
+                        />
+                        <PokerButton
+                            flex={1}
+                            variant="primary"
+                            title="Créer un Club"
                             icon={<Plus size={18} color="$backgroundStrong" />}
                             onPress={() => setIsCreateOpen(true)}
                             pressStyle={{ opacity: 0.9, scale: 0.98 }}
-                        >
-                            <Text color="$backgroundStrong" fontWeight="900">Créer un Club</Text>
-                        </Button>
+                        />
                     </XStack>
 
                     {/* LISTE DES GROUPES (Glass Cards) */}
@@ -90,11 +88,10 @@ export default function GroupsScreen() {
                                         <Card
                                             key={group.id}
                                             bordered
-                                            // Glassmorphism
-                                            backgroundColor="rgba(255, 255, 255, 0.05)"
-                                            borderColor={isOwner ? "$primary" : "rgba(255, 255, 255, 0.1)"}
+                                            backgroundColor="$glass2"
+                                            borderColor={isOwner ? "$primary" : "$glass4"}
                                             borderWidth={1}
-                                            pressStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', scale: 0.99 }}
+                                            pressStyle={{ backgroundColor: '$glass3', scale: 0.99 }}
                                             onPress={() => router.push(`/(main)/groups/${group.id}`)}
                                         >
                                             <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
@@ -145,9 +142,9 @@ export default function GroupsScreen() {
                     </Sheet>
 
                 </YStack>
-                
+
                 {/* FAB flottant pour créer une partie */}
-                <FAB 
+                <FAB
                     icon={<Plus size={28} color="$night900" />}
                     fabPosition="bottom-right"
                     offset={70}

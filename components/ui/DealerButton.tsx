@@ -31,9 +31,9 @@ export const DealerButton = ({ onPress }: { onPress: () => void }) => {
                 {/* CERCLE INTERNE (Effet strie) */}
                 <YStack
                     width={150} height={150} borderRadius={75}
-                    borderWidth={4} borderColor="rgba(255,255,255,0.3)" borderStyle="dashed" // Les pointillés du jeton
+                    borderWidth={4} borderColor="$glass5" borderStyle="dashed"
                     justifyContent="center" alignItems="center"
-                    backgroundColor="#d97706" // Fond orange sombre au centre
+                    backgroundColor="#d97706"
                 >
                     {/* TEXTE CENTRAL */}
                     <YStack alignItems="center">

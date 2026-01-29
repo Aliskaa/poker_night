@@ -10,8 +10,8 @@ export function HandRow({ hand }: { hand: PokerHand }) {
     return (
         <Card
             bordered
-            backgroundColor={isTop3 ? "rgba(251, 191, 36, 0.1)" : "rgba(255, 255, 255, 0.05)"}
-            borderColor={isTop3 ? "$primary" : "rgba(255, 255, 255, 0.1)"}
+            backgroundColor={isTop3 ? "$goldBg" : "$glass2"}
+            borderColor={isTop3 ? "$primary" : "$glass4"}
             borderWidth={1}
         >
             <Card.Header padded gap="$3">
@@ -20,17 +20,17 @@ export function HandRow({ hand }: { hand: PokerHand }) {
                     <XStack alignItems="center" gap="$3">
                         <YStack
                             width={28} height={28} borderRadius={14}
-                            backgroundColor={isTop3 ? "$primary" : "rgba(255,255,255,0.1)"}
+                            backgroundColor={isTop3 ? "$primary" : "$glass3"}
                             justifyContent="center" alignItems="center"
                         >
-                            <Text color={isTop3 ? "$backgroundStrong" : "white"} fontWeight="900" fontSize="$3">#{hand.rank}</Text>
+                            <Text color={isTop3 ? "$backgroundStrong" : "$text95"} fontWeight="900" fontSize="$3">#{hand.rank}</Text>
                         </YStack>
-                        <Text color={isTop3 ? "$primary" : "white"} fontWeight="bold" fontSize="$5">{hand.name}</Text>
+                        <Text color={isTop3 ? "$primary" : "$text95"} fontWeight="bold" fontSize="$5">{hand.name}</Text>
                     </XStack>
                 </XStack>
 
                 {/* Description */}
-                <Text color="rgba(255,255,255,0.6)" fontSize="$3">{hand.desc}</Text>
+                <Text color="$text60" fontSize="$3">{hand.desc}</Text>
 
                 {/* VISUALISATION DES CARTES */}
                 <XStack gap="$2" marginTop="$2" justifyContent="flex-start">

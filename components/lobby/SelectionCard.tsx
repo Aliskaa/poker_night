@@ -16,24 +16,24 @@ export function SelectionCard({ isSelected, isDisabled, name, avatarUrl, isGhost
   return (
     <Card 
       bordered 
-      backgroundColor={isSelected ? "rgba(16, 185, 129, 0.2)" : "rgba(255, 255, 255, 0.05)"}
-      borderColor={isSelected ? "$success" : "$borderColor"} 
-      pressStyle={{ scale: 0.98 }} 
+      backgroundColor={isSelected ? "$successBg" : "$glass2"}
+      borderColor={isSelected ? "$success" : "$glass4"} 
+      pressStyle={{ scale: 0.98, backgroundColor: isSelected ? "$successBg" : "$glass3" }} 
       onPress={onToggle}
     >
       <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
-        <Checkbox checked={isSelected} backgroundColor={isSelected ? "$success" : "$background"} borderColor={isSelected ? "$success" : "$borderColor"} disabled={isDisabled}>
-          <Checkbox.Indicator><Check color="white" /></Checkbox.Indicator>
+        <Checkbox checked={isSelected} backgroundColor={isSelected ? "$success" : "$glass4"} borderColor={isSelected ? "$success" : "$glass5"} disabled={isDisabled}>
+          <Checkbox.Indicator><Check color="$text95" /></Checkbox.Indicator>
         </Checkbox>
         
         {isGhost ? (
-          <Ghost size={20} color={isSelected ? "$success" : "$colorMuted"} />
+          <Ghost size={20} color={isSelected ? "$success" : "$text60"} />
         ) : (
           <Avatar circular size="$3"><Avatar.Image src={avatarUrl} /></Avatar>
         )}
 
         <YStack flex={1}>
-          <Text color={isSelected ? "$success" : "$color"} fontWeight="bold">{name}</Text>
+          <Text color={isSelected ? "$success" : "$text95"} fontWeight="bold">{name}</Text>
           {subtitle && <Text color="$primary" fontSize="$2">{subtitle}</Text>}
         </YStack>
       </Card.Header>

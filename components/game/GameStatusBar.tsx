@@ -3,6 +3,7 @@ import { ChevronLeft, HelpCircle, Share } from '@tamagui/lucide-icons'
 import { BlindLevelCompact } from './BlindLevel'
 import { BlindTimerCompact } from './BlindTimer'
 import { CountdownBadge } from '../ui/CountdownBadge'
+import { IconButton } from '../ui/IconButton'
 
 interface GameStatusBarProps extends Omit<YStackProps, 'children'> {
   // Blinds
@@ -52,42 +53,30 @@ export function GameStatusBar({
     >
       {/* Ligne 1 : Navigation + Actions */}
       <XStack justifyContent="space-between" alignItems="center">
-        <Button 
-          size="$3" 
-          circular 
+        <IconButton
           icon={<ChevronLeft size={20} />}
           backgroundColor="$glass2"
           borderColor="$glass4"
-          borderWidth={1}
           color="$colorPrimary"
-          pressStyle={{ scale: 0.9 }}
           onPress={onBackPress}
         />
         
         <XStack gap="$2">
           {onHelpPress && (
-            <Button 
-              size="$3" 
-              circular 
-              icon={<HelpCircle size={18} />}
+            <IconButton
+              icon={<HelpCircle size={20} />}
               backgroundColor="$glass2"
               borderColor="$glass4"
-              borderWidth={1}
               color="$colorSecondary"
-              pressStyle={{ scale: 0.9 }}
               onPress={onHelpPress}
             />
           )}
           {onSharePress && (
-            <Button 
-              size="$3" 
-              circular 
+            <IconButton
               icon={<Share size={18} />}
               backgroundColor="$glass2"
               borderColor="$glass4"
-              borderWidth={1}
               color="$colorSecondary"
-              pressStyle={{ scale: 0.9 }}
               onPress={onSharePress}
             />
           )}

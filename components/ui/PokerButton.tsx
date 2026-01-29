@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Text, YStack, type ButtonProps } from 'tamagui'
+import { Button, GetThemeValueForKey, Text, YStack, type ButtonProps } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactElement } from 'react'
 
@@ -8,6 +8,7 @@ type PokerButtonVariant = 'primary' | 'secondary' | 'success' | 'danger'
 interface PokerButtonProps extends Omit<ButtonProps, 'children'> {
   icon: ReactElement
   title: string
+  fontsizeTitle?: "unset" | GetThemeValueForKey<"fontSize">
   subtitle?: string
   onPress?: () => void
   variant?: PokerButtonVariant
@@ -38,7 +39,8 @@ const VARIANT_CONFIG = {
 
 export const PokerButton = ({ 
   icon, 
-  title, 
+  title,
+  fontsizeTitle,
   subtitle, 
   onPress, 
   variant = 'primary',
@@ -91,7 +93,7 @@ export const PokerButton = ({
             color={config.textColor} 
             fontFamily="$heading" 
             fontWeight="900" 
-            fontSize="$5" 
+            fontSize={fontsizeTitle ?? '$5'}
             textTransform="uppercase"
             letterSpacing={0.5}
           >

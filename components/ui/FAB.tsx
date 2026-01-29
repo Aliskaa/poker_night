@@ -48,7 +48,7 @@ export function FAB({
       {...(offset && fabPosition === 'bottom-center' && { bottom: offset })}
     >
       <Button
-        size="$6"
+        size="$14"
         circular
         backgroundColor="$primary"
         borderWidth={0}
