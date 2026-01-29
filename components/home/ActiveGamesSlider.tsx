@@ -6,6 +6,7 @@ import { Play, LogIn, Settings2, AlertTriangle, Trash2 } from '@tamagui/lucide-i
 import { Game } from '@/types/Game';
 import { useUser } from '@clerk/clerk-expo';
 import { useActiveGames } from '@/hooks/useActiveGamesLogic';
+import { PokerButton } from '../ui';
 
 export function ActiveGamesSlider({ games }: { games: Game[] }) {
   const router = useRouter();
@@ -51,25 +52,15 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
           {games.map((game, index) => (
-            <Card key={game.id || `game-${index}`} bordered width={280} backgroundColor="rgba(5, 150, 105, 0.1)" borderColor="$success">
-              <Card.Header padded>
-                <XStack justifyContent="space-between" alignItems="center">
-                  <YStack>
-                    <Text color="$success" fontWeight="900" fontSize="$5">Pot: {String(game.totalPot)}€</Text>
-                    <Text color="$colorMuted" fontSize="$3">{String(game.players.length)} joueurs à la table</Text>
-                  </YStack>
-                  <Button
-                    circular
-                    size="$4"
-                    backgroundColor="$success"
-                    icon={<LogIn size={18} color="white" />}
-                    disabled={!game.id}
-                    opacity={game.id ? 1 : 0.5}
-                    onPress={() => router.push(`/(main)/game/${game.id}`)}
-                  />
-                </XStack>
-              </Card.Header>
-            </Card>
+            <PokerButton
+              key={index}
+              flex={1}
+              variant="success"
+              icon={<Play />}
+              title={`Pot: ${game.totalPot}€ • ${game.players.length} joueurs`}
+              subtitle={"Rejoindre la partie"}
+              onPress={() => router.push(`/(main)/game/${game.id}`)}
+            />
           ))}
         </ScrollView>
       </YStack>

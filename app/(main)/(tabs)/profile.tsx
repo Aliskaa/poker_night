@@ -6,6 +6,7 @@ import { Avatar, Button, Card, H3, Separator, Text, Theme, XStack, YStack } from
 import { LogOut, Settings, BookOpen, ShieldCheck, Calendar, Wallet, Trophy, TrendingUp } from '@tamagui/lucide-icons';
 import { useUserLogic } from '@/hooks/useUserLogic';
 import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerButton } from '@/components/ui';
 
 export default function ProfileScreen() {
     const { user } = useUser();
@@ -87,9 +88,8 @@ export default function ProfileScreen() {
                                 <ListItem icon={<ShieldCheck />} title="Confidentialité" onPress={() => { }} isLast />
                             </YStack>
 
-                            <Button marginTop="$4" backgroundColor="transparent" onPress={handleSignOut} icon={<LogOut size={18} color="$danger" />}>
-                                <Text color="$danger">Se déconnecter</Text>
-                            </Button>
+                            <PokerButton size="$1" variant="danger" icon={<LogOut />} title="Se déconnecter" onPress={handleSignOut} />
+
 
                         </YStack>
                     </ScrollView>
