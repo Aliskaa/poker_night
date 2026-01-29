@@ -14,6 +14,7 @@ import { PokerBackground } from '@/components/ui/PokerBackground';
 import { FAB } from '@/components/ui/FAB';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { ChipStack } from '@/components/ui/ChipStack';
+import { CurrentStat } from '@/components/home/CurrentStat';
 
 export default function HomeScreen() {
   const { user } = useUser();
@@ -31,52 +32,7 @@ export default function HomeScreen() {
             <HomeHeader user={user} />
 
             {/* 2. QUICK STATS */}
-            {currentUserStats && (
-              <YStack gap="$3">
-                <Text color="$text60" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
-                  Tes Stats
-                </Text>
-                <XStack gap="$3">
-                  <YStack 
-                    flex={1} 
-                    padding="$4" 
-                    backgroundColor="$glass2" 
-                    borderColor="$glass4"
-                    borderWidth={1}
-                    borderRadius="$5"
-                    gap="$2"
-                  >
-                    <XStack alignItems="center" gap="$2">
-                      <Trophy size={16} color="$success" />
-                      <Text color="$text60" fontSize="$2">Parties</Text>
-                    </XStack>
-                    <Text color="$text95" fontSize="$7" fontWeight="900">
-                      {currentUserStats.gamesPlayed || 0}
-                    </Text>
-                  </YStack>
-                  
-                  <YStack 
-                    flex={1} 
-                    padding="$4" 
-                    backgroundColor="$glass2" 
-                    borderColor="$glass4"
-                    borderWidth={1}
-                    borderRadius="$5"
-                    gap="$2"
-                  >
-                    <XStack alignItems="center" gap="$2">
-                      <Target size={16} color="$primary" />
-                      <Text color="$text60" fontSize="$2">Profit</Text>
-                    </XStack>
-                    <ChipStack 
-                      amount={currentUserStats.netProfit || 0} 
-                      variant={currentUserStats.netProfit >= 0 ? 'pot' : 'default'} 
-                      size="md" 
-                    />
-                  </YStack>
-                </XStack>
-              </YStack>
-            )}
+            {currentUserStats && <CurrentStat currentUserStats={currentUserStats} />}
 
             {/* 3. RADAR (Parties en cours) */}
             <ActiveGamesSlider games={activeGames} />

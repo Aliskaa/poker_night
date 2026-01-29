@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Alert, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Card, Button, Text, XStack, YStack, Sheet, H4 } from 'tamagui';
-import { Play, LogIn, Settings2, AlertTriangle, Trash2 } from '@tamagui/lucide-icons';
+import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 import { Game } from '@/types/Game';
 import { useUser } from '@clerk/clerk-expo';
-import { useActiveGames } from '@/hooks/useActiveGamesLogic';
+import { AlertTriangle, Play, Settings2, Trash2 } from '@tamagui/lucide-icons';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, ScrollView } from 'react-native';
+import { Button, Card, H4, Sheet, Text, XStack, YStack } from 'tamagui';
 import { PokerButton } from '../ui';
 
 export function ActiveGamesSlider({ games }: { games: Game[] }) {
