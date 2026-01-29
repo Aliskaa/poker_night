@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
 import { Theme, YStack, Text, XStack, Button } from 'tamagui';
-import { Search, Users } from '@tamagui/lucide-icons';
+import { Search, Users, Palette } from '@tamagui/lucide-icons';
 
 import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
@@ -22,7 +22,6 @@ export default function HomeScreen() {
       {/* ON ENGLOBE TOUT DANS LE TAPIS VERT */}
       <PokerBackground>
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
-        <UIShowcase />
           <YStack padding="$4" paddingTop="$8" gap="$6">
 
             {/* 1. HEADER */}
@@ -52,6 +51,14 @@ export default function HomeScreen() {
                   label="Mes Clubs" 
                   subLabel="Gérer" 
                   onPress={() => router.push('/(main)/(tabs)/groups')} 
+                />
+              </XStack>
+              <XStack gap="$3" marginTop="$2">
+                <QuickAction 
+                  icon={<Palette size={24} />} 
+                  label="UI Showcase" 
+                  subLabel="Voir composants" 
+                  onPress={() => router.push('/(main)/showcase')} 
                 />
               </XStack>
             </YStack>

@@ -114,7 +114,7 @@ export function GameStatusBar({
           <CountdownBadge
             seconds={lateRegSeconds}
             label="Late Reg"
-            size="sm"
+
           />
         )}
       </XStack>

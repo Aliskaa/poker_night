@@ -1,25 +1,72 @@
-import React from 'react';
-import { Card, Text, XStack, YStack } from 'tamagui';
-import { ChevronRight } from '@tamagui/lucide-icons';
+import React from 'react'
+import { Card, Text, XStack, YStack, type CardProps } from 'tamagui'
+import { ChevronRight } from '@tamagui/lucide-icons'
+import type { ReactElement } from 'react'
 
-export const GlassCard = ({ icon, title, subtitle, onPress }: any) => (
-    <Card
-        bordered
-        backgroundColor="rgba(255, 255, 255, 0.05)" // Très transparent
-        borderColor="rgba(255, 255, 255, 0.1)"
-        pressStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-        onPress={onPress}
-        padding="$3"
-    >
-        <XStack alignItems="center" gap="$3">
-            <YStack backgroundColor="rgba(0,0,0,0.3)" padding="$2" borderRadius="$4">
-                {React.cloneElement(icon, { color: '#fbbf24', size: 20 })}
-            </YStack>
-            <YStack flex={1}>
-                <Text color="white" fontWeight="bold" fontSize="$4">{title}</Text>
-                <Text color="rgba(255,255,255,0.5)" fontSize="$2">{subtitle}</Text>
-            </YStack>
-            <ChevronRight color="rgba(255,255,255,0.3)" size={20} />
-        </XStack>
-    </Card>
-);
+interface GlassCardProps extends Omit<CardProps, 'children'> {
+  icon: ReactElement
+  title: string
+  subtitle?: string
+  onPress?: () => void
+  showChevron?: boolean
+}
+
+export const GlassCard = ({ 
+  icon, 
+  title, 
+  subtitle, 
+  onPress,
+  showChevron = true,
+  ...props 
+}: GlassCardProps) => (
+  <Card
+    bordered
+    backgroundColor="$glass2"
+    borderColor="$glass4"
+    borderWidth={1}
+    pressStyle={{ 
+      backgroundColor: '$glass3',
+      borderColor: '$glass5',
+    }}
+    hoverStyle={{
+      backgroundColor: '$glass3',
+    }}
+    animation="quick"
+    onPress={onPress}
+    padding="$3"
+    {...props}
+  >
+    <XStack alignItems="center" gap="$3">
+      <YStack 
+        backgroundColor="$overlay3" 
+        padding="$2" 
+        borderRadius="$5"
+      >
+        {React.cloneElement(icon, { color: '$primary', size: 20 })}
+      </YStack>
+      <YStack flex={1}>
+        <Text 
+          color="$colorPrimary" 
+          fontWeight="700" 
+          fontSize="$4"
+        >
+          {title}
+        </Text>
+        {subtitle && (
+          <Text 
+            color="$colorTertiary" 
+            fontSize="$2"
+          >
+            {subtitle}
+          </Text>
+        )}
+      </YStack>
+      {showChevron && (
+        <ChevronRight 
+          color="$colorMuted" 
+          size={20} 
+        />
+      )}
+    </XStack>
+  </Card>
+)

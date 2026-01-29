@@ -2,9 +2,11 @@ import { Button, type ButtonProps, YStack } from 'tamagui'
 import { Plus } from '@tamagui/lucide-icons'
 import type { ReactElement } from 'react'
 
-interface FABProps extends Omit<ButtonProps, 'children'> {
+type FABPosition = 'bottom-right' | 'bottom-center' | 'bottom-left'
+
+interface FABProps extends Omit<ButtonProps, 'children' | 'position'> {
   icon?: ReactElement
-  position?: 'bottom-right' | 'bottom-center' | 'bottom-left'
+  fabPosition?: FABPosition
   offset?: number
   label?: string
 }
@@ -27,13 +29,13 @@ const POSITION_STYLES = {
 
 export function FAB({ 
   icon,
-  position = 'bottom-right',
+  fabPosition = 'bottom-right',
   offset = 0,
   label,
   onPress,
   ...props 
 }: FABProps) {
-  const positionStyle = POSITION_STYLES[position]
+  const positionStyle = POSITION_STYLES[fabPosition]
   const IconComponent = icon || <Plus size={28} color="$night900" />
 
   return (
@@ -41,9 +43,9 @@ export function FAB({
       position="absolute"
       zIndex="$5"
       {...positionStyle}
-      {...(offset && position === 'bottom-right' && { bottom: offset })}
-      {...(offset && position === 'bottom-left' && { bottom: offset })}
-      {...(offset && position === 'bottom-center' && { bottom: offset })}
+      {...(offset && fabPosition === 'bottom-right' && { bottom: offset })}
+      {...(offset && fabPosition === 'bottom-left' && { bottom: offset })}
+      {...(offset && fabPosition === 'bottom-center' && { bottom: offset })}
     >
       <Button
         size="$6"
@@ -79,10 +81,10 @@ export function FABWithLabel({
   icon,
   label,
   onPress,
-  position = 'bottom-right',
+  fabPosition = 'bottom-right',
   ...props 
 }: FABProps) {
-  const positionStyle = POSITION_STYLES[position]
+  const positionStyle = POSITION_STYLES[fabPosition]
   const IconComponent = icon || <Plus size={20} color="$night900" />
 
   return (

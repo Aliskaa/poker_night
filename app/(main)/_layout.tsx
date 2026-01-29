@@ -73,6 +73,23 @@ export default function MainLayout() {
       {/* 3. L'ÉCRAN DE JEU (Plein écran) */}
       <Stack.Screen name="game/[id]" />
       <Stack.Screen name="groups/[id]" />
+      
+      {/* SHOWCASE DES COMPOSANTS */}
+      <Stack.Screen
+        name="showcase"
+        options={{
+          presentation: 'modal',
+          headerShown: true,
+          title: '🎨 UI Showcase',
+          headerStyle: {
+            backgroundColor: '#121212',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
     </Stack>
   );
 }
