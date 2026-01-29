@@ -54,6 +54,7 @@ export const useGameLogic = (gameId?: string) => {
                 players: [
                     {
                         id: user.id,
+                        avatarUrl: user.imageUrl,
                         name: user.firstName || user.username || "Hôte",
                         isGuest: false,
                         buyInCount: 1,
@@ -97,6 +98,7 @@ export const useGameLogic = (gameId?: string) => {
         // 2. Ajouter le joueur à la partie
         const newPlayer: Player = {
             id: user!.id,
+            avatarUrl: user!.imageUrl,
             name: user!.firstName || user!.username || "Joueur",
             isGuest: false,
             buyInCount: 1,

@@ -3,6 +3,7 @@ export type PlayerStatus = 'ACTIVE' | 'ELIMINATED';
 export type Player = {
     id: string;
     name: string;
+    avatarUrl?: string;
     isGuest: boolean;
     buyInCount: number;
     totalInvested: number;

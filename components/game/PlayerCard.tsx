@@ -4,6 +4,7 @@ import { Avatar, Button, ButtonProps, Card, Text, XStack, YStack } from 'tamagui
 import { StatusBadge, type PlayerStatus } from '../ui/StatusBadge'
 import { ChipStack } from '../ui/ChipStack'
 import { IconButton } from '../ui/IconButton'
+import log from '@/services/logger'
 
 interface PlayerCardProps {
     player: Player
@@ -15,7 +16,6 @@ interface PlayerCardProps {
 
 export function PlayerCard({
     player,
-    defaultBuyIn,
     isLateRegOpen,
     onRebuy,
     onEliminate
@@ -35,12 +35,13 @@ export function PlayerCard({
                 <XStack justifyContent="space-between" alignItems="flex-start" gap="$3">
                     {/* Avatar + Info */}
                     <XStack gap="$3" alignItems="center" flex={1}>
-                        <Avatar
+                        <Avatar 
                             circular
-                            size="$5"
-                            borderColor={isEliminated ? 'transparent' : '$success'}
+                            size="$10"
                             borderWidth={2}
+                            borderColor={isEliminated ? 'transparent' : '$success'}
                         >
+                            <Avatar.Image src={player.avatarUrl} />
                             <Avatar.Fallback backgroundColor="$glass3" />
                         </Avatar>
 
