@@ -10,8 +10,7 @@ import { ScrollView, Share } from 'react-native'
 import { Spinner, Text, Theme, XStack, YStack } from 'tamagui'
 
 // Nouveaux composants
-import { BlindLevel } from '@/components/game/BlindLevel'
-import { BlindTimer } from '@/components/game/BlindTimer'
+import { BlindControls } from '@/components/game/BlindControls'
 import { GameStatusBar } from '@/components/game/GameStatusBar'
 import { PlayerCard } from '@/components/game/PlayerCard'
 import { PotDisplay } from '@/components/game/PotDisplay'
@@ -20,12 +19,37 @@ import { PotDisplay } from '@/components/game/PotDisplay'
 import { AddGuestFooter } from '@/components/game/AddGuestFooter'
 import { GamePodium } from '@/components/game/GamePodium'
 
+// Structure de blinds
+import {
+  getBlindStructureByDuration,
+  getCurrentBlindLevel,
+  getNextBlindLevel
+} from '@/constants/blindStructures'
+import { getBlindLevelRemainingSeconds } from '@/utils/timestampHelpers'
+
 export default function GameScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const { game, loading, addRebuy, eliminatePlayer, addGuestPlayer, endGame, joinGame, isLateRegOpen } = useGameLogic(id)
+  const { 
+    game, 
+    loading, 
+    addRebuy, 
+    eliminatePlayer, 
+    addGuestPlayer, 
+    endGame,
+    joinGame,
+    isLateRegOpen,
+    pauseBlindTimer,
+    resumeBlindTimer,
+    nextBlindLevel 
+  } = useGameLogic(id)
   const { user } = useUser()
 
-  const DEFAULT_TIME = 1200
+  // Structure de blinds basée sur la durée configurée
+  const blindStructure = game ? getBlindStructureByDuration(game.config.defaultTimeBlindDuration) : []
+  const currentBlind = game ? getCurrentBlindLevel(game.currentBlindLevel || 0, blindStructure) : null
+  const nextBlind = game ? getNextBlindLevel(game.currentBlindLevel || 0, blindStructure) : null
+
+  const DEFAULT_TIME = currentBlind ? currentBlind.duration * 60 : 900
   const [timerSeconds, setTimerSeconds] = useState(DEFAULT_TIME)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [lateRegSeconds, setLateRegSeconds] = useState<number | null>(null)
@@ -34,16 +58,44 @@ export default function GameScreen() {
     if (game && user) joinGame()
   }, [game?.id, user?.id])
 
-  // Timer des Blindes
+  // Synchroniser le timer avec Firestore (temps réel)
   useEffect(() => {
-    let interval: number
-    if (isTimerRunning && timerSeconds > 0) {
-      interval = setInterval(() => setTimerSeconds((prev) => prev - 1), 1000)
-    } else if (timerSeconds === 0) {
-      setIsTimerRunning(false)
-    }
-    return () => clearInterval(interval)
-  }, [isTimerRunning, timerSeconds])
+    if (!game || !currentBlind) return;
+
+    // Calculer le temps restant basé sur Firestore
+    const calculateRemainingTime = () => {
+      if (!game.blindLevelStartedAt) {
+        return currentBlind.duration * 60;
+      }
+
+      return getBlindLevelRemainingSeconds(
+        game.blindLevelStartedAt,
+        currentBlind.duration,
+        game.isPaused,
+        game.pausedAt,
+        0 // TODO: ajouter totalPausedSeconds si nécessaire
+      );
+    };
+
+    // Initialiser le timer
+    setTimerSeconds(calculateRemainingTime());
+    setIsTimerRunning(!game.isPaused);
+
+    // Mettre à jour le timer chaque seconde
+    const interval = setInterval(() => {
+      if (!game.isPaused) {
+        const remaining = calculateRemainingTime();
+        setTimerSeconds(remaining);
+
+        // Auto-passer au niveau suivant
+        if (remaining <= 0 && nextBlind) {
+          nextBlindLevel();
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [game?.blindLevelStartedAt, game?.isPaused, game?.currentBlindLevel, currentBlind?.duration]);
 
   // Compte à rebours Late Registration
   useEffect(() => {
@@ -81,12 +133,6 @@ export default function GameScreen() {
     } catch (error) { 
       console.error("Erreur partage :", error)
     }
-  }
-
-  const toggleTimer = () => setIsTimerRunning(!isTimerRunning)
-  const resetTimer = () => {
-    setIsTimerRunning(false)
-    setTimerSeconds(DEFAULT_TIME)
   }
 
   if (loading) {
@@ -128,11 +174,11 @@ export default function GameScreen() {
           
           {/* BARRE DE STATUS FIXE */}
           <GameStatusBar 
-            currentSmallBlind={50}
-            currentBigBlind={100}
-            currentAnte={0}
+            currentSmallBlind={currentBlind?.smallBlind || 0}
+            currentBigBlind={currentBlind?.bigBlind || 0}
+            currentAnte={currentBlind?.ante || 0}
             timerSeconds={timerSeconds}
-            isTimerRunning={isTimerRunning}
+            isTimerRunning={isTimerRunning && !game.isPaused}
             lateRegSeconds={lateRegSeconds}
             lateRegLimit={game.config.lateRegLimit}
             onBackPress={() => router.push('/(main)/(tabs)/home')}
@@ -154,22 +200,14 @@ export default function GameScreen() {
 
               {/* BLIND CONTROLS */}
               <YStack gap="$3">
-                <BlindLevel
-                  currentSmallBlind={50}
-                  currentBigBlind={100}
-                  currentAnte={0}
-                  nextSmallBlind={75}
-                  nextBigBlind={150}
-                  nextAnte={0}
-                  showNext={true}
-                />
-                
-                <BlindTimer
+                <BlindControls
                   seconds={timerSeconds}
-                  isRunning={isTimerRunning}
-                  onToggle={toggleTimer}
-                  onReset={resetTimer}
-                  showResetButton={true}
+                  currentLevel={game.currentBlindLevel || 0}
+                  isPaused={game.isPaused || false}
+                  blindStructure={blindStructure}
+                  onPause={pauseBlindTimer}
+                  onResume={resumeBlindTimer}
+                  onNextLevel={nextBlindLevel}
                 />
               </YStack>
 

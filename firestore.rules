@@ -1,0 +1,100 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    // Vérifie si l'utilisateur est authentifié
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Vérifie si l'utilisateur est le propriétaire du document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    
+    match /users/{userId} {
+      // Lecture : Tout le monde authentifié peut lire les profils
+      allow read: if isAuthenticated();
+      
+      // Création : Uniquement son propre profil
+      allow create: if isAuthenticated() 
+                    && request.auth.uid == userId;
+      
+      // Mise à jour : Uniquement son propre profil
+      allow update: if isAuthenticated() 
+                    && request.auth.uid == userId;
+      
+      // Suppression : Uniquement son propre profil
+      allow delete: if isAuthenticated() 
+                    && request.auth.uid == userId;
+    }
+    
+    // ============================================
+    // GROUPS COLLECTION
+    // ============================================
+    
+    match /groups/{groupId} {
+      // Lecture : Uniquement les membres du groupe
+      allow read: if isAuthenticated() 
+                  && request.auth.uid in resource.data.members;
+      
+      // Création : Tout utilisateur authentifié peut créer un groupe
+      allow create: if isAuthenticated()
+                    && request.auth.uid == request.resource.data.ownerId
+                    && request.auth.uid in request.resource.data.members;
+      
+      // Mise à jour : Uniquement le propriétaire
+      allow update: if isAuthenticated() 
+                    && request.auth.uid == resource.data.ownerId;
+      
+      // Suppression : Uniquement le propriétaire
+      allow delete: if isAuthenticated() 
+                    && request.auth.uid == resource.data.ownerId;
+    }
+    
+    // ============================================
+    // GAMES COLLECTION
+    // ============================================
+    
+    match /games/{gameId} {
+      // Lecture : Tout utilisateur authentifié (simplifié pour MVP)
+      // TODO: Restreindre aux joueurs de la partie en production
+      allow read: if isAuthenticated();
+      
+      // Création : Tout utilisateur authentifié peut créer une partie
+      allow create: if isAuthenticated()
+                    && request.auth.uid == request.resource.data.hostId
+                    && request.resource.data.totalPot >= 0
+                    && request.resource.data.status in ['WAITING', 'PLAYING'];
+      
+      // Mise à jour : Uniquement l'hôte
+      allow update: if isAuthenticated() 
+                    && request.auth.uid == resource.data.hostId
+                    && request.resource.data.hostId == resource.data.hostId
+                    && (request.resource.data.totalPot >= resource.data.totalPot 
+                        || request.resource.data.status == 'FINISHED');
+      
+      // Suppression : Uniquement l'hôte et seulement si la partie n'est pas en cours
+      allow delete: if isAuthenticated() 
+                    && request.auth.uid == resource.data.hostId
+                    && resource.data.status in ['WAITING', 'CANCELLED'];
+    }
+    
+    // ============================================
+    // DENY ALL OTHER COLLECTIONS
+    // ============================================
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

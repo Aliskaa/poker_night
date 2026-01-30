@@ -1,11 +1,12 @@
 import React from 'react'
-import { Button, GetThemeValueForKey, Text, YStack, type ButtonProps } from 'tamagui'
+import { Button, GetThemeValueForKey, Text, YStack } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactElement } from 'react'
+import type { ButtonProps as TamaguiButtonProps } from 'tamagui'
 
 type PokerButtonVariant = 'primary' | 'secondary' | 'success' | 'danger'
 
-interface PokerButtonProps extends Omit<ButtonProps, 'children'> {
+interface PokerButtonProps extends Omit<TamaguiButtonProps, 'children' | 'variant'> {
   icon: ReactElement
   title: string
   fontsizeTitle?: "unset" | GetThemeValueForKey<"fontSize">
@@ -85,7 +86,7 @@ export const PokerButton = ({
           borderColor="$glass3"
           borderWidth={1}
         >
-          {React.cloneElement(icon, { color: config.textColor, size: 26 })}
+          {React.cloneElement(icon, { color: config.textColor, size: 26 } as any)}
         </YStack>
 
         <YStack flex={1}>

@@ -1,7 +1,8 @@
-import { Game } from "@/types/Game";
-import { Trophy } from "@tamagui/lucide-icons";
-import { Button, Card, H1, H3, H4, ScrollView, Text, Theme, XStack, YStack } from "tamagui";
 import { PokerBackground } from "@/components/ui/PokerBackground";
+import { Game } from "@/types/Game";
+import { DoorOpen, Trophy } from "@tamagui/lucide-icons";
+import { Card, H1, H3, H4, ScrollView, Text, Theme, XStack, YStack } from "tamagui";
+import { PokerButton } from "../ui";
 
 export function GamePodium({ game, onClose }: { game: Game, onClose: () => void }) {
     const finalRankings = [...game.players].sort((a, b) => (a.finalRank || 99) - (b.finalRank || 99));
@@ -55,9 +56,7 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
               </YStack>
             </ScrollView>
 
-            <Button size="$5" backgroundColor="$primary" color="$backgroundStrong" fontWeight="900" onPress={onClose}>
-              Fermer la table
-            </Button>
+            <PokerButton title="Ferme la table" variant="primary" icon={<DoorOpen size={20} />} fontWeight="900" onPress={onClose}/>
           </YStack>
         </PokerBackground>
       </Theme>

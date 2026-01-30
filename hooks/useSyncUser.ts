@@ -1,7 +1,7 @@
 import { db } from "@/services/firebase";
 import log from "@/services/logger";
 import { useUser } from "@clerk/clerk-expo"
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useEffect } from "react";
 import { useToast } from "./useToast";
 
@@ -25,8 +25,8 @@ export const useSyncUser = () => {
                     const newUser = {
                         displayName: displayName,
                         avatarUrl: user.imageUrl || '',
-                        createdAt: Date.now(), // Tu utilises des 'number' dans ton type
-                        lastLoginAt: Date.now(),
+                        createdAt: serverTimestamp(), // ✅ CORRIGÉ
+                        lastLoginAt: serverTimestamp(), // ✅ CORRIGÉ
                         groupIds: [], // Vide au départ
                         statistics: {
                             gamesPlayed: 0,
@@ -48,7 +48,7 @@ export const useSyncUser = () => {
             } else {
                 try {
                     await updateDoc(userRef, {
-                        lastLoginAt: Date.now(),
+                        lastLoginAt: serverTimestamp(), // ✅ CORRIGÉ
                         avatarUrl: user.imageUrl || userSnap.data().avatarUrl,
                     });
                     info("Bon retour, " + (userSnap.data().displayName || 'Joueur') + " !");

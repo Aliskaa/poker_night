@@ -5,8 +5,9 @@
 
 // Status Bar & Controls
 export { GameStatusBar } from './GameStatusBar'
-export { BlindTimer, BlindTimerCompact } from './BlindTimer'
+export { BlindTimerCompact } from './BlindTimer'
 export { BlindLevel, BlindLevelCompact } from './BlindLevel'
+export { BlindControls } from './BlindControls'
 
 // Display Components
 export { PotDisplay, PotDisplayCompact } from './PotDisplay'

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { collection, doc, query, where, onSnapshot, addDoc, updateDoc, arrayUnion, getDocs, serverTimestamp, documentId, deleteDoc } from 'firebase/firestore';
+import { collection, doc, query, where, onSnapshot, addDoc, updateDoc, arrayUnion, getDocs, serverTimestamp, documentId, deleteDoc, runTransaction } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useUser } from '@clerk/clerk-expo';
 import log from '@/services/logger';
 import { Group } from '@/types/Groups';
 import { Guest } from '@/types/Player';
 import { useToast } from './useToast';
+import { CreateGroupSchema, JoinGroupSchema, AddGuestToGroupSchema } from '@/lib/validations/group';
+import { z, ZodError } from 'zod';
 
 export const useGroupLogic = (groupId?: string) => {
   const { user } = useUser();
@@ -69,11 +71,15 @@ export const useGroupLogic = (groupId?: string) => {
   // Créer un nouveau Club
   const createGroup = async (name: string) => {
     if (!user || !name) return null;
-    const inviteCode = "POK-" + Math.random().toString(36).substring(2, 6).toUpperCase();
 
     try {
+      // ✅ VALIDATION
+      const validatedData = CreateGroupSchema.parse({ name });
+      
+      const inviteCode = "POK-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+
       const docRef = await addDoc(collection(db, 'groups'), {
-        name,
+        name: validatedData.name,
         ownerId: user.id,
         inviteCode,
         members: [user.id],
@@ -82,10 +88,14 @@ export const useGroupLogic = (groupId?: string) => {
       });
 
       successToast("Groupe créé avec succès !");
-
       return docRef.id;
     } catch (error) {
+      if (error instanceof ZodError) {
+        errorToast(`Erreur: ${error.issues[0].message}`);
+        return null;
+      }
       log.error("Erreur création groupe:", error);
+      errorToast("Erreur lors de la création du groupe");
       return null;
     }
   };
@@ -95,16 +105,41 @@ export const useGroupLogic = (groupId?: string) => {
     if (!user || !code) return { success: false, message: "Code manquant" };
 
     try {
-      const q = query(collection(db, 'groups'), where('inviteCode', '==', code.toUpperCase()));
+      // ✅ VALIDATION
+      const validatedData = JoinGroupSchema.parse({ inviteCode: code });
+      
+      const q = query(collection(db, 'groups'), where('inviteCode', '==', validatedData.inviteCode.toUpperCase()));
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) return { success: false, message: "Code introuvable" };
 
       const groupDoc = querySnapshot.docs[0];
-      await updateDoc(groupDoc.ref, { members: arrayUnion(user.id) });
+      
+      // ✅ UTILISATION DE TRANSACTION
+      await runTransaction(db, async (transaction) => {
+        const groupSnap = await transaction.get(groupDoc.ref);
+        if (!groupSnap.exists()) {
+          throw new Error('Group not found');
+        }
+
+        const groupData = groupSnap.data() as Group;
+        if (groupData.members.includes(user.id)) {
+          throw new Error('Already a member');
+        }
+
+        transaction.update(groupDoc.ref, { 
+          members: [...groupData.members, user.id] 
+        });
+      });
+
+      successToast("Vous avez rejoint le groupe !");
       return { success: true, groupId: groupDoc.id };
     } catch (error) {
+      if (error instanceof ZodError) {
+        return { success: false, message: error.issues[0].message };
+      }
       log.error("Erreur pour rejoindre:", error);
+      errorToast("Erreur lors de la tentative de rejoindre le groupe");
       return { success: false, message: "Erreur serveur" };
     }
   };
@@ -113,15 +148,41 @@ export const useGroupLogic = (groupId?: string) => {
   const addGuestToGroup = async (guestName: string) => {
     if (!groupId || !currentGroup) return;
 
-    const newGuest: Guest = {
-      id: `guest_${Date.now()}`,
-      name: guestName,
-      gamesPlayed: 0,
-      netProfit: 0,
-    };
+    try {
+      // ✅ VALIDATION
+      const validatedData = AddGuestToGroupSchema.parse({ guestName });
 
-    const groupRef = doc(db, 'groups', groupId);
-    await updateDoc(groupRef, { guests: arrayUnion(newGuest) });
+      const newGuest: Guest = {
+        id: `guest_${Date.now()}`,
+        name: validatedData.guestName,
+        gamesPlayed: 0,
+        netProfit: 0,
+      };
+
+      const groupRef = doc(db, 'groups', groupId);
+      
+      // ✅ UTILISATION DE TRANSACTION
+      await runTransaction(db, async (transaction) => {
+        const groupSnap = await transaction.get(groupRef);
+        if (!groupSnap.exists()) {
+          throw new Error('Group not found');
+        }
+
+        const groupData = groupSnap.data() as Group;
+        transaction.update(groupRef, { 
+          guests: [...groupData.guests, newGuest] 
+        });
+      });
+
+      successToast("Invité ajouté avec succès !");
+    } catch (error) {
+      if (error instanceof ZodError) {
+        errorToast(`Erreur: ${error.issues[0].message}`);
+      } else {
+        log.error("Erreur ajout invité:", error);
+        errorToast("Erreur lors de l'ajout de l'invité");
+      }
+    }
   };
 
   const deleteGroup = async () => {

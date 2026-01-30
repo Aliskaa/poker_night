@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type UserStatistics = {
   gamesPlayed: number;
   wins: number;          // Nombre de fois 1er
@@ -10,8 +12,12 @@ export type UserStatistics = {
 export type User = {
   displayName: string;
   avatarUrl?: string;
-  createdAt: number;
-  lastLoginAt: number;
+  
+  // Timestamps (Firebase Timestamp ou number pour compatibilité)
+  createdAt: Timestamp | Date | number;
+  lastLoginAt: Timestamp | Date | number;
+  updatedAt?: Timestamp | Date | number;
+  
   groupIds: string[];
   statistics: UserStatistics;
 }

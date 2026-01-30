@@ -3,8 +3,11 @@ import log from "@/services/logger";
 import { Game, GameConfig } from "@/types/Game";
 import { Player, PlayerStatus } from "@/types/Player";
 import { useUser } from "@clerk/clerk-expo"
-import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
+import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc, writeBatch, runTransaction, Timestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { GameConfigSchema, RebuySchema, EliminatePlayerSchema, AddGuestSchema } from "@/lib/validations/game";
+import { isLateRegOpen as checkLateRegOpen } from "@/utils/timestampHelpers";
+import { z, ZodError } from "zod";
 
 export const useGameLogic = (gameId?: string) => {
     const { user } = useUser();
@@ -42,15 +45,18 @@ export const useGameLogic = (gameId?: string) => {
     // 2. ACTION: CREATION DE PARTIE
     // ----------------------------------------------------------------------
     const createGame = async (config: GameConfig, groupId?: string) => {
-        if (!user) return null;
+        if (!user) throw new Error('User not authenticated');
 
         try {
+            // ✅ VALIDATION des données
+            const validatedConfig = GameConfigSchema.parse(config);
+
             const newGameData: Omit<Game, 'id'> = {
                 hostId: user.id,
                 status: 'PLAYING',
                 groupId: groupId || null,
-                config: config,
-                totalPot: config.defaultBuyIn,
+                config: validatedConfig,
+                totalPot: validatedConfig.defaultBuyIn,
                 players: [
                     {
                         id: user.id,
@@ -58,19 +64,27 @@ export const useGameLogic = (gameId?: string) => {
                         name: user.firstName || user.username || "Hôte",
                         isGuest: false,
                         buyInCount: 1,
-                        totalInvested: config.defaultBuyIn,
+                        totalInvested: validatedConfig.defaultBuyIn,
                         status: 'ACTIVE',
                         finalRank: null,
                         payout: 0,
                     },
                 ],
-                createdAt: new Date(),
+                createdAt: serverTimestamp(), // ✅ CORRIGÉ : serverTimestamp au lieu de new Date()
+                currentBlindLevel: 0, // ✅ AJOUTÉ
+                blindLevelStartedAt: serverTimestamp(), // ✅ AJOUTÉ
+                isPaused: false, // ✅ AJOUTÉ
             }
 
             const docRef = await addDoc(collection(db, "games"), newGameData);
             log.info(`useGameLogic: Nouvelle partie créée avec l'ID ${docRef.id}`);
             return docRef.id;
         } catch (error) {
+            if (error instanceof ZodError) {
+                const firstError = error.issues[0];
+                log.error(`Validation error: ${firstError.message}`);
+                return null;
+            }
             log.error("useGameLogic: Erreur lors de la création de la partie:", error);
             return null;
         }
@@ -118,113 +132,160 @@ export const useGameLogic = (gameId?: string) => {
     const addGuestPlayer = async (guestName: string, buyIn: number) => {
         if (!game || !gameId) return;
 
-        if (!isLateRegOpen()) {
-            alert("Les inscriptions sont fermées (Late Reg terminé) !");
-            return;
+        try {
+            // ✅ VALIDATION
+            const validatedData = AddGuestSchema.parse({ name: guestName, amount: buyIn });
+
+            if (!isLateRegOpen()) {
+                alert("Les inscriptions sont fermées (Late Reg terminé) !");
+                return;
+            }
+
+            const newGuest: Player = {
+                id: `guest_${Date.now()}`,
+                name: validatedData.name,
+                isGuest: true,
+                buyInCount: 1,
+                totalInvested: validatedData.amount,
+                status: 'ACTIVE'
+            };
+
+            const gameRef = doc(db, "games", gameId);
+
+            // ✅ UTILISATION DE TRANSACTION pour garantir l'atomicité
+            await runTransaction(db, async (transaction) => {
+                const gameSnap = await transaction.get(gameRef);
+                if (!gameSnap.exists()) {
+                    throw new Error('Game not found');
+                }
+
+                const currentGame = gameSnap.data() as Game;
+                
+                transaction.update(gameRef, {
+                    players: [...currentGame.players, newGuest],
+                    totalPot: currentGame.totalPot + validatedData.amount,
+                });
+            });
+
+            log.info("Invité ajouté avec succès");
+        } catch (error) {
+            if (error instanceof ZodError) {
+                log.error(`Validation error: ${error.issues[0].message}`);
+                alert(`Erreur: ${error.issues[0].message}`);
+            } else {
+                log.error("Erreur lors de l'ajout de l'invité:", error);
+            }
         }
-
-        const newGuest: Player = {
-            id: `guest_${Date.now()}`,
-            name: guestName,
-            isGuest: true,
-            buyInCount: 1,
-            totalInvested: buyIn,
-            status: 'ACTIVE'
-        };
-
-        const gameRef = doc(db, "games", gameId);
-
-        // On ajoute le joueur à la liste et on augmente le pot
-        await updateDoc(gameRef, {
-            players: [...game.players, newGuest],
-            totalPot: increment(buyIn),
-        });
     };
 
     // Ajouter une recave (Add-on) à un joueur existant
     const addRebuy = async (playerId: string, amount: number) => {
         if (!game || !gameId) return;
 
-        if (!isLateRegOpen()) {
-            alert("Les recaves sont terminées !");
-            return;
-        }
+        try {
+            // ✅ VALIDATION
+            const validatedData = RebuySchema.parse({ playerId, amount });
 
-        const updatePlayers = game.players.map(player => {
-            if (player.id === playerId) {
-                return {
-                    ...player,
-                    buyInCount: player.buyInCount + 1,
-                    totalInvested: player.totalInvested + amount,
-                    status: 'ACTIVE', // Au cas où il était éliminé
-                };
+            if (!isLateRegOpen()) {
+                alert("Les recaves sont terminées !");
+                return;
             }
-            return player;
-        });
 
-        const gameRef = doc(db, "games", gameId);
-        await updateDoc(gameRef, {
-            players: updatePlayers,
-            totalPot: increment(amount),
-        });
+            const gameRef = doc(db, "games", gameId);
+            const rebuyAmount = validatedData.amount || game.config.defaultBuyIn;
+
+            // ✅ UTILISATION DE TRANSACTION
+            await runTransaction(db, async (transaction) => {
+                const gameSnap = await transaction.get(gameRef);
+                if (!gameSnap.exists()) {
+                    throw new Error('Game not found');
+                }
+
+                const currentGame = gameSnap.data() as Game;
+                const updatedPlayers = currentGame.players.map(player => {
+                    if (player.id === validatedData.playerId) {
+                        return {
+                            ...player,
+                            buyInCount: player.buyInCount + 1,
+                            totalInvested: player.totalInvested + rebuyAmount,
+                            status: 'ACTIVE' as PlayerStatus, // Au cas où il était éliminé
+                        };
+                    }
+                    return player;
+                });
+
+                transaction.update(gameRef, {
+                    players: updatedPlayers,
+                    totalPot: currentGame.totalPot + rebuyAmount,
+                });
+            });
+
+            log.info("Rebuy ajouté avec succès");
+        } catch (error) {
+            if (error instanceof ZodError) {
+                log.error(`Validation error: ${error.issues[0].message}`);
+            } else {
+                log.error("Erreur lors de l'ajout du rebuy:", error);
+            }
+        }
     };
 
     // Eliminer un joueur
     const eliminatePlayer = async (playerId: string) => {
         if (!game || !gameId) return;
 
-        // On compte combien de joueurs sont DÉJÀ éliminés pour calculer le rang de celui qui sort.
-        // Si on est 5, et que 0 sont éliminés, le premier qui sort est 5ème.
-        const eliminatedCount = game.players.filter(p => p.status === 'ELIMINATED').length;
-        const totalPlayers = game.players.length;
-        const currentRank = totalPlayers - eliminatedCount;
+        try {
+            // ✅ VALIDATION
+            const validatedData = EliminatePlayerSchema.parse({ playerId });
 
-        const updatePlayers = game.players.map(player => {
-            if (player.id === playerId) {
-                return {
-                    ...player,
-                    status: 'ELIMINATED',
-                    finalRank: currentRank,
-                    eliminatedAt: new Date().getTime(),
-                };
+            const gameRef = doc(db, "games", gameId);
+
+            // ✅ UTILISATION DE TRANSACTION
+            await runTransaction(db, async (transaction) => {
+                const gameSnap = await transaction.get(gameRef);
+                if (!gameSnap.exists()) {
+                    throw new Error('Game not found');
+                }
+
+                const currentGame = gameSnap.data() as Game;
+                
+                // On compte combien de joueurs sont DÉJÀ éliminés pour calculer le rang de celui qui sort.
+                const eliminatedCount = currentGame.players.filter(p => p.status === 'ELIMINATED').length;
+                const totalPlayers = currentGame.players.length;
+                const currentRank = totalPlayers - eliminatedCount;
+
+                const updatedPlayers = currentGame.players.map(player => {
+                    if (player.id === validatedData.playerId) {
+                        return {
+                            ...player,
+                            status: 'ELIMINATED' as PlayerStatus,
+                            finalRank: currentRank,
+                            eliminatedAt: Timestamp.now(), 
+                        };
+                    }
+                    return player;
+                });
+
+                transaction.update(gameRef, {
+                    players: updatedPlayers,
+                });
+            });
+
+            log.info("Joueur éliminé avec succès");
+        } catch (error) {
+            if (error instanceof ZodError) {
+                log.error(`Validation error: ${error.issues[0].message}`);
+            } else {
+                log.error("Erreur lors de l'élimination:", error);
             }
-            return player;
-        });
-
-        const gameRef = doc(db, "games", gameId);
-        await updateDoc(gameRef, {
-            players: updatePlayers,
-        });
-
-    }
+        }
+    };
 
     // --- UTILITAIRE : Vérifier si les inscriptions/recaves sont encore ouvertes ---
     const isLateRegOpen = (): boolean => {
         if (!game) return false;
-        // Si la limite est 0, c'est illimité ("Ouvert")
-        if (game.config.lateRegLimit === 0) return true;
-
-        let startTime = Date.now();
-
-        if (game.createdAt) {
-            // 1. Si c'est un vrai objet Timestamp Firebase (il a la méthode toDate)
-            if (typeof (game.createdAt as any).toDate === 'function') {
-                startTime = (game.createdAt as any).toDate().getTime();
-            } 
-            // 2. Si c'est un objet brut contenant "seconds" (Firebase Timestamp brut)
-            else if ((game.createdAt as any).seconds) {
-                startTime = (game.createdAt as any).seconds * 1000;
-            }
-            // 3. Si c'est déjà une date JS (en local avant l'envoi au serveur)
-            else if (game.createdAt instanceof Date) {
-                startTime = game.createdAt.getTime();
-            }
-        }
-
-        const now = Date.now();
-        const minutesElapsed = (now - startTime) / (1000 * 60);
-
-        return minutesElapsed < game.config.lateRegLimit;
+        // ✅ UTILISATION DE L'HELPER
+        return checkLateRegOpen(game.createdAt, game.config.lateRegLimit);
     };
 
     // ----------------------------------------------------------------------
@@ -266,6 +327,7 @@ export const useGameLogic = (gameId?: string) => {
         batch.update(gameRef, {
             status: 'FINISHED',
             players: updatedPlayers,
+            finishedAt: serverTimestamp(), // ✅ AJOUTÉ
         });
 
         updatedPlayers.forEach(player => {
@@ -274,20 +336,51 @@ export const useGameLogic = (gameId?: string) => {
                 const profit = (player.payout || 0) - player.totalInvested;
 
                 // increment() permet d'ajouter une valeur à un champ numérique existant
-                batch.set(playerRef, {
-                    statistics: {
-                        gamesPlayed: increment(1),
-                        totalInvested: increment(player.totalInvested),
-                        totalWinnings: increment(player.payout || 0),
-                        netProfit: increment(profit),
-                    }
-                }, { merge: true }); // 'merge: true' pour ne pas écraser les autres données utilisateur
+                batch.update(playerRef, {
+                    'statistics.gamesPlayed': increment(1),
+                    'statistics.totalInvested': increment(player.totalInvested),
+                    'statistics.totalWinnings': increment(player.payout || 0),
+                    'statistics.netProfit': increment(profit),
+                    'statistics.wins': player.finalRank === 1 ? increment(1) : increment(0),
+                    lastLoginAt: serverTimestamp(), // ✅ AJOUTÉ
+                });
             }
         });
 
         // Commit de toutes les modifications en une seule opération
         await batch.commit();
     }
+
+    // ✅ AJOUTÉ : Fonctions pour gérer les blinds
+    const pauseBlindTimer = async () => {
+        if (!game || !gameId) return;
+
+        const gameRef = doc(db, "games", gameId);
+        await updateDoc(gameRef, {
+            isPaused: true,
+            pausedAt: serverTimestamp(),
+        });
+    };
+
+    const resumeBlindTimer = async () => {
+        if (!game || !gameId) return;
+
+        const gameRef = doc(db, "games", gameId);
+        await updateDoc(gameRef, {
+            isPaused: false,
+            pausedAt: null,
+        });
+    };
+
+    const nextBlindLevel = async () => {
+        if (!game || !gameId) return;
+
+        const gameRef = doc(db, "games", gameId);
+        await updateDoc(gameRef, {
+            currentBlindLevel: (game.currentBlindLevel || 0) + 1,
+            blindLevelStartedAt: serverTimestamp(),
+        });
+    };
 
     return {
         game,
@@ -298,6 +391,9 @@ export const useGameLogic = (gameId?: string) => {
         addRebuy,
         eliminatePlayer,
         endGame,
+        pauseBlindTimer,    // ✅ AJOUTÉ
+        resumeBlindTimer,   // ✅ AJOUTÉ
+        nextBlindLevel,     // ✅ AJOUTÉ
         isLateRegOpen: isLateRegOpen()
     };
 }

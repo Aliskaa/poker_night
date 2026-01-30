@@ -35,7 +35,7 @@ export function PlayerCard({
                 <XStack justifyContent="space-between" alignItems="flex-start" gap="$3">
                     {/* Avatar + Info */}
                     <XStack gap="$3" alignItems="center" flex={1}>
-                        <Avatar 
+                        <Avatar
                             circular
                             size="$10"
                             borderWidth={2}
@@ -94,7 +94,7 @@ export function PlayerCard({
                     ) : (
                         <XStack gap="$2">
                             <IconButton
-                                icon={isLateRegOpen ? Plus : Lock}
+                                icon={isLateRegOpen ? <Plus size={15} /> : <Lock size={15} color="$night900" />}
                                 backgroundColor={isLateRegOpen ? '$success' : '$glass2'}
                                 borderColor={isLateRegOpen ? '$success' : '$glass4'}
                                 borderWidth={1}
@@ -102,12 +102,14 @@ export function PlayerCard({
                                 disabled={!isLateRegOpen}
                                 onPress={onRebuy}
                                 opacity={isLateRegOpen ? 1 : 0.5}
+                                size="medium"
                             />
                             <IconButton
-                                icon={UserX}
+                                icon={<UserX size={15} />}
                                 backgroundColor="$danger"
                                 color="$backgroundStrong"
                                 onPress={onEliminate}
+                                size="medium"
                             />
                         </XStack>
                     )}

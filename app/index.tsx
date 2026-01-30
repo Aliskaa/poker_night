@@ -11,7 +11,7 @@ export default function Index() {
     if (!isLoaded) return;
 
     if (isSignedIn) {
-      router.replace('/(main)/home');
+      router.replace('/(main)/(tabs)/home' as any);
     } else {
       router.replace('/(auth)/login');
     }

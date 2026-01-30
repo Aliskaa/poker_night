@@ -65,11 +65,11 @@ export default function LoginScreen() {
             if (createdSessionId) {
                 log.debug("🟢 Google Login: Existing User, Session ID:", createdSessionId);
                 await setActive!({ session: createdSessionId });
-                router.replace('/(main)/home');
+                router.replace('/(main)/(tabs)/home');
             } else if (signUp?.createdSessionId) {
                 log.debug("🟢 Google Signup: New User, Session ID:", signUp.createdSessionId);
                 await setActive!({ session: signUp.createdSessionId });
-                router.replace('/(main)/home');
+                router.replace('/(main)/(tabs)/home');
             } else {
                 log.error("🔴 Google Auth: Pas de session créée.");
             }

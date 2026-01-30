@@ -42,7 +42,7 @@ export const GlassCard = ({
         padding="$2" 
         borderRadius="$5"
       >
-        {React.cloneElement(icon, { color: '$primary', size: 20 })}
+        {React.cloneElement(icon, { color: '$primary', size: 20 } as any)}
       </YStack>
       <YStack flex={1}>
         <Text 

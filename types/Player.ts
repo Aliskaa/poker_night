@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type PlayerStatus = 'ACTIVE' | 'ELIMINATED';
 
 export type Player = {
@@ -8,9 +10,13 @@ export type Player = {
     buyInCount: number;
     totalInvested: number;
     status: PlayerStatus;
-    eliminatedAt?: number | null;
+    eliminatedAt?: Timestamp | Date | number | null;
     finalRank?: number | null;
     payout?: number;
+    
+    // Champs additionnels (P0)
+    currentStack?: number; // Stack actuel (différent de totalInvested)
+    seatPosition?: number; // Position à la table (0-9)
 }
 
 export type Guest = {
