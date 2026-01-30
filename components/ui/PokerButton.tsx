@@ -11,6 +11,7 @@ interface PokerButtonProps extends Omit<TamaguiButtonProps, 'children' | 'varian
   icon: ReactElement
   title: string
   fontsizeTitle?: "unset" | GetThemeValueForKey<"fontSize">
+  iconSize?: number
   subtitle?: string
   onPress?: () => void
   variant?: PokerButtonVariant
@@ -44,6 +45,7 @@ export const PokerButton = ({
   icon, 
   title,
   fontsizeTitle,
+  iconSize,
   subtitle, 
   onPress, 
   variant = 'primary',
@@ -96,7 +98,7 @@ export const PokerButton = ({
           borderColor="$glass3"
           borderWidth={1}
         >
-          {React.cloneElement(icon, { color: config.textColor, size: 26 } as any)}
+          {React.cloneElement(icon, { color: config.textColor, size: iconSize ?? 26 } as any)}
         </YStack>
 
         <YStack flex={1}>

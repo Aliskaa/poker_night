@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react';
-import { collection, doc, query, where, onSnapshot, addDoc, updateDoc, arrayUnion, getDocs, serverTimestamp, documentId, deleteDoc, runTransaction } from 'firebase/firestore';
-import { db } from '../services/firebase';
-import { useUser } from '@clerk/clerk-expo';
+import { AddGuestToGroupSchema, CreateGroupSchema, JoinGroupSchema } from '@/lib/validations/group';
 import log from '@/services/logger';
 import { Group } from '@/types/Groups';
 import { Guest } from '@/types/Player';
+import { User } from '@/types/User';
+import { useUser } from '@clerk/clerk-expo';
+import { addDoc, collection, deleteDoc, doc, documentId, getDocs, onSnapshot, query, runTransaction, serverTimestamp, where } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { ZodError } from 'zod';
+import { db } from '../services/firebase';
 import { useToast } from './useToast';
-import { CreateGroupSchema, JoinGroupSchema, AddGuestToGroupSchema } from '@/lib/validations/group';
-import { z, ZodError } from 'zod';
 
 export const useGroupLogic = (groupId?: string) => {
   const { user } = useUser();
   const { success: successToast, error: errorToast } = useToast();
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
-  const [memberDetails, setMemberDetails] = useState<any[]>([]);
+  const [memberDetails, setMemberDetails] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // ---------------------------------------------------------------------------
@@ -53,7 +54,7 @@ export const useGroupLogic = (groupId?: string) => {
           const usersRef = collection(db, 'users');
           const q = query(usersRef, where(documentId(), 'in', groupData.members));
           const usersSnap = await getDocs(q);
-          setMemberDetails(usersSnap.docs.map(u => ({ id: u.id, ...u.data() })));
+          setMemberDetails(usersSnap.docs.map(u => ({ id: u.id, ...u.data() } as User)));
         }
       } else {
         setCurrentGroup(null);

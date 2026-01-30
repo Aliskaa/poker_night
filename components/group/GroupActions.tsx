@@ -15,15 +15,18 @@ export function GroupActions({ isOwner, onConfigureGame, onDeleteGroup }: { isOw
       <PokerButton 
         variant="primary" 
         icon={<Play size={20} />} 
-        title="Configurer une partie de Club"
+        title="Configurer une partie"
         onPress={onConfigureGame}
       />
 
       {isOwner && (
         <PokerButton 
-          variant="danger" 
-          icon={<Trash2 size={16} />} 
+          variant="danger"
+          icon={<Trash2 />} 
           title="Supprimer le Club"
+          fontsizeTitle="$2"
+          height="$14"
+          iconSize={16}
           onPress={onDeleteGroup}
         />
       )}

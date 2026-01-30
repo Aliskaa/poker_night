@@ -55,12 +55,11 @@ export default function LobbyScreen() {
       <PokerBackground>
         <YStack flex={1} paddingTop="$10">
 
-          <YStack 
-            alignItems="center" 
-            marginBottom="$4" 
-            paddingHorizontal="$4"
+          <YStack
+            alignItems="center"
             paddingBottom="$4"
-            backgroundColor="$overlay9"
+            paddingTop="$2"
+            backgroundColor="$overlay5"
             borderBottomWidth={1}
             borderBottomColor="$overlay3"
           >
@@ -75,12 +74,12 @@ export default function LobbyScreen() {
               <YStack gap="$3">
                 <Text color="$text60" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Membres Officiels</Text>
                 {memberDetails.map(member => (
-                  <SelectionCard 
+                  <SelectionCard
                     key={member.id}
                     isSelected={selectedMembers.includes(member.id)}
                     isDisabled={member.id === user?.id}
-                    name={member.firstName || member.username}
-                    avatarUrl={member.imageUrl || member.avatarUrl}
+                    name={member.displayName || "Joueur"}
+                    avatarUrl={member.avatarUrl}
                     subtitle={member.id === user?.id ? "Hôte (Toi)" : undefined}
                     onToggle={() => toggleMember(member.id)}
                   />
@@ -89,18 +88,18 @@ export default function LobbyScreen() {
 
               <YStack gap="$3">
                 <Text color="$text60" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>Invités</Text>
-                {group.guests.length === 0 ? 
-                  <YStack 
-                    padding="$4" 
-                    backgroundColor="$glass2" 
-                    borderRadius="$5" 
-                    borderWidth={1} 
+                {group.guests.length === 0 ?
+                  <YStack
+                    padding="$4"
+                    backgroundColor="$glass2"
+                    borderRadius="$5"
+                    borderWidth={1}
                     borderColor="$glass4"
                   >
                     <Text color="$text40" fontStyle="italic" textAlign="center">Aucun invité pour le moment</Text>
-                  </YStack> : 
+                  </YStack> :
                   group.guests.map(guest => (
-                    <SelectionCard 
+                    <SelectionCard
                       key={guest.id}
                       isSelected={selectedGuests.some(g => g.id === guest.id)}
                       name={guest.name}
@@ -114,17 +113,17 @@ export default function LobbyScreen() {
             </YStack>
           </ScrollView>
 
-          <YStack 
-            padding="$4" 
-            backgroundColor="$overlay9" 
-            borderTopWidth={1} 
+          <YStack
+            padding="$4"
+            backgroundColor="$overlay9"
+            borderTopWidth={1}
             borderTopColor="$overlay3"
           >
-            <PokerButton 
-              variant="primary" 
-              icon={isLaunching ? <Spinner color="$backgroundStrong" /> : <Play size={20} />} 
+            <PokerButton
+              variant="primary"
+              icon={isLaunching ? <Spinner color="$backgroundStrong" /> : <Play size={20} />}
               title={isLaunching ? "Distribution..." : `Lancer la partie (${totalPlayers})`}
-              disabled={isLaunching} 
+              disabled={isLaunching}
               onPress={handleStartGame}
             />
           </YStack>

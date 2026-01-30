@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Text, XStack, YStack } from 'tamagui';
 import { Ghost, UserPlus } from '@tamagui/lucide-icons';
+import { IconButton } from '../ui';
 
 export function GuestList({ guests, isOwner, onAddGuest }: { guests: any[], isOwner: boolean, onAddGuest: () => void }) {
   return (
@@ -10,9 +11,16 @@ export function GuestList({ guests, isOwner, onAddGuest }: { guests: any[], isOw
           Invités du Club ({guests.length})
         </Text>
         {isOwner && (
-          <Button size="$3" backgroundColor="$accent" color="white" icon={<UserPlus size={16} />} onPress={onAddGuest}>
-            Ajouter
-          </Button>
+          // <Button size="$5" borderRadius="$3" backgroundColor="$accent" color="white" icon={<UserPlus size={16} />} onPress={onAddGuest}>
+          //   Ajouter
+          // </Button>
+          <IconButton
+            icon={<UserPlus size={16} />}
+            onPress={onAddGuest}
+            backgroundColor="$accent"
+            color="$night900"
+            size="large"
+          />
         )}
       </XStack>
 

@@ -97,7 +97,7 @@ export default function GroupsScreen() {
                                             <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
                                                 <Avatar circular size="$5" borderColor={isOwner ? "$primary" : "rgba(255,255,255,0.2)"} borderWidth={2}>
                                                     <Avatar.Fallback backgroundColor="rgba(0,0,0,0.3)" />
-                                                    {/* Tu peux remettre Avatar.Image ici */}
+                                                    {/* {group.avatarUrl && <Avatar.Image source={{ uri: group.avatarUrl }} />} */}
                                                 </Avatar>
                                                 <YStack flex={1}>
                                                     <XStack alignItems="center" gap="$2">
@@ -121,7 +121,20 @@ export default function GroupsScreen() {
                         <Sheet.Handle />
                         <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
                             <H4 color="$color" textAlign="center">Nouveau Club</H4>
-                            <Input size="$5" placeholder="Nom du Club" value={newGroupName} onChangeText={setNewGroupName} backgroundColor="$background" borderColor="$borderColor" />
+                            <Input
+                                placeholder="Nom du Club"
+                                value={newGroupName}
+                                onChangeText={setNewGroupName}
+                                size="$5"
+                                textAlign="center"
+                                backgroundColor="$background"
+                                borderColor="$borderColor"
+                                borderWidth={1}
+                                color="$color"
+                                fontWeight="bold"
+                                fontSize="$6"
+                                height="$16"
+                            />
                             <PokerButton
                                 variant="primary"
                                 icon={loading ? <Spinner color="$night900" /> : <Plus />}
@@ -138,7 +151,23 @@ export default function GroupsScreen() {
                         <Sheet.Handle />
                         <Sheet.Frame padding="$4" gap="$4" backgroundColor="$backgroundStrong">
                             <H4 color="$color" textAlign="center">Rejoindre</H4>
-                            <Input size="$16" placeholder="Code d'invitation" value={inviteCode} onChangeText={setInviteCode} backgroundColor="$background" borderColor="$borderColor" autoCapitalize="characters" />
+                            <Input
+                                placeholder="Code d'invitation"
+                                value={inviteCode}
+                                onChangeText={setInviteCode}
+                                size="$5"
+                                textAlign="center"
+                                letterSpacing={8}
+                                backgroundColor="$background"
+                                borderColor="$borderColor"
+                                borderWidth={1}
+                                color="$color"
+                                fontWeight="bold"
+                                fontSize="$6"
+                                height="$16"
+                                autoCapitalize="characters"
+                            />
+
                             <PokerButton
                                 variant="secondary"
                                 icon={loading ? <Spinner color="$night900" /> : <Plus />}

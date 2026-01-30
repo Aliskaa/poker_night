@@ -8,7 +8,7 @@ export function GroupHeader({ name, totalPlayers }: { name: string, totalPlayers
       alignItems="center" 
       paddingBottom="$4"
       paddingTop="$2"
-      backgroundColor="$overlay9"
+      backgroundColor="$overlay5"
       borderBottomWidth={1}
       borderBottomColor="$overlay3"
     >

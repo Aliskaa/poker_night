@@ -22,14 +22,14 @@ export function SelectionCard({ isSelected, isDisabled, name, avatarUrl, isGhost
       onPress={onToggle}
     >
       <Card.Header padded flexDirection="row" alignItems="center" gap="$3">
-        <Checkbox checked={isSelected} backgroundColor={isSelected ? "$success" : "$glass4"} borderColor={isSelected ? "$success" : "$glass5"} disabled={isDisabled}>
+        <Checkbox size="$10" checked={isSelected} backgroundColor={isSelected ? "$success" : "$glass4"} borderColor={isSelected ? "$success" : "$glass5"} disabled={isDisabled}>
           <Checkbox.Indicator><Check color="$text95" /></Checkbox.Indicator>
         </Checkbox>
         
         {isGhost ? (
-          <Ghost size={20} color={isSelected ? "$success" : "$text60"} />
+          <Ghost size="$9" color={isSelected ? "$success" : "$text60"} />
         ) : (
-          <Avatar circular size="$3"><Avatar.Image src={avatarUrl} /></Avatar>
+          <Avatar circular size="$9"><Avatar.Image src={avatarUrl} /></Avatar>
         )}
 
         <YStack flex={1}>

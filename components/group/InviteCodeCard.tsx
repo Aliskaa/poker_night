@@ -20,7 +20,7 @@ export function InviteCodeCard({ code, onShare }: { code: string, onShare: () =>
           <Text color="$primary" fontSize="$8" fontWeight="900" letterSpacing={4}>{code}</Text>
           <Button 
             circular 
-            size="$4" 
+            size="$7"
             backgroundColor="$primary" 
             icon={<Share2 size={18} color="$backgroundStrong" />} 
             onPress={onShare}

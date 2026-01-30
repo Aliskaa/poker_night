@@ -14,7 +14,7 @@ export default function SignUpScreen() {
   const [firstName, setFirstName] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // Étape 2 : OTP
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState('');
@@ -28,7 +28,7 @@ export default function SignUpScreen() {
     try {
       await signUp.create({ firstName, emailAddress, password });
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      setPendingVerification(true); 
+      setPendingVerification(true);
     } catch (err: any) {
       alert(err.errors[0].message);
     } finally {
@@ -64,41 +64,42 @@ export default function SignUpScreen() {
       <Theme name="dark">
         <PokerBackground>
           <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
-          <YStack gap="$2" marginBottom="$4" alignItems="center">
-            <CheckCircle2 size={56} color="$success" />
-            <H1 textAlign="center" color="$color" fontWeight="900" marginTop="$2">Vérification</H1>
-            <Text textAlign="center" color="$colorMuted">
-              Un code a été envoyé à {emailAddress}.
-            </Text>
-          </YStack>
+            <YStack gap="$2" marginBottom="$4" alignItems="center">
+              <CheckCircle2 size={56} color="$success" />
+              <H1 textAlign="center" color="$color" fontWeight="900" marginTop="$2">Vérification</H1>
+              <Text textAlign="center" color="$colorMuted">
+                Un code a été envoyé à {emailAddress}.
+              </Text>
+            </YStack>
 
-          <Input
-            placeholder="000000"
-            value={code}
-            onChangeText={setCode}
-            keyboardType="numeric"
-            size="$5"
-            textAlign="center"
-            letterSpacing={8}
-            backgroundColor="$backgroundStrong"
-            borderColor="$borderColor"
-            borderWidth={1}
-            color="$color"
-            fontWeight="bold"
-            fontSize="$6"
-            height={60}
-          />
+            <Input
+              placeholder="000000"
+              value={code}
+              onChangeText={setCode}
+              keyboardType="numeric"
+              size="$5"
+              textAlign="center"
+              letterSpacing={8}
+              backgroundColor="$backgroundStrong"
+              borderColor="$borderColor"
+              borderWidth={1}
+              color="$color"
+              fontWeight="bold"
+              fontSize="$6"
+              height="$16"
+            />
 
-          <Button 
-            size="$5" 
-            onPress={onPressVerify} 
-            backgroundColor="$success" 
-            color="white" 
-            fontWeight="900"
-            disabled={loading}
-          >
-            {loading ? <Spinner color="white" /> : 'Valider mon compte'}
-          </Button>
+            <Button
+              size="$5"
+              height="$11"
+              onPress={onPressVerify}
+              backgroundColor="$success"
+              color="white"
+              fontWeight="900"
+              disabled={loading}
+            >
+              {loading ? <Spinner color="white" /> : 'Valider mon compte'}
+            </Button>
           </YStack>
         </PokerBackground>
       </Theme>
@@ -112,52 +113,56 @@ export default function SignUpScreen() {
     <Theme name="dark">
       <PokerBackground>
         <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
-        
-        {/* EN-TÊTE */}
-        <YStack gap="$2" marginBottom="$6" alignItems="center">
+
+          {/* EN-TÊTE */}
+          <YStack gap="$2" marginBottom="$6" alignItems="center">
             <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$5" marginBottom="$2">
-                <Crown size={40} color="$primary" />
+              <Crown size={40} color="$primary" />
             </YStack>
             <H1 textAlign="center" color="$color" fontWeight="900">Nouveau Joueur</H1>
             <Text textAlign="center" color="$colorMuted" letterSpacing={1} textTransform="uppercase" fontSize="$2">
-                Crée ton compte
+              Crée ton compte
             </Text>
-        </YStack>
+          </YStack>
 
-        <YStack gap="$3">
-          <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
-            <User size={20} color="$colorMuted" />
-            <Input flex={1} placeholder="Prénom (ou Pseudo)" value={firstName} onChangeText={setFirstName} unstyled color="$color" height={50} />
+          <YStack gap="$3">
+            <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
+              <User size={20} color="$colorMuted" />
+              <Input flex={1} placeholder="Prénom (ou Pseudo)" value={firstName} onChangeText={setFirstName} unstyled color="$color"
+                height="$14" />
+            </XStack>
+
+            <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
+              <Mail size={20} color="$colorMuted" />
+              <Input flex={1} placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} autoCapitalize="none" unstyled color="$color"
+                height="$14" />
+            </XStack>
+
+            <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
+              <Lock size={20} color="$colorMuted" />
+              <Input flex={1} placeholder="Mot de passe" value={password} onChangeText={setPassword} secureTextEntry unstyled color="$color"
+                height="$14" />
+            </XStack>
+
+            <Button
+              size="$5"
+              height="$11"
+              onPress={onSignUpPress}
+              backgroundColor="$primary"
+              color="$backgroundStrong"
+              fontWeight="900"
+              disabled={loading}
+            >
+              {loading ? <Spinner color="$backgroundStrong" /> : "Rejoindre la table"}
+            </Button>
+          </YStack>
+
+          <XStack justifyContent="center" marginTop="$4">
+            <Text color="$colorMuted">Déjà inscrit ? </Text>
+            <Link href="/(auth)/login" asChild>
+              <Text color="$primary" fontWeight="bold">Se connecter</Text>
+            </Link>
           </XStack>
-
-          <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
-            <Mail size={20} color="$colorMuted" />
-            <Input flex={1} placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} autoCapitalize="none" unstyled color="$color" height={50} />
-          </XStack>
-
-          <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
-            <Lock size={20} color="$colorMuted" />
-            <Input flex={1} placeholder="Mot de passe" value={password} onChangeText={setPassword} secureTextEntry unstyled color="$color" height={50} />
-          </XStack>
-
-          <Button 
-            size="$5" 
-            onPress={onSignUpPress} 
-            backgroundColor="$primary" 
-            color="$backgroundStrong" 
-            fontWeight="900"
-            disabled={loading}
-          >
-            {loading ? <Spinner color="$backgroundStrong" /> : "Rejoindre la table"}
-          </Button>
-        </YStack>
-
-        <XStack justifyContent="center" marginTop="$4">
-          <Text color="$colorMuted">Déjà inscrit ? </Text>
-          <Link href="/(auth)/login" asChild>
-            <Text color="$primary" fontWeight="bold">Se connecter</Text>
-          </Link>
-        </XStack>
         </YStack>
       </PokerBackground>
     </Theme>
