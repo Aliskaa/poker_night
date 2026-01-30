@@ -3,6 +3,7 @@ import { Button, GetThemeValueForKey, Text, YStack } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactElement } from 'react'
 import type { ButtonProps as TamaguiButtonProps } from 'tamagui'
+import { hapticFeedback } from '@/services/haptics'
 
 type PokerButtonVariant = 'primary' | 'secondary' | 'success' | 'danger'
 
@@ -13,6 +14,7 @@ interface PokerButtonProps extends Omit<TamaguiButtonProps, 'children' | 'varian
   subtitle?: string
   onPress?: () => void
   variant?: PokerButtonVariant
+  haptic?: boolean
 }
 
 const VARIANT_CONFIG = {
@@ -45,13 +47,21 @@ export const PokerButton = ({
   subtitle, 
   onPress, 
   variant = 'primary',
+  haptic = true,
   ...props
 }: PokerButtonProps) => {
   const config = VARIANT_CONFIG[variant]
 
+  const handlePress = async () => {
+    if (haptic) {
+      await hapticFeedback.medium()
+    }
+    onPress?.()
+  }
+
   return (
     <Button
-      onPress={onPress}
+      onPress={handlePress}
       padding={0}
       overflow="hidden"
       height={80}

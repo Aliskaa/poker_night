@@ -3,6 +3,7 @@ import { formatDuration } from '@/utils/timestampHelpers'
 import { Pause, Play, SkipForward, Timer, TrendingUp } from '@tamagui/lucide-icons'
 import { Text, XStack, YStack, type YStackProps } from 'tamagui'
 import { IconButton } from '../ui/IconButton'
+import { hapticFeedback } from '@/services/haptics'
 
 interface BlindControlsProps extends Omit<YStackProps, 'children'> {
   seconds: number
@@ -178,7 +179,10 @@ export function BlindControls({
                 icon={<Play size={20} color="$night900" />}
                 backgroundColor="$success"
                 color="$night900"
-                onPress={onResume}
+                onPress={async () => {
+                  await hapticFeedback.medium()
+                  onResume()
+                }}
                 disabled={disabled}
                 size="large"
               />
@@ -187,7 +191,10 @@ export function BlindControls({
                 icon={<Pause size={20} color="$night900" />}
                 backgroundColor="$warning"
                 color="$night900"
-                onPress={onPause}
+                onPress={async () => {
+                  await hapticFeedback.medium()
+                  onPause()
+                }}
                 disabled={disabled}
                 size="large"
               />
@@ -197,7 +204,10 @@ export function BlindControls({
             icon={<SkipForward size={20} color="$night900" />}
             backgroundColor="$primary"
             color="$night900"
-            onPress={onNextLevel}
+            onPress={async () => {
+              await hapticFeedback.blindLevelUp()
+              onNextLevel()
+            }}
             disabled={disabled || !nextBlind}
             size="large"
           />

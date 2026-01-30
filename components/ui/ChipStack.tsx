@@ -1,5 +1,6 @@
-import { XStack, Text, type XStackProps } from 'tamagui'
+import { XStack, Text, type XStackProps, AnimatePresence } from 'tamagui'
 import { Coins } from '@tamagui/lucide-icons'
+import { useEffect, useState } from 'react'
 
 type ChipStackVariant = 'default' | 'pot' | 'stack' | 'rebuy'
 type ChipStackSize = 'sm' | 'md' | 'lg'
@@ -10,6 +11,7 @@ interface ChipStackProps extends Omit<XStackProps, 'children'> {
   size?: ChipStackSize
   showIcon?: boolean
   currency?: string
+  animate?: boolean
 }
 
 const VARIANT_CONFIG = {
@@ -65,10 +67,26 @@ export function ChipStack({
   size = 'md',
   showIcon = true,
   currency = '€',
+  animate = true,
   ...props 
 }: ChipStackProps) {
   const variantConfig = VARIANT_CONFIG[variant]
   const sizeConfig = SIZE_CONFIG[size]
+  
+  // Animation quand le montant change
+  const [prevAmount, setPrevAmount] = useState(amount)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  useEffect(() => {
+    if (animate && amount !== prevAmount) {
+      setIsAnimating(true)
+      const timer = setTimeout(() => {
+        setIsAnimating(false)
+        setPrevAmount(amount)
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [amount, prevAmount, animate])
   
   // Formater le montant avec espaces pour les milliers
   const formattedAmount = new Intl.NumberFormat('fr-FR').format(amount)
@@ -84,6 +102,8 @@ export function ChipStack({
       gap="$2"
       alignItems="center"
       alignSelf="flex-start"
+      animation="quick"
+      scale={isAnimating ? 1.1 : 1}
       {...props}
     >
       {showIcon && (

@@ -5,6 +5,7 @@ import { StatusBadge, type PlayerStatus } from '../ui/StatusBadge'
 import { ChipStack } from '../ui/ChipStack'
 import { IconButton } from '../ui/IconButton'
 import log from '@/services/logger'
+import { hapticFeedback } from '@/services/haptics'
 
 interface PlayerCardProps {
     player: Player
@@ -100,7 +101,10 @@ export function PlayerCard({
                                 borderWidth={1}
                                 color={isLateRegOpen ? '$backgroundStrong' : '$text60'}
                                 disabled={!isLateRegOpen}
-                                onPress={onRebuy}
+                                onPress={async () => {
+                                    await hapticFeedback.placeBet()
+                                    onRebuy()
+                                }}
                                 opacity={isLateRegOpen ? 1 : 0.5}
                                 size="medium"
                             />
@@ -108,7 +112,10 @@ export function PlayerCard({
                                 icon={<UserX size={15} />}
                                 backgroundColor="$danger"
                                 color="$backgroundStrong"
-                                onPress={onEliminate}
+                                onPress={async () => {
+                                    await hapticFeedback.eliminated()
+                                    onEliminate()
+                                }}
                                 size="medium"
                             />
                         </XStack>

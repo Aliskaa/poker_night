@@ -3,6 +3,7 @@ import { Trophy, TrendingUp } from '@tamagui/lucide-icons'
 import { ChipStack } from '../ui/ChipStack'
 import { PAYOUT_MODELS } from '@/constants/game'
 import type { GameConfig } from '@/types/Game'
+import { useState, useEffect } from 'react'
 
 interface PotDisplayProps extends Omit<YStackProps, 'children'> {
   totalPot: number
@@ -21,6 +22,23 @@ export function PotDisplay({
   ...props
 }: PotDisplayProps) {
   const model = PAYOUT_MODELS[payoutModel]
+  
+  // Animation du pot quand il augmente
+  const [prevPot, setPrevPot] = useState(totalPot)
+  const [isPotAnimating, setIsPotAnimating] = useState(false)
+
+  useEffect(() => {
+    if (totalPot > prevPot) {
+      setIsPotAnimating(true)
+      const timer = setTimeout(() => {
+        setIsPotAnimating(false)
+        setPrevPot(totalPot)
+      }, 500)
+      return () => clearTimeout(timer)
+    } else {
+      setPrevPot(totalPot)
+    }
+  }, [totalPot, prevPot])
   
   // Calculer la distribution du pot
   const calculatePayouts = () => {
@@ -81,6 +99,7 @@ export function PotDisplay({
       <ChipStack 
         amount={totalPot} 
         variant="pot" 
+        animate={true}
         size="lg"
         showIcon={false}
       />

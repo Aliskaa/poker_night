@@ -13,6 +13,18 @@ export { ChipStack } from './ChipStack'
 // Navigation & Actions
 export { FAB, FABWithLabel } from './FAB'
 export { Stepper, StepContainer, Step, useStepper } from './Stepper'
+export { IconButton } from './IconButton'
+
+// Loading & Empty States
+export { LoadingState, ErrorState, EmptyState } from './LoadingStates'
+
+// Animations
+export { AnimatedContainer, AnimatedList } from './AnimatedContainer'
+
+// Stats & Analytics
+export { StatCard, StatRow } from './StatCard'
+export { BankrollChart } from './BankrollChart'
+export { PlayerRankingItem } from './PlayerRankingItem'
 
 // Existing components (keep imports for backward compatibility)
 export { GlassCard } from './GlassCard'

@@ -2,24 +2,64 @@ import { ChipStack } from '@/components/ui/ChipStack';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 import { PokerButton } from '@/components/ui/PokerButton';
+import { StatCard } from '@/components/ui/StatCard';
+import { BankrollChart } from '@/components/ui/BankrollChart';
 import { useUserLogic } from '@/hooks/useUserLogic';
 import { useAuth, useUser } from '@clerk/clerk-expo';
-import { BookOpen, Calendar, LogOut, Medal, Settings, ShieldCheck, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import { BookOpen, Calendar, LogOut, Medal, Settings, ShieldCheck, Target, TrendingUp, Trophy, Percent, DollarSign } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, H3, ScrollView, Separator, Text, Theme, XStack, YStack } from 'tamagui';
+import { calculatePlayerStats, formatPercentage, formatCurrency, getROIEmoji, generateBankrollHistory } from '@/utils/statsHelpers';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { db } from '@/services/firebase';
+import type { Game } from '@/types/Game';
 
 export default function ProfileScreen() {
     const { user } = useUser();
     const { signOut } = useAuth();
     const router = useRouter();
     const { currentUserStats } = useUserLogic();
+    
+    const [userGames, setUserGames] = useState<Game[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Charger l'historique des parties
+    useEffect(() => {
+        const loadGames = async () => {
+            if (!user?.id) return;
+            
+            try {
+                const gamesRef = collection(db, 'games');
+                const q = query(
+                    gamesRef,
+                    where('status', '==', 'FINISHED'),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const snapshot = await getDocs(q);
+                const games = snapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() } as Game))
+                    .filter(game => game.players.some(p => p.id === user.id));
+                
+                setUserGames(games);
+            } catch (error) {
+                console.error('Error loading games:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadGames();
+    }, [user?.id]);
 
     const handleSignOut = async () => {
         await signOut();
         router.replace('/(auth)/login');
     };
 
+    const stats = user ? calculatePlayerStats(currentUserStats as any) : null;
+    const bankrollData = user ? generateBankrollHistory(userGames, user.id) : [];
     const memberSince = user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Récent';
 
     return (
@@ -64,10 +104,10 @@ export default function ProfileScreen() {
                                 </YStack>
                             </XStack>
 
-                            {/* STATS *PERFORMANCE */}
+                            {/* STATS PERFORMANCE */}
                             <YStack gap="$3">
                                 <Text color="$text60" fontWeight="bold" fontSize="$2" textTransform="uppercase" letterSpacing={1}>
-                                    Performance
+                                    Performance {getROIEmoji(stats?.roi || 0)}
                                 </Text>
 
                                 {/* Profit Net - Hero Card */}
@@ -96,40 +136,43 @@ export default function ProfileScreen() {
                                     />
                                 </YStack>
 
-                                {/* Stats secondaires */}
-                                <XStack gap="$3">
-                                    <YStack
-                                        flex={1}
-                                        padding="$4"
-                                        backgroundColor="$glass2"
-                                        borderColor="$glass4"
-                                        borderWidth={1}
-                                        borderRadius="$5"
-                                        gap="$2"
-                                    >
-                                        <XStack alignItems="center" gap="$2">
-                                            <TrendingUp size={16} color="$text60" />
-                                            <Text color="$text60" fontSize="$2">Investi</Text>
-                                        </XStack>
-                                        <ChipStack amount={currentUserStats.totalInvested} size="md" />
-                                    </YStack>
-
-                                    <YStack
-                                        flex={1}
-                                        padding="$4"
-                                        backgroundColor="$glass2"
-                                        borderColor="$glass4"
-                                        borderWidth={1}
-                                        borderRadius="$5"
-                                        gap="$2"
-                                    >
-                                        <XStack alignItems="center" gap="$2">
-                                            <Trophy size={16} color="$primary" />
-                                            <Text color="$text60" fontSize="$2">Gagné</Text>
-                                        </XStack>
-                                        <ChipStack amount={currentUserStats.totalWinnings} size="md" variant="pot" />
-                                    </YStack>
+                                {/* KPIs Grid */}
+                                <XStack gap="$3" flexWrap="wrap">
+                                    <StatCard
+                                        label="ROI"
+                                        value={formatPercentage(stats?.roi || 0)}
+                                        icon={<TrendingUp size={16} color="$primary" />}
+                                        color={stats && stats.roi >= 0 ? '$success' : '$danger'}
+                                        trend={stats && stats.roi > 0 ? 'up' : stats && stats.roi < 0 ? 'down' : 'stable'}
+                                    />
+                                    <StatCard
+                                        label="Winrate"
+                                        value={`${(stats?.winrate || 0).toFixed(1)}%`}
+                                        icon={<Trophy size={16} color="$primary" />}
+                                        color="$primary"
+                                        subtitle={`${stats?.wins || 0}/${stats?.gamesPlayed || 0}`}
+                                    />
                                 </XStack>
+
+                                <XStack gap="$3" flexWrap="wrap">
+                                    <StatCard
+                                        label="Investi"
+                                        value={`${currentUserStats.totalInvested}€`}
+                                        icon={<DollarSign size={16} color="$colorTertiary" />}
+                                        color="$colorSecondary"
+                                    />
+                                    <StatCard
+                                        label="Gagné"
+                                        value={`${currentUserStats.totalWinnings}€`}
+                                        icon={<Trophy size={16} color="$primary" />}
+                                        color="$primary"
+                                    />
+                                </XStack>
+
+                                {/* Graphique bankroll */}
+                                {!loading && bankrollData.length > 0 && (
+                                    <BankrollChart data={bankrollData} height={180} />
+                                )}
 
                                 {/* Meilleur classement */}
                                 {currentUserStats.bestRank < 9999 && (
