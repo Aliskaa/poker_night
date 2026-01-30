@@ -117,7 +117,9 @@ export function BlindControls({
             color="$colorSecondary"
           >
             {nextBlind.smallBlind}/{nextBlind.bigBlind}
-            {nextBlind.ante > 0 && ` (Ante ${nextBlind.ante})`}
+            {nextBlind.ante > 0 && (
+              <Text color="$colorSecondary"> (Ante {nextBlind.ante})</Text>
+            )}
           </Text>
         </YStack>
       )}

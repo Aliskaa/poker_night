@@ -106,7 +106,7 @@ export default function ProfileScreen() {
 
                             {/* STATS PERFORMANCE */}
                             <YStack gap="$3">
-                                <Text color="$text60" fontWeight="bold" fontSize="$2" textTransform="uppercase" letterSpacing={1}>
+                                <Text color="$text60" fontWeight="bold" fontSize="$6" textTransform="uppercase" letterSpacing={1}>
                                     Performance {getROIEmoji(stats?.roi || 0)}
                                 </Text>
 

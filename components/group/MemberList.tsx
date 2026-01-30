@@ -20,11 +20,21 @@ export function MemberList({ members, ownerId, currentUserId }: { members: User[
               <Avatar.Fallback backgroundColor="$accent" />
             </Avatar>
             <YStack flex={1}>
-              <Text color="$color" fontWeight="bold" fontSize="$4">
-                {member.displayName || "Joueur"} {isMe && "(Moi)"}
-              </Text>
+              <XStack gap="$2" alignItems="center">
+                <Text color="$color" fontWeight="bold" fontSize="$4">
+                  {member.displayName || "Joueur"}
+                </Text>
+                {isMe && (
+                  <Text color="$primary" fontWeight="bold" fontSize="$3">
+                    (Moi)
+                  </Text>
+                )}
+              </XStack>
               {isGroupOwner ? (
-                <XStack alignItems="center" gap="$1"><Crown size={12} color="$primary" /><Text color="$primary" fontSize="$2" fontWeight="bold">Créateur</Text></XStack>
+                <XStack alignItems="center" gap="$1">
+                  <Crown size={12} color="$primary" />
+                  <Text color="$primary" fontSize="$2" fontWeight="bold">Créateur</Text>
+                </XStack>
               ) : (
                 <Text color="$colorMuted" fontSize="$2">Membre</Text>
               )}

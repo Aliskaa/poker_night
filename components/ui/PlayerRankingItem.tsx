@@ -71,9 +71,16 @@ export function PlayerRankingItem({
         </Avatar>
 
         <YStack gap="$1" flex={1}>
-          <Text color="$colorPrimary" fontSize="$4" fontWeight="700">
-            {name} {isCurrentUser && '(Vous)'}
-          </Text>
+          <XStack gap="$2" alignItems="center">
+            <Text color="$colorPrimary" fontSize="$4" fontWeight="700">
+              {name}
+            </Text>
+            {isCurrentUser && (
+              <Text color="$primary" fontSize="$3" fontWeight="700">
+                (Vous)
+              </Text>
+            )}
+          </XStack>
           <XStack gap="$2" alignItems="center">
             <Text color="$colorTertiary" fontSize="$2">
               {gamesPlayed} partie{gamesPlayed > 1 ? 's' : ''}

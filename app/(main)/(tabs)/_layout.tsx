@@ -8,14 +8,14 @@ export default function TabLayout() {
                 headerShown: false,
                 tabBarShowLabel: true,
                 tabBarStyle: {
-                    backgroundColor: '#0b0f19', // $night900
-                    borderTopColor: 'rgba(0, 0, 0, 0.3)', // $overlay3
+                    backgroundColor: '#0b0f19',
+                    borderTopColor: 'rgba(0, 0, 0, 0.3)',
                     borderTopWidth: 1,
                     height: 60,
                     paddingBottom: 8,
                 },
-                tabBarActiveTintColor: '#fbbf24', // $primary
-                tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.4)', // $text40
+                tabBarActiveTintColor: '#fbbf24',
+                tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.4)',
             }}
         >
             <Tabs.Screen
