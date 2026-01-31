@@ -5,7 +5,7 @@ import { useUser } from '@clerk/clerk-expo'
 import { AlertTriangle, Trophy } from '@tamagui/lucide-icons'
 import * as Linking from 'expo-linking'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { ScrollView, Share } from 'react-native'
 import { Spinner, Text, Theme, XStack, YStack } from 'tamagui'
 
@@ -43,6 +43,7 @@ export default function GameScreen() {
     nextBlindLevel 
   } = useGameLogic(id)
   const { user } = useUser()
+  const hasAttemptedJoin = useRef(false)
 
   // Structure de blinds basée sur la durée configurée
   const blindStructure = game ? getBlindStructureByDuration(game.config.defaultTimeBlindDuration) : []
@@ -55,7 +56,10 @@ export default function GameScreen() {
   const [lateRegSeconds, setLateRegSeconds] = useState<number | null>(null)
 
   useEffect(() => { 
-    if (game && user) joinGame()
+    if (game && user && !hasAttemptedJoin.current) {
+      hasAttemptedJoin.current = true
+      joinGame()
+    }
   }, [game?.id, user?.id])
 
   // Synchroniser le timer avec Firestore (temps réel)

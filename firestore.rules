@@ -17,6 +17,24 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
     
+    // Vérifie si l'utilisateur est l'hôte de la partie
+    function isGameHost(gameData) {
+      return request.auth.uid == gameData.hostId;
+    }
+    
+    // Vérifie si l'utilisateur est un joueur dans la partie
+    function isPlayerInGame(gameData) {
+      return request.auth.uid in gameData.players.map(p => p.id);
+    }
+    
+    // Vérifie les champs autorisés pour éviter les injections
+    function isValidGameUpdate() {
+      return request.resource.data.keys().hasAll(['players', 'totalPot']) ||
+             request.resource.data.keys().hasAll(['status', 'players', 'finishedAt']) ||
+             request.resource.data.keys().hasAll(['currentBlindLevel', 'blindLevelStartedAt']) ||
+             request.resource.data.keys().hasAll(['isPaused', 'pausedAt']);
+    }
+    
     // ============================================
     // USERS COLLECTION
     // ============================================
@@ -66,8 +84,7 @@ service cloud.firestore {
     // ============================================
     
     match /games/{gameId} {
-      // Lecture : Tout utilisateur authentifié (simplifié pour MVP)
-      // TODO: Restreindre aux joueurs de la partie en production
+      // Lecture : Tout utilisateur authentifié peut voir les parties actives
       allow read: if isAuthenticated();
       
       // Création : Tout utilisateur authentifié peut créer une partie
@@ -76,16 +93,16 @@ service cloud.firestore {
                     && request.resource.data.totalPot >= 0
                     && request.resource.data.status in ['WAITING', 'PLAYING'];
       
-      // Mise à jour : Uniquement l'hôte
+      // Mise à jour : Uniquement l'hôte ou un joueur de la partie
       allow update: if isAuthenticated() 
-                    && request.auth.uid == resource.data.hostId
+                    && (isGameHost(resource.data) || isPlayerInGame(resource.data))
                     && request.resource.data.hostId == resource.data.hostId
                     && (request.resource.data.totalPot >= resource.data.totalPot 
                         || request.resource.data.status == 'FINISHED');
       
       // Suppression : Uniquement l'hôte et seulement si la partie n'est pas en cours
       allow delete: if isAuthenticated() 
-                    && request.auth.uid == resource.data.hostId
+                    && isGameHost(resource.data)
                     && resource.data.status in ['WAITING', 'CANCELLED'];
     }
     

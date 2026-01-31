@@ -1,8 +1,8 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, FieldValue } from 'firebase/firestore';
 
 export type UserStatistics = {
   gamesPlayed: number;
-  wins: number;          // Nombre de fois 1er
+  wins: number;
   totalInvested: number;
   totalWinnings: number;
   netProfit: number;
@@ -14,10 +14,10 @@ export type User = {
   displayName: string;
   avatarUrl?: string;
   
-  // Timestamps (Firebase Timestamp ou number pour compatibilité)
-  createdAt: Timestamp | Date | number;
-  lastLoginAt: Timestamp | Date | number;
-  updatedAt?: Timestamp | Date | number;
+  // Timestamps Firebase stricts
+  createdAt: Timestamp | FieldValue;
+  lastLoginAt: Timestamp | FieldValue;
+  updatedAt?: Timestamp | FieldValue;
   
   groupIds: string[];
   statistics: UserStatistics;

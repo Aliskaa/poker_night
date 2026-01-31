@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { collection, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { collection, doc, onSnapshot, query, orderBy, limit, startAfter, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useUser } from '@clerk/clerk-expo';
 import log from '@/services/logger';
@@ -14,6 +14,8 @@ export type LeaderboardUser = {
     rank: number;
 };
 
+const LEADERBOARD_PAGE_SIZE = 20;
+
 export const useUserLogic = () => {
     const { user } = useUser();
     const [currentUserStats, setCurrentUserStats] = useState<UserStatistics>({
@@ -26,6 +28,8 @@ export const useUserLogic = () => {
     });
     const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
     const [loading, setLoading] = useState(true);
+    const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+    const [hasMore, setHasMore] = useState(true);
 
     // ---------------------------------------------------------------------------
     // 1. ÉCOUTEUR : Mes statistiques personnelles (Bankroll)
@@ -44,36 +48,39 @@ export const useUserLogic = () => {
     }, [user]);
 
     // ---------------------------------------------------------------------------
-    // 2. ÉCOUTEUR : Le Classement Général (En Temps Réel)
+    // 2. ÉCOUTEUR : Le Classement Général (Paginé)
     // ---------------------------------------------------------------------------
     useEffect(() => {
         setLoading(true);
 
-        // On écoute toute la collection "users"
-        const q = query(collection(db, 'users'));
+        // Query avec tri et limite
+        const q = query(
+            collection(db, 'users'),
+            orderBy('statistics.netProfit', 'desc'),
+            limit(LEADERBOARD_PAGE_SIZE)
+        );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const usersData: any[] = [];
+            const usersData: LeaderboardUser[] = [];
+            let currentRank = 1;
 
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 if (data.statistics) {
                     usersData.push({
                         id: docSnap.id,
-                        name: data.firstName || data.username || "Joueur",
+                        name: data.displayName || data.firstName || data.username || "Joueur",
                         avatarUrl: data.imageUrl || data.avatarUrl,
                         netProfit: data.statistics.netProfit || 0,
                         gamesPlayed: data.statistics.gamesPlayed || 0,
+                        rank: currentRank++,
                     });
                 }
             });
 
-            // Tri par le plus gros profit
-            const sortedUsers = usersData.sort((a, b) => b.netProfit - a.netProfit);
-            // Attribution des rangs
-            const rankedUsers = sortedUsers.map((u, index) => ({ ...u, rank: index + 1 }));
-
-            setLeaderboard(rankedUsers);
+            setLeaderboard(usersData);
+            setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+            setHasMore(snapshot.docs.length === LEADERBOARD_PAGE_SIZE);
             setLoading(false);
         }, (error) => {
             log.error("Erreur Leaderboard:", error);
@@ -83,9 +90,51 @@ export const useUserLogic = () => {
         return () => unsubscribe();
     }, []);
 
+    // Charger plus de résultats
+    const loadMoreLeaderboard = useCallback(async () => {
+        if (!lastDoc || !hasMore) return;
+
+        setLoading(true);
+
+        const q = query(
+            collection(db, 'users'),
+            orderBy('statistics.netProfit', 'desc'),
+            startAfter(lastDoc),
+            limit(LEADERBOARD_PAGE_SIZE)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const usersData: LeaderboardUser[] = [];
+            let currentRank = leaderboard.length + 1;
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                if (data.statistics) {
+                    usersData.push({
+                        id: docSnap.id,
+                        name: data.displayName || data.firstName || data.username || "Joueur",
+                        avatarUrl: data.imageUrl || data.avatarUrl,
+                        netProfit: data.statistics.netProfit || 0,
+                        gamesPlayed: data.statistics.gamesPlayed || 0,
+                        rank: currentRank++,
+                    });
+                }
+            });
+
+            setLeaderboard(prev => [...prev, ...usersData]);
+            setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+            setHasMore(snapshot.docs.length === LEADERBOARD_PAGE_SIZE);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [lastDoc, hasMore, leaderboard.length]);
+
     return {
         currentUserStats,
         leaderboard,
-        loading
+        loading,
+        loadMoreLeaderboard,
+        hasMore,
     };
 };

@@ -6,6 +6,8 @@ import { ChipStack } from '../ui/ChipStack'
 import { IconButton } from '../ui/IconButton'
 import log from '@/services/logger'
 import { hapticFeedback } from '@/services/haptics'
+import { useState, useCallback } from 'react'
+import { throttle } from '@/utils/errorHandler'
 
 interface PlayerCardProps {
     player: Player
@@ -22,6 +24,30 @@ export function PlayerCard({
     onEliminate
 }: PlayerCardProps) {
     const isEliminated = player.status === 'ELIMINATED'
+    const [isProcessing, setIsProcessing] = useState(false)
+
+    // Throttle pour éviter les doubles clics
+    const handleRebuy = useCallback(
+        throttle(async () => {
+            if (isProcessing) return;
+            setIsProcessing(true);
+            await hapticFeedback.placeBet();
+            await onRebuy();
+            setIsProcessing(false);
+        }, 1000),
+        [onRebuy, isProcessing]
+    );
+
+    const handleEliminate = useCallback(
+        throttle(async () => {
+            if (isProcessing) return;
+            setIsProcessing(true);
+            await hapticFeedback.eliminated();
+            await onEliminate();
+            setIsProcessing(false);
+        }, 1000),
+        [onEliminate, isProcessing]
+    );
 
     return (
         <Card
@@ -100,11 +126,8 @@ export function PlayerCard({
                                 borderColor={isLateRegOpen ? '$success' : '$glass4'}
                                 borderWidth={1}
                                 color={isLateRegOpen ? '$backgroundStrong' : '$text60'}
-                                disabled={!isLateRegOpen}
-                                onPress={async () => {
-                                    await hapticFeedback.placeBet()
-                                    onRebuy()
-                                }}
+                                disabled={!isLateRegOpen || isProcessing}
+                                onPress={handleRebuy}
                                 opacity={isLateRegOpen ? 1 : 0.5}
                                 size="medium"
                             />
@@ -112,10 +135,8 @@ export function PlayerCard({
                                 icon={<UserX size={15} />}
                                 backgroundColor="$danger"
                                 color="$backgroundStrong"
-                                onPress={async () => {
-                                    await hapticFeedback.eliminated()
-                                    onEliminate()
-                                }}
+                                disabled={isProcessing}
+                                onPress={handleEliminate}
                                 size="medium"
                             />
                         </XStack>

@@ -10,13 +10,13 @@ export type Player = {
     buyInCount: number;
     totalInvested: number;
     status: PlayerStatus;
-    eliminatedAt?: Timestamp | Date | number | null;
+    eliminatedAt?: Timestamp | null;
     finalRank?: number | null;
     payout?: number;
     
-    // Champs additionnels (P0)
-    currentStack?: number; // Stack actuel (différent de totalInvested)
-    seatPosition?: number; // Position à la table (0-9)
+    // Champs additionnels
+    currentStack?: number;
+    seatPosition?: number;
 }
 
 export type Guest = {
