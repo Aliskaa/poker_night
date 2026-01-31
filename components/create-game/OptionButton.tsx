@@ -7,32 +7,32 @@ export function OptionButton({ label, isSelected, onPress }: { label: string, is
       size="$4"
       flex={1}
       minWidth={80}
-      height={56}
-      backgroundColor={isSelected ? "$goldBg" : "$glass2"}
-      borderColor={isSelected ? "$primary" : "$glass4"}
+      height={52}
+      backgroundColor={isSelected ? "rgba(251, 191, 36, 0.15)" : "$glass3"}
+      borderColor={isSelected ? "$primary" : "$glass5"}
       borderWidth={isSelected ? 2 : 1}
-      borderRadius="$6"
+      borderRadius="$5"
       pressStyle={{
-        backgroundColor: isSelected ? "$goldBg" : "$glass4",
-        scale: 0.97,
-        borderColor: isSelected ? "$primary" : "$glass5",
+        backgroundColor: isSelected ? "rgba(251, 191, 36, 0.2)" : "$glass4",
+        scale: 0.96,
+        borderColor: isSelected ? "$gold500" : "$glass6",
       }}
       hoverStyle={{
-        backgroundColor: isSelected ? "$goldBg" : "$glass3",
-        borderColor: isSelected ? "$primary" : "$glass5",
+        backgroundColor: isSelected ? "rgba(251, 191, 36, 0.18)" : "$glass4",
+        borderColor: isSelected ? "$primary" : "$glass6",
       }}
       animation="quick"
-      shadowColor={isSelected ? "$primary" : "transparent"}
-      shadowOpacity={isSelected ? 0.3 : 0}
-      shadowRadius={isSelected ? 10 : 0}
-      // elevation={isSelected ? 4 : 0}
+      shadowColor={isSelected ? "$primary" : "$overlay4"}
+      shadowOpacity={isSelected ? 0.4 : 0.1}
+      shadowRadius={isSelected ? 8 : 4}
+      elevation={isSelected ? 3 : 1}
       onPress={onPress}
     >
       <Text
         color={isSelected ? "$primary" : "$text80"}
-        fontWeight={"700"}
+        fontWeight="700"
         fontSize={isSelected ? "$5" : "$4"}
-      // letterSpacing={isSelected ? 0.5 : 0}
+        letterSpacing={0.3}
       >
         {label}
       </Text>

@@ -66,17 +66,17 @@ export const PokerButton = ({
       onPress={handlePress}
       padding={0}
       overflow="hidden"
-      height={80}
-      borderRadius="$7"
+      height={64}
+      borderRadius="$6"
       borderWidth={1}
       borderColor={config.borderColor}
       pressStyle={{ scale: 0.97 }}
       animation="smooth"
-      elevation={8}
-      shadowColor="$overlay8"
-      shadowOpacity={0.4}
-      shadowRadius={8}
-      shadowOffset={{ width: 0, height: 4 }}
+      elevation={6}
+      shadowColor="$overlay6"
+      shadowOpacity={0.3}
+      shadowRadius={6}
+      shadowOffset={{ width: 0, height: 3 }}
       {...props}
     >
       <LinearGradient
@@ -88,17 +88,17 @@ export const PokerButton = ({
           alignItems: 'center', 
           flexDirection: 'row', 
           gap: 12, 
-          padding: 16 
+          padding: 14
         }}
       >
         <YStack
           backgroundColor="$overlay2"
-          padding="$2.5"
+          padding="$2"
           borderRadius="$round"
           borderColor="$glass3"
           borderWidth={1}
         >
-          {React.cloneElement(icon, { color: config.textColor, size: iconSize ?? 26 } as any)}
+          {React.cloneElement(icon, { color: config.textColor, size: iconSize ?? 22 } as any)}
         </YStack>
 
         <YStack flex={1}>
@@ -106,7 +106,7 @@ export const PokerButton = ({
             color={config.textColor} 
             fontFamily="$heading" 
             fontWeight="900" 
-            fontSize={fontsizeTitle ?? '$5'}
+            fontSize={fontsizeTitle ?? '$4'}
             textTransform="uppercase"
             letterSpacing={0.5}
           >

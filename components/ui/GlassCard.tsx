@@ -21,32 +21,40 @@ export const GlassCard = ({
 }: GlassCardProps) => (
   <Card
     bordered
-    backgroundColor="$glass2"
-    borderColor="$glass4"
+    backgroundColor="$glass3"
+    borderColor="$glass5"
     borderWidth={1}
     pressStyle={{ 
-      backgroundColor: '$glass3',
-      borderColor: '$glass5',
+      backgroundColor: '$glass4',
+      borderColor: '$glass6',
+      scale: 0.98,
     }}
     hoverStyle={{
-      backgroundColor: '$glass3',
+      backgroundColor: '$glass4',
+      borderColor: '$glass6',
     }}
     animation="quick"
     onPress={onPress}
-    padding="$3"
+    padding="$3.5"
+    elevation={2}
+    shadowColor="$overlay5"
+    shadowOpacity={0.2}
+    shadowRadius={8}
     {...props}
   >
     <XStack alignItems="center" gap="$3">
       <YStack 
-        backgroundColor="$overlay3" 
-        padding="$2" 
-        borderRadius="$5"
+        backgroundColor="rgba(251, 191, 36, 0.15)" 
+        padding="$2.5" 
+        borderRadius="$6"
+        borderWidth={1}
+        borderColor="rgba(251, 191, 36, 0.3)"
       >
-        {React.cloneElement(icon, { color: '$primary', size: 20 } as any)}
+        {React.cloneElement(icon, { color: '$primary', size: 22 } as any)}
       </YStack>
       <YStack flex={1}>
         <Text 
-          color="$colorPrimary" 
+          color="$text95" 
           fontWeight="700" 
           fontSize="$4"
         >
@@ -54,8 +62,9 @@ export const GlassCard = ({
         </Text>
         {subtitle && (
           <Text 
-            color="$colorTertiary" 
+            color="$text60" 
             fontSize="$2"
+            marginTop="$0.5"
           >
             {subtitle}
           </Text>
@@ -63,7 +72,7 @@ export const GlassCard = ({
       </YStack>
       {showChevron && (
         <ChevronRight 
-          color="$colorMuted" 
+          color="$text40" 
           size={20} 
         />
       )}

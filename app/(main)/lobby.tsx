@@ -57,15 +57,15 @@ export default function LobbyScreen() {
 
           <YStack
             alignItems="center"
-            paddingBottom="$4"
-            paddingTop="$2"
-            backgroundColor="$overlay5"
-            borderBottomWidth={1}
-            borderBottomColor="$overlay3"
+            paddingBottom="$5"
+            paddingTop="$4"
+            backgroundColor="$overlay7"
+            borderBottomWidth={2}
+            borderBottomColor="$glass5"
           >
-            <Users size={40} color="$primary" />
-            <H2 color="$text95" fontWeight="900" marginTop="$2">Qui est là ?</H2>
-            <Text color="$text60">Cochez les joueurs présents</Text>
+            <Users size={44} color="$primary" />
+            <H2 color="$text95" fontWeight="900" marginTop="$3" fontSize="$8">Qui est là ?</H2>
+            <Text color="$text70" fontSize="$3" marginTop="$1">Sélectionnez les joueurs présents</Text>
           </YStack>
 
           <ScrollView>
@@ -115,9 +115,14 @@ export default function LobbyScreen() {
 
           <YStack
             padding="$4"
-            backgroundColor="$overlay9"
-            borderTopWidth={1}
-            borderTopColor="$overlay3"
+            paddingBottom="$5"
+            backgroundColor="$night900"
+            borderTopWidth={2}
+            borderTopColor="$glass5"
+            elevation={10}
+            shadowColor="$overlay9"
+            shadowOpacity={0.5}
+            shadowRadius={12}
           >
             <PokerButton
               variant="primary"

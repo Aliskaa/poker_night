@@ -71,14 +71,14 @@ export function Stepper({
                 )}
               </Circle>
               
-              {labels[index] && (
+              {labels[index] && isCurrent && (
                 <Text
-                  color={isCurrent ? '$primary' : '$colorTertiary'}
+                  color="$primary"
                   fontSize="$2"
-                  fontWeight={isCurrent ? '600' : '400'}
+                  fontWeight="600"
                   textAlign="center"
                   maxWidth={80}
-                  numberOfLines={2}
+                  numberOfLines={1}
                 >
                   {labels[index]}
                 </Text>
@@ -90,9 +90,9 @@ export function Stepper({
               <YStack 
                 flex={1} 
                 height={2}
-                backgroundColor={step < currentStep ? '$success' : '$glass3'}
+                backgroundColor={step < currentStep ? '$success' : '$glass4'}
                 marginHorizontal="$2"
-                marginTop={labels[index] ? -20 : 0}
+                marginTop={isCurrent && labels[index] ? -20 : 0}
                 animation="quick"
               />
             )}

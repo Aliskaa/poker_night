@@ -35,18 +35,18 @@ export function PlayerCard({
             <Card.Header padded>
                 <XStack justifyContent="space-between" alignItems="flex-start" gap="$3">
                     {/* Avatar + Info */}
-                    <XStack gap="$3" alignItems="center" flex={1}>
+                    <XStack gap="$3.5" alignItems="center" flex={1}>
                         <Avatar
                             circular
-                            size="$10"
+                            size="$11"
                             borderWidth={2}
                             borderColor={isEliminated ? 'transparent' : '$success'}
                         >
                             <Avatar.Image src={player.avatarUrl} />
-                            <Avatar.Fallback backgroundColor="$glass3" />
+                            <Avatar.Fallback backgroundColor="$glass4" />
                         </Avatar>
 
-                        <YStack gap="$2" flex={1}>
+                        <YStack gap="$2.5" flex={1}>
                             {/* Nom + Status */}
                             <XStack gap="$2" alignItems="center" flexWrap="wrap">
                                 <Text
