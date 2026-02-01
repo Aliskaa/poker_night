@@ -1,5 +1,6 @@
 import { YStack, XStack, Text, type YStackProps, type XStackProps } from 'tamagui'
 import { TrendingUp, TrendingDown, Minus } from '@tamagui/lucide-icons'
+import { Label } from './Typography'
 
 interface StatCardProps extends Omit<YStackProps, 'children'> {
   label: string
@@ -7,7 +8,7 @@ interface StatCardProps extends Omit<YStackProps, 'children'> {
   subtitle?: string
   trend?: 'up' | 'down' | 'stable'
   trendValue?: string
-  color?: string
+  color?: '$primary' | '$secondary' | '$success' | '$danger' | '$warning' | '$gold' | '$muted'
   icon?: React.ReactNode
 }
 
@@ -17,14 +18,14 @@ export function StatCard({
   subtitle,
   trend,
   trendValue,
-  color = '$colorPrimary',
+  color = '$primary',
   icon,
   ...props
 }: StatCardProps) {
   const trendConfig = {
-    up: { icon: TrendingUp, color: '$success', bg: '$successBg' },
-    down: { icon: TrendingDown, color: '$danger', bg: '$dangerBg' },
-    stable: { icon: Minus, color: '$colorTertiary', bg: '$glass2' },
+    up: { icon: TrendingUp, color: '$success' as const, bg: '$successBg' },
+    down: { icon: TrendingDown, color: '$danger' as const, bg: '$dangerBg' },
+    stable: { icon: Minus, color: '$colorTertiary' as const, bg: '$glass2' },
   }
 
   const TrendIcon = trend ? trendConfig[trend].icon : null
@@ -43,9 +44,7 @@ export function StatCard({
     >
       {/* Label + Icon */}
       <XStack justifyContent="space-between" alignItems="center">
-        <Text color="$colorTertiary" fontSize="$2" fontWeight="600" textTransform="uppercase">
-          {label}
-        </Text>
+        <Label color={color}>{label}</Label>
         {icon && <YStack opacity={0.6}>{icon}</YStack>}
       </XStack>
 
@@ -70,16 +69,16 @@ export function StatCard({
             >
               <TrendIcon size={12} color={trendConfig[trend].color} />
               {trendValue && (
-                <Text color={trendConfig[trend].color} fontSize="$1" fontWeight="700">
+                <Label color={trendConfig[trend].color} fontSize="$1" fontWeight="700">
                   {trendValue}
-                </Text>
+                </Label>
               )}
             </XStack>
           )}
           {subtitle && (
-            <Text color="$colorTertiary" fontSize="$2" opacity={0.8}>
+            <Label color="$colorTertiary" fontSize="$2" opacity={0.8}>
               {subtitle}
-            </Text>
+            </Label>
           )}
         </XStack>
       )}

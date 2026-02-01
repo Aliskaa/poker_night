@@ -1,16 +1,15 @@
+import { useUser } from '@/providers/AuthProvider';
+import { Play, Users } from '@tamagui/lucide-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useUser } from '@/providers/AuthProvider';
-import { Button, H2, Separator, Spinner, Text, Theme, YStack } from 'tamagui';
-import { Play, Users } from '@tamagui/lucide-icons';
+import { H2, Spinner, Text, Theme, YStack } from 'tamagui';
 
-import { useGameLogic } from '@/hooks/useGameLogic';
-import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { SelectionCard } from '@/components/lobby/SelectionCard';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 import { PokerButton } from '@/components/ui/PokerButton';
-import { GlassCard } from '@/components/ui/GlassCard';
+import { useGameLogic } from '@/hooks/useGameLogic';
+import { useGroupLogic } from '@/hooks/useGroupLogic';
 
 export default function LobbyScreen() {
   const router = useRouter();

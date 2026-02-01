@@ -120,6 +120,7 @@ export const Subtitle = styled(H3, {
 export const Label = styled(Text, {
   fontSize: '$3',           // 14px
   fontWeight: '600',
+  fontFamily: '$mono',
   color: '$text60',
   letterSpacing: 0.3,
   textTransform: 'uppercase',
@@ -133,19 +134,20 @@ export const Label = styled(Text, {
     },
     
     color: {
-      primary: { color: '$text60' },
-      secondary: { color: '$text50' },
-      muted: { color: '$text40' },
-      gold: { color: '$goldDark' },
-      success: { color: '$success' },
-      danger: { color: '$danger' },
-      warning: { color: '$warning' },
+      $primary: { color: '$text60' },
+      $secondary: { color: '$text50' },
+      $success: { color: '$success' },
+      $danger: { color: '$danger' },
+      $warning: { color: '$warning' },
+      $gold: { color: '$goldDark' },
+      $muted: { color: '$text40' },
+      $colorTertiary: { color: '$colorTertiary' },
     },
   } as const,
   
   defaultVariants: {
     size: 'md',
-    color: 'primary',
+    color: '$primary',
   },
 })
 
@@ -161,7 +163,7 @@ export const Label = styled(Text, {
 export const Body = styled(Text, {
   fontSize: '$4',           // 16px
   fontWeight: '400',
-  color: '$text80',
+//   color: '$text80',
   lineHeight: '$4',
   
   variants: {
@@ -178,19 +180,11 @@ export const Body = styled(Text, {
       bold: { fontWeight: '700' },
     },
     
-    color: {
-      primary: { color: '$text80' },
-      secondary: { color: '$text70' },
-      muted: { color: '$text60' },
-      dim: { color: '$text40' },
-      gold: { color: '$gold' },
-    },
   } as const,
   
   defaultVariants: {
     size: 'md',
     weight: 'regular',
-    color: 'primary',
   },
 })
 

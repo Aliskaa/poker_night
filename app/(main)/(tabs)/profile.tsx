@@ -1,25 +1,26 @@
+import { Body, Caption, Heading, Label } from '@/components/ui';
+import { BankrollChart } from '@/components/ui/BankrollChart';
 import { ChipStack } from '@/components/ui/ChipStack';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 import { PokerButton } from '@/components/ui/PokerButton';
 import { StatCard } from '@/components/ui/StatCard';
-import { BankrollChart } from '@/components/ui/BankrollChart';
 import { useUserLogic } from '@/hooks/useUserLogic';
-import { useUser, useAuthContext } from '@/providers/AuthProvider';
-import { BookOpen, Calendar, LogOut, Medal, Settings, ShieldCheck, Target, TrendingUp, Trophy, Percent, DollarSign } from '@tamagui/lucide-icons';
-import { useRouter } from 'expo-router';
-import React, { useState, useEffect } from 'react';
-import { Avatar, H3, ScrollView, Separator, Text, Theme, XStack, YStack } from 'tamagui';
-import { calculatePlayerStats, formatPercentage, formatCurrency, getROIEmoji, generateBankrollHistory } from '@/utils/statsHelpers';
-import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { useAuthContext } from '@/providers/AuthProvider';
 import { db } from '@/services/firebase';
 import type { Game } from '@/types/Game';
+import { calculatePlayerStats, formatPercentage, generateBankrollHistory, getROIEmoji } from '@/utils/statsHelpers';
+import { BookOpen, Calendar, DollarSign, LogOut, Medal, Settings, ShieldCheck, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import { useRouter } from 'expo-router';
+import { collection, getDocs, orderBy, query, Timestamp, where } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { Avatar, H3, ScrollView, Separator, Text, Theme, XStack, YStack } from 'tamagui';
 
 export default function ProfileScreen() {
     const { signOut } = useAuthContext();
     const router = useRouter();
     const { currentUserStats, user } = useUserLogic();
-    
+
     const [userGames, setUserGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -27,7 +28,7 @@ export default function ProfileScreen() {
     useEffect(() => {
         const loadGames = async () => {
             if (!user?.id) return;
-            
+
             try {
                 const gamesRef = collection(db, 'games');
                 const q = query(
@@ -35,12 +36,12 @@ export default function ProfileScreen() {
                     where('status', '==', 'FINISHED'),
                     orderBy('createdAt', 'desc')
                 );
-                
+
                 const snapshot = await getDocs(q);
                 const games = snapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() } as Game))
                     .filter(game => game.players.some(p => p.id === user.id));
-                
+
                 setUserGames(games);
             } catch (error) {
                 console.error('Error loading games:', error);
@@ -85,7 +86,7 @@ export default function ProfileScreen() {
                                 </Avatar>
                                 <YStack flex={1}>
                                     <H3 color="$text95" fontWeight="900">{user?.displayName || user?.email?.split('@')[0] || 'Joueur'}</H3>
-                                    <Text color="$text60" fontSize="$3">{user?.email}</Text>
+                                    <Body color="$text60" fontSize="$3">{user?.email}</Body>
 
                                     <XStack
                                         alignItems="center"
@@ -98,16 +99,14 @@ export default function ProfileScreen() {
                                         borderRadius="$4"
                                     >
                                         <Calendar size={12} color="$text60" />
-                                        <Text color="$text60" fontSize="$2">Membre depuis {memberSince}</Text>
+                                        <Caption color="muted" fontSize="$2">Membre depuis {memberSince}</Caption>
                                     </XStack>
                                 </YStack>
                             </XStack>
 
                             {/* STATS PERFORMANCE */}
                             <YStack gap="$3">
-                                <Text color="$text60" fontWeight="bold" fontSize="$2" textTransform="uppercase" letterSpacing={1}>
-                                    Performance {getROIEmoji(stats?.roi || 0)}
-                                </Text>
+                                <Heading>Performance {getROIEmoji(stats?.roi || 0)}</Heading>
 
                                 {/* Profit Net - Hero Card */}
                                 <YStack
@@ -120,13 +119,9 @@ export default function ProfileScreen() {
                                 >
                                     <XStack alignItems="center" gap="$2">
                                         <Target size={20} color={currentUserStats.netProfit >= 0 ? "$success" : "$danger"} />
-                                        <Text
-                                            color={currentUserStats.netProfit >= 0 ? "$success" : "$danger"}
-                                            fontWeight="bold"
-                                            fontSize="$3"
-                                        >
+                                        <Label color={currentUserStats.netProfit >= 0 ? "$success" : "$danger"}>
                                             Profit Net
-                                        </Text>
+                                        </Label>
                                     </XStack>
                                     <ChipStack
                                         amount={currentUserStats.netProfit}
@@ -158,7 +153,7 @@ export default function ProfileScreen() {
                                         label="Investi"
                                         value={`${currentUserStats.totalInvested}€`}
                                         icon={<DollarSign size={16} color="$colorTertiary" />}
-                                        color="$colorSecondary"
+                                        color="$secondary"
                                     />
                                     <StatCard
                                         label="Gagné"
