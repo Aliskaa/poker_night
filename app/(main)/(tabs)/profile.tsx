@@ -11,15 +11,14 @@ import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { Avatar, H3, ScrollView, Separator, Text, Theme, XStack, YStack } from 'tamagui';
 import { calculatePlayerStats, formatPercentage, formatCurrency, getROIEmoji, generateBankrollHistory } from '@/utils/statsHelpers';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import type { Game } from '@/types/Game';
 
 export default function ProfileScreen() {
-    const { user } = useUser();
     const { signOut } = useAuthContext();
     const router = useRouter();
-    const { currentUserStats } = useUserLogic();
+    const { currentUserStats, user } = useUserLogic();
     
     const [userGames, setUserGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
@@ -60,7 +59,7 @@ export default function ProfileScreen() {
 
     const stats = user ? calculatePlayerStats(currentUserStats as any) : null;
     const bankrollData = user ? generateBankrollHistory(userGames, user.id) : [];
-    const memberSince = user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Récent';
+    const memberSince = user?.createdAt && user.createdAt instanceof Timestamp ? user.createdAt.toDate().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Récent';
 
     return (
         <Theme name="dark">
@@ -81,7 +80,7 @@ export default function ProfileScreen() {
                         >
                             <XStack alignItems="center" gap="$4">
                                 <Avatar circular size="$10" borderWidth={4} borderColor="$primary">
-                                    <Avatar.Image src={user?.photoURL || undefined} />
+                                    <Avatar.Image src={user?.avatarUrl || undefined} />
                                     <Avatar.Fallback backgroundColor="$glass4" />
                                 </Avatar>
                                 <YStack flex={1}>

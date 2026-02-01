@@ -1,14 +1,12 @@
 import { UserStatistics } from "@/types/User";
 import { Target, Trophy } from "@tamagui/lucide-icons";
 import { Text, XStack, YStack } from "tamagui";
-import { ChipStack } from "../ui";
+import { ChipStack, Heading } from "../ui";
 
-export function CurrentStat({currentUserStats}: {currentUserStats: UserStatistics}) {
+export function CurrentStat({ currentUserStats }: { currentUserStats: UserStatistics }) {
     return (
         <YStack gap="$3">
-            <Text color="$text60" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
-                Tes Stats
-            </Text>
+            <Heading size="md">Tes Stats</Heading>
             <XStack gap="$3">
                 <YStack
                     flex={1}

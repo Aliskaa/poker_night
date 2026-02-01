@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView } from 'react-native';
 import { Button, Card, H4, Sheet, Text, XStack, YStack } from 'tamagui';
-import { PokerButton } from '../ui';
+import { Heading, PokerButton } from '../ui';
 
 export function ActiveGamesSlider({ games }: { games: Game[] }) {
   const router = useRouter();
@@ -38,15 +38,13 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
       <YStack gap="$2" marginTop="$2">
         <XStack justifyContent="space-between" alignItems="center">
           <XStack alignItems="center" gap="$2">
-            <Play size={16} color="$success" />
-            <Text color="$colorMuted" fontWeight="bold" textTransform="uppercase" fontSize="$2" letterSpacing={1}>
-              En Direct ({games.length})
-            </Text>
+            <Play size="$6" color="$success" />
+            <Heading size="md">En Direct ({games.length})</Heading>
           </XStack>
 
           {/* BOUTON : OUVRE LE MENU DE NETTOYAGE */}
           {myHostedGames.length > 0 && (
-            <Button size="$2" circular icon={<Settings2 size={16} />} backgroundColor="transparent" color="$colorMuted" onPress={() => setIsCleanUpOpen(true)} />
+            <Button size="$6" circular icon={<Settings2 size="$6" />} backgroundColor="transparent" color="$colorMuted" onPress={() => setIsCleanUpOpen(true)} />
           )}
         </XStack>
 

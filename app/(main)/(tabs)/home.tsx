@@ -1,20 +1,20 @@
+import { useUser } from '@/providers/AuthProvider';
+import { Plus, Trophy, Users } from '@tamagui/lucide-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useUser } from '@/providers/AuthProvider';
-import { Theme, YStack, Text, XStack } from 'tamagui';
-import { Search, Users, Plus, TrendingUp, Trophy, Target } from '@tamagui/lucide-icons';
+import { Theme, XStack, YStack } from 'tamagui';
 
-import { useActiveGames } from '@/hooks/useActiveGamesLogic';
-import { useUserLogic } from '@/hooks/useUserLogic';
 import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
-import { HomeHeader } from '@/components/home/HomeHeader';
+import { CurrentStat } from '@/components/home/CurrentStat';
 import { HeroPlayCard } from '@/components/home/HeroPlayCard';
-import { PokerBackground } from '@/components/ui/PokerBackground';
+import { HomeHeader } from '@/components/home/HomeHeader';
+import { Heading } from '@/components/ui';
 import { FAB } from '@/components/ui/FAB';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { ChipStack } from '@/components/ui/ChipStack';
-import { CurrentStat } from '@/components/home/CurrentStat';
+import { PokerBackground } from '@/components/ui/PokerBackground';
+import { useActiveGames } from '@/hooks/useActiveGamesLogic';
+import { useUserLogic } from '@/hooks/useUserLogic';
 
 export default function HomeScreen() {
   const { user } = useUser();
@@ -42,31 +42,23 @@ export default function HomeScreen() {
 
             {/* 5. ACTIONS SECONDAIRES */}
             <YStack gap="$3">
-              <Text color="$text60" fontSize="$3" fontWeight="bold" textTransform="uppercase" letterSpacing={1}>
-                Accès Rapide
-              </Text>
+              <Heading size="md">Accès Rapide</Heading>
               <XStack gap="$3">
                 <GlassCard
                   flex={1}
-                  icon={<Search size={24} />}
-                  title="Rejoindre"
-                  subtitle="Code PIN"
+                  icon={<Users size={24} />}
+                  title="Clubs"
+                  subtitle="Gérer"
                   onPress={() => router.push('/(main)/(tabs)/groups')}
                 />
                 <GlassCard
                   flex={1}
-                  icon={<Users size={24} />}
-                  title="Mes Clubs"
-                  subtitle="Gérer"
-                  onPress={() => router.push('/(main)/(tabs)/groups')}
+                  icon={<Trophy size={24} />}
+                  title="Stats"
+                  subtitle="Voir"
+                  onPress={() => router.push('/(main)/(tabs)/profile')}
                 />
               </XStack>
-              <GlassCard
-                icon={<TrendingUp size={24} />}
-                title="Classement"
-                subtitle="Voir ta progression"
-                onPress={() => router.push('/(main)/(tabs)/leaderboard')}
-              />
             </YStack>
 
           </YStack>

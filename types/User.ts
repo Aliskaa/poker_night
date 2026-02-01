@@ -13,6 +13,7 @@ export type User = {
   id: string;
   displayName: string;
   avatarUrl?: string;
+  email: string;
   
   // Timestamps Firebase stricts
   createdAt: Timestamp | FieldValue;
