@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "packageManager": "yarn@4.5.0",
   "private": true,
+  "workspaces": [
+    "functions"
+  ],
   "scripts": {
     "upgrade:tamagui": "yarn up '*tamagui*'@latest '@tamagui/*'@latest",
     "upgrade:tamagui:canary": "yarn up '*tamagui*'@canary '@tamagui/*'@canary",
@@ -21,13 +24,14 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@clerk/clerk-expo": "^2.19.19",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/native": "^7.1.6",
     "@tamagui/config": "^1.144.3",
     "@tamagui/lucide-icons": "^1.144.3",
     "@tamagui/toast": "^1.144.3",
     "babel-preset-expo": "~54.0.0",
     "burnt": "^0.12.2",
+    "date-fns": "^4.1.0",
     "expo": "^54.0.23",
     "expo-auth-session": "~7.0.10",
     "expo-build-properties": "~1.0.9",

@@ -1,11 +1,11 @@
 import { router, Stack } from 'expo-router';
-import { useAuth } from '@clerk/clerk-expo';
+import { useAuthContext } from '@/providers/AuthProvider';
 import { Button, XStack } from 'tamagui';
 import { LogOut } from '@tamagui/lucide-icons';
 import { useSyncUser } from '@/hooks/useSyncUser';
 
 export default function MainLayout() {
-  const { signOut } = useAuth();
+  const { signOut } = useAuthContext();
 
   useSyncUser();
 

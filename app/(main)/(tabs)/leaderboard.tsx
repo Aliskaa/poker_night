@@ -1,5 +1,5 @@
 import { useUserLogic } from '@/hooks/useUserLogic';
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import { Medal, Minus, TrendingDown, TrendingUp, Trophy, Plus, Award } from '@tamagui/lucide-icons';
 import React, { useState, useEffect } from 'react';
 import { ScrollView } from 'react-native';

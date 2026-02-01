@@ -1,8 +1,8 @@
 import { db } from "@/services/firebase";
 import log from "@/services/logger";
-import { Game, GameConfig } from "@/types/Game";
+import { Game, GameConfig, MAX_PLAYERS_PER_GAME } from "@/types/Game";
 import { Player, PlayerStatus } from "@/types/Player";
-import { useUser } from "@clerk/clerk-expo"
+import { useUser } from "@/providers/AuthProvider";
 import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc, writeBatch, runTransaction, Timestamp } from "firebase/firestore";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { GameConfigSchema, RebuySchema, EliminatePlayerSchema, AddGuestSchema } from "@/lib/validations/game";
@@ -66,8 +66,8 @@ export const useGameLogic = (gameId?: string) => {
                     players: [
                         {
                             id: user.id,
-                            avatarUrl: user.imageUrl,
-                            name: user.firstName || user.username || "Hôte",
+                            avatarUrl: user.imageUrl || undefined,
+                            name: user.firstName || user.fullName || "Hôte",
                             isGuest: false,
                             buyInCount: 1,
                             totalInvested: validatedConfig.defaultBuyIn,
@@ -80,6 +80,11 @@ export const useGameLogic = (gameId?: string) => {
                     currentBlindLevel: 0,
                     blindLevelStartedAt: serverTimestamp(),
                     isPaused: false,
+                    metadata: {
+                        lastActivity: serverTimestamp(),
+                        playerCount: 1,
+                        activePlayers: 1,
+                    },
                 }
 
                 const docRef = await ErrorHandler.retryWithBackoff(
@@ -122,8 +127,8 @@ export const useGameLogic = (gameId?: string) => {
             async () => {
                 const newPlayer: Player = {
                     id: user.id,
-                    avatarUrl: user.imageUrl,
-                    name: user.firstName || user.username || "Joueur",
+                    avatarUrl: user.imageUrl || undefined,
+                    name: user.firstName || user.fullName || "Joueur",
                     isGuest: false,
                     buyInCount: 1,
                     totalInvested: game.config.defaultBuyIn,
@@ -140,9 +145,13 @@ export const useGameLogic = (gameId?: string) => {
                         return; // Déjà rejoint
                     }
 
+                    const newPlayerCount = currentGame.players.length + 1;
                     transaction.update(gameRef, {
                         players: [...currentGame.players, newPlayer],
                         totalPot: currentGame.totalPot + game.config.defaultBuyIn,
+                        'metadata.playerCount': newPlayerCount,
+                        'metadata.activePlayers': currentGame.players.filter(p => p.status === 'ACTIVE').length + 1,
+                        'metadata.lastActivity': serverTimestamp(),
                     });
                 });
                 
@@ -156,6 +165,11 @@ export const useGameLogic = (gameId?: string) => {
     // Ajouter un nouvel invité à la table
     const addGuestPlayer = useCallback(async (guestName: string, buyIn: number) => {
         if (!game || !gameId) return;
+
+        if (game.players.length >= MAX_PLAYERS_PER_GAME) {
+            errorToast(`Maximum ${MAX_PLAYERS_PER_GAME} joueurs par table`);
+            return;
+        }
 
         if (!checkLateRegOpen(game.createdAt, game.config.lateRegLimit)) {
             errorToast("Les inscriptions sont fermées");
@@ -181,9 +195,13 @@ export const useGameLogic = (gameId?: string) => {
                     if (!gameSnap.exists()) throw new Error('Game not found');
 
                     const currentGame = gameSnap.data() as Game;
+                    const newPlayerCount = currentGame.players.length + 1;
                     transaction.update(gameRef, {
                         players: [...currentGame.players, newGuest],
                         totalPot: currentGame.totalPot + validatedData.amount,
+                        'metadata.playerCount': newPlayerCount,
+                        'metadata.activePlayers': currentGame.players.filter(p => p.status === 'ACTIVE').length + 1,
+                        'metadata.lastActivity': serverTimestamp(),
                     });
                 });
 
@@ -271,6 +289,8 @@ export const useGameLogic = (gameId?: string) => {
 
                     transaction.update(gameRef, {
                         players: updatedPlayers,
+                        'metadata.activePlayers': updatedPlayers.filter(p => p.status === 'ACTIVE').length,
+                        'metadata.lastActivity': serverTimestamp(),
                     });
                 });
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { collection, doc, onSnapshot, query, orderBy, limit, startAfter, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { db } from '../services/firebase';
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import log from '@/services/logger';
 import { UserStatistics } from '@/types/User';
 

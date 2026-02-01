@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { View, Spinner } from 'tamagui';
-import { useAuth } from '@clerk/clerk-expo';
+import { useAuthContext } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
 
 export default function Index() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded } = useAuthContext();
   const router = useRouter();
 
   useEffect(() => {

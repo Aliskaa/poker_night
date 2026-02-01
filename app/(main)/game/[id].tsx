@@ -1,7 +1,7 @@
 import { PokerBackground } from '@/components/ui/PokerBackground'
 import { PokerButton } from '@/components/ui/PokerButton'
 import { useGameLogic } from '@/hooks/useGameLogic'
-import { useUser } from '@clerk/clerk-expo'
+import { useUser } from '@/providers/AuthProvider'
 import { AlertTriangle, Trophy } from '@tamagui/lucide-icons'
 import * as Linking from 'expo-linking'
 import { router, useLocalSearchParams } from 'expo-router'

@@ -4,114 +4,118 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // ============================================
-    // HELPER FUNCTIONS
+    // FONCTIONS UTILITAIRES
     // ============================================
     
-    // Vérifie si l'utilisateur est authentifié
+    // Vérifie que l'utilisateur est authentifié via Firebase Auth
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    // Vérifie si l'utilisateur est le propriétaire du document
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    // Récupère l'ID de l'utilisateur authentifié
+    function userId() {
+      return request.auth.uid;
     }
     
-    // Vérifie si l'utilisateur est l'hôte de la partie
-    function isGameHost(gameData) {
-      return request.auth.uid == gameData.hostId;
-    }
-    
-    // Vérifie si l'utilisateur est un joueur dans la partie
-    function isPlayerInGame(gameData) {
-      return request.auth.uid in gameData.players.map(p => p.id);
-    }
-    
-    // Vérifie les champs autorisés pour éviter les injections
-    function isValidGameUpdate() {
-      return request.resource.data.keys().hasAll(['players', 'totalPot']) ||
-             request.resource.data.keys().hasAll(['status', 'players', 'finishedAt']) ||
-             request.resource.data.keys().hasAll(['currentBlindLevel', 'blindLevelStartedAt']) ||
-             request.resource.data.keys().hasAll(['isPaused', 'pausedAt']);
+    // Vérifie que l'utilisateur est le propriétaire du document
+    function isOwner(uid) {
+      return isAuthenticated() && userId() == uid;
     }
     
     // ============================================
-    // USERS COLLECTION
+    // COLLECTION: USERS
     // ============================================
-    
-    match /users/{userId} {
-      // Lecture : Tout le monde authentifié peut lire les profils
+    match /users/{uid} {
+      // Lecture: Tout utilisateur authentifié peut voir les profils
       allow read: if isAuthenticated();
       
-      // Création : Uniquement son propre profil
-      allow create: if isAuthenticated() 
-                    && request.auth.uid == userId;
+      // Création: Un utilisateur ne peut créer que son propre profil
+      allow create: if isOwner(uid);
       
-      // Mise à jour : Uniquement son propre profil
-      allow update: if isAuthenticated() 
-                    && request.auth.uid == userId;
+      // Mise à jour: Un utilisateur ne peut modifier que son profil
+      allow update: if isOwner(uid);
       
-      // Suppression : Uniquement son propre profil
-      allow delete: if isAuthenticated() 
-                    && request.auth.uid == userId;
+      // Suppression: Désactivée
+      allow delete: if false;
     }
     
     // ============================================
-    // GROUPS COLLECTION
+    // COLLECTION: GROUPS
     // ============================================
-    
     match /groups/{groupId} {
-      // Lecture : Uniquement les membres du groupe
-      allow read: if isAuthenticated() 
-                  && request.auth.uid in resource.data.members;
+      // Lecture: Membres du groupe uniquement
+      allow read: if isAuthenticated() && 
+        (userId() in resource.data.members || userId() == resource.data.ownerId);
       
-      // Création : Tout utilisateur authentifié peut créer un groupe
-      allow create: if isAuthenticated()
-                    && request.auth.uid == request.resource.data.ownerId
-                    && request.auth.uid in request.resource.data.members;
+      // Création: Tout utilisateur authentifié peut créer un groupe
+      allow create: if isAuthenticated() && 
+        request.resource.data.ownerId == userId();
       
-      // Mise à jour : Uniquement le propriétaire
-      allow update: if isAuthenticated() 
-                    && request.auth.uid == resource.data.ownerId;
+      // Mise à jour: Propriétaire ou membre
+      allow update: if isAuthenticated() && 
+        (userId() == resource.data.ownerId || userId() in resource.data.members);
       
-      // Suppression : Uniquement le propriétaire
-      allow delete: if isAuthenticated() 
-                    && request.auth.uid == resource.data.ownerId;
+      // Suppression: Propriétaire uniquement
+      allow delete: if isAuthenticated() && userId() == resource.data.ownerId;
     }
     
     // ============================================
-    // GAMES COLLECTION
+    // COLLECTION: GAMES
     // ============================================
-    
     match /games/{gameId} {
-      // Lecture : Tout utilisateur authentifié peut voir les parties actives
+      // Fonction helper pour vérifier si l'utilisateur est un joueur
+      function isPlayerInGame() {
+        return resource.data.players.hasAny([
+          {'id': userId()}
+        ]) || resource.data.hostId == userId();
+      }
+      
+      // Lecture: Utilisateur authentifié (pour voir les parties actives)
       allow read: if isAuthenticated();
       
-      // Création : Tout utilisateur authentifié peut créer une partie
-      allow create: if isAuthenticated()
-                    && request.auth.uid == request.resource.data.hostId
-                    && request.resource.data.totalPot >= 0
-                    && request.resource.data.status in ['WAITING', 'PLAYING'];
+      // Création: Tout utilisateur authentifié
+      allow create: if isAuthenticated() && 
+        request.resource.data.hostId == userId();
       
-      // Mise à jour : Uniquement l'hôte ou un joueur de la partie
-      allow update: if isAuthenticated() 
-                    && (isGameHost(resource.data) || isPlayerInGame(resource.data))
-                    && request.resource.data.hostId == resource.data.hostId
-                    && (request.resource.data.totalPot >= resource.data.totalPot 
-                        || request.resource.data.status == 'FINISHED');
+      // Mise à jour: Hôte de la partie
+      allow update: if isAuthenticated() && userId() == resource.data.hostId;
       
-      // Suppression : Uniquement l'hôte et seulement si la partie n'est pas en cours
-      allow delete: if isAuthenticated() 
-                    && isGameHost(resource.data)
-                    && resource.data.status in ['WAITING', 'CANCELLED'];
+      // Suppression: Hôte uniquement
+      allow delete: if isAuthenticated() && userId() == resource.data.hostId;
     }
     
     // ============================================
-    // DENY ALL OTHER COLLECTIONS
+    // COLLECTION: USER-GAME-STATS (Phase 3)
     // ============================================
+    match /user-game-stats/{uid} {
+      // Lecture: Tout utilisateur authentifié peut voir les stats
+      allow read: if isAuthenticated();
+      
+      // Écriture: Désactivée (seulement Cloud Functions)
+      allow write: if false;
+    }
     
-    match /{document=**} {
-      allow read, write: if false;
+    // ============================================
+    // COLLECTION: GAME-HISTORY (Phase 3)
+    // ============================================
+    match /game-history/{gameId} {
+      // Lecture: Tout utilisateur authentifié
+      allow read: if isAuthenticated();
+      
+      // Écriture: Désactivée (seulement Cloud Functions)
+      allow write: if false;
+      
+      // Subcollection players
+      match /players/{playerId} {
+        allow read: if isAuthenticated();
+        allow write: if false;
+      }
+      
+      // Subcollection metadata
+      match /metadata/{metaId} {
+        allow read: if isAuthenticated();
+        allow write: if false;
+      }
     }
   }
 }

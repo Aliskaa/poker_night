@@ -1,4 +1,4 @@
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView } from 'react-native';

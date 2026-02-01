@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import { Button, H2, Separator, Spinner, Text, Theme, YStack } from 'tamagui';
 import { Play, Users } from '@tamagui/lucide-icons';
 

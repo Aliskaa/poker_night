@@ -1,14 +1,11 @@
 import { CurrentToast } from '@/components/CurrentToast';
-import { tokenCache } from '@/services/tokenCache';
-import { ClerkLoaded, ClerkProvider } from '@clerk/clerk-expo';
+import { AuthProvider } from '@/providers/AuthProvider';
 import { ToastProvider, ToastViewport } from '@tamagui/toast';
 import { useFonts } from 'expo-font';
 import { SplashScreen } from 'expo-router';
 import { useEffect } from 'react';
 import { TamaguiProvider } from 'tamagui';
 import tamaguiConfig from '../tamagui.config';
-
-const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [interLoaded, interError] = useFonts({
@@ -28,28 +25,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ClerkProvider
-      publishableKey={CLERK_PUBLISHABLE_KEY}
-      tokenCache={tokenCache}
-    >
-      <ClerkLoaded>
-        <TamaguiProvider config={tamaguiConfig}>
-          <ToastProvider
-            swipeDirection="horizontal"
-            duration={6000}
-            native={
-              [
-                // uncomment the next line to do native toasts on mobile. NOTE: it'll require you making a dev build and won't work with Expo Go
-                // 'mobile'
-              ]
-            }
-          >
-            {children}
-            <CurrentToast />
-            <ToastViewport top="$8" left={0} right={0} />
-          </ToastProvider>
-        </TamaguiProvider>
-      </ClerkLoaded>
-    </ClerkProvider>
+    <AuthProvider>
+      <TamaguiProvider config={tamaguiConfig}>
+        <ToastProvider
+          swipeDirection="horizontal"
+          duration={6000}
+          native={
+            [
+              // uncomment the next line to do native toasts on mobile. NOTE: it'll require you making a dev build and won't work with Expo Go
+              // 'mobile'
+            ]
+          }
+        >
+          {children}
+          <CurrentToast />
+          <ToastViewport top="$8" left={0} right={0} />
+        </ToastProvider>
+      </TamaguiProvider>
+    </AuthProvider>
   )
 }

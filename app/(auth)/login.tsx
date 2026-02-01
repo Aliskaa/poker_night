@@ -1,82 +1,57 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useSignIn, useSSO } from '@clerk/clerk-expo';
+import React, { useState } from 'react';
 import { useRouter, Link } from 'expo-router';
-import { YStack, Input, Button, Text, H1, XStack, Spinner, useTheme, Separator, Theme } from 'tamagui';
-import { Mail, Lock, LogIn, Chrome, Spade } from '@tamagui/lucide-icons';
-import * as Linking from "expo-linking";
-import * as WebBrowser from 'expo-web-browser';
-import log from '@/services/logger';
-import { Platform } from 'react-native';
+import { YStack, Input, Button, Text, H1, XStack, Spinner, Theme, Separator } from 'tamagui';
+import { Mail, Lock, LogIn, Spade, Chrome } from '@tamagui/lucide-icons';
+import { useAuthContext } from '@/providers/AuthProvider';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 
-export const useWarmUpBrowser = () => {
-    useEffect(() => {
-        if (Platform.OS !== 'android') return
-        void WebBrowser.warmUpAsync()
-        return () => {
-            void WebBrowser.coolDownAsync()
-        }
-    }, [])
-}
-
-WebBrowser.maybeCompleteAuthSession()
-
 export default function LoginScreen() {
-    useWarmUpBrowser()
-
-    const { signIn, setActive, isLoaded } = useSignIn();
     const router = useRouter();
-    const { startSSOFlow } = useSSO()
+    const { signIn, signInWithGoogle, isLoaded } = useAuthContext();
 
     const [emailAddress, setEmailAddress] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const onSignInPress = async () => {
         if (!isLoaded) return;
         setLoading(true);
+        setError(null);
 
         try {
-            const completeSignIn = await signIn.create({
-                identifier: emailAddress,
-                password,
-            });
+            const result = await signIn(emailAddress, password);
 
-            if (completeSignIn.status === 'complete') {
-                await setActive({ session: completeSignIn.createdSessionId });
+            if (result.success) {
                 router.replace('/(main)/(tabs)/home');
+            } else {
+                setError(result.error || 'Identifiants incorrects.');
             }
         } catch (err: any) {
-            alert("Identifiants incorrects.");
+            setError('Une erreur est survenue.');
         } finally {
             setLoading(false);
         }
     };
 
-    const onPressGoogle = useCallback(async () => {
+    const onPressGoogle = async () => {
+        setLoading(true);
+        setError(null);
+
         try {
-            const linkedUrl = Linking.createURL("/(auth)/login", { scheme: "pokernight" });
+            const result = await signInWithGoogle();
 
-            const { createdSessionId, setActive, signIn, signUp } = await startSSOFlow({
-                strategy: 'oauth_google',
-                redirectUrl: linkedUrl,
-            });
-
-            if (createdSessionId) {
-                log.debug("🟢 Google Login: Existing User, Session ID:", createdSessionId);
-                await setActive!({ session: createdSessionId });
-                router.replace('/(main)/(tabs)/home');
-            } else if (signUp?.createdSessionId) {
-                log.debug("🟢 Google Signup: New User, Session ID:", signUp.createdSessionId);
-                await setActive!({ session: signUp.createdSessionId });
+            if (result.success) {
                 router.replace('/(main)/(tabs)/home');
             } else {
-                log.error("🔴 Google Auth: Pas de session créée.");
+                setError(result.error || 'Connexion Google annulée.');
             }
-        } catch (err) {
-            log.error("🔴 Erreur Google SSO :", JSON.stringify(err, null, 2));
+        } catch (err: any) {
+            setError('Erreur lors de la connexion Google.');
+        } finally {
+            setLoading(false);
         }
-    }, [startSSOFlow, router]);
+    };
 
     return (
         <Theme name="dark">
@@ -96,7 +71,16 @@ export default function LoginScreen() {
                         </Text>
                     </YStack>
 
-                    {/* FORMULAIRE TRADITIONNEL */}
+                    {/* MESSAGE D'ERREUR */}
+                    {error && (
+                        <YStack backgroundColor="$red2" borderRadius="$3" padding="$3" marginBottom="$2">
+                            <Text color="$red10" textAlign="center" fontSize="$3">
+                                {error}
+                            </Text>
+                        </YStack>
+                    )}
+
+                    {/* FORMULAIRE */}
                     <YStack gap="$3">
                         <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
                             <Mail size={20} color="$colorMuted" />
@@ -104,8 +88,12 @@ export default function LoginScreen() {
                                 flex={1}
                                 placeholder="Email"
                                 value={emailAddress}
-                                onChangeText={setEmailAddress}
+                                onChangeText={(text) => {
+                                    setEmailAddress(text);
+                                    setError(null);
+                                }}
                                 autoCapitalize="none"
+                                keyboardType="email-address"
                                 unstyled
                                 backgroundColor="transparent"
                                 borderWidth={0}
@@ -120,7 +108,10 @@ export default function LoginScreen() {
                                 flex={1}
                                 placeholder="Mot de passe"
                                 value={password}
-                                onChangeText={setPassword}
+                                onChangeText={(text) => {
+                                    setPassword(text);
+                                    setError(null);
+                                }}
                                 secureTextEntry
                                 unstyled
                                 backgroundColor="transparent"
@@ -138,7 +129,7 @@ export default function LoginScreen() {
                             backgroundColor="$primary"
                             color="$backgroundStrong"
                             fontWeight="900"
-                            disabled={loading}
+                            disabled={loading || !emailAddress || !password}
                             icon={loading ? <Spinner color="$backgroundStrong" /> : <LogIn size={20} color="$backgroundStrong" />}
                             pressStyle={{ scale: 0.98, opacity: 0.8 }}
                         >
@@ -164,6 +155,7 @@ export default function LoginScreen() {
                         icon={<Chrome size={20} color="#EA4335" />}
                         animation="bouncy"
                         pressStyle={{ bg: '$backgroundHover', scale: 0.98 }}
+                        disabled={loading}
                     >
                         <Text fontWeight="600" color="$color">
                             Continuer avec Google

@@ -1,6 +1,6 @@
 import { db } from "@/services/firebase";
 import log from "@/services/logger";
-import { useUser } from "@clerk/clerk-expo"
+import { useUser } from "@/providers/AuthProvider";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useEffect } from "react";
 import { useToast } from "./useToast";
@@ -18,23 +18,22 @@ export const useSyncUser = () => {
 
             if (!userSnap.exists()) {
                 try {
-
-                    const fullName = user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : null;
-                    const displayName = fullName || user.username || 'Joueur';
+                    const displayName = user.fullName || user.firstName || 'Joueur';
 
                     const newUser = {
                         displayName: displayName,
                         avatarUrl: user.imageUrl || '',
-                        createdAt: serverTimestamp(), // ✅ CORRIGÉ
-                        lastLoginAt: serverTimestamp(), // ✅ CORRIGÉ
-                        groupIds: [], // Vide au départ
+                        email: user.email || '',
+                        createdAt: serverTimestamp(),
+                        lastLoginAt: serverTimestamp(),
+                        groupIds: [],
                         statistics: {
                             gamesPlayed: 0,
                             wins: 0,
                             totalInvested: 0,
                             totalWinnings: 0,
                             netProfit: 0,
-                            bestRank: 999, // 999 = Pas encore de classement
+                            bestRank: 999,
                         }
                     };
 
@@ -48,7 +47,7 @@ export const useSyncUser = () => {
             } else {
                 try {
                     await updateDoc(userRef, {
-                        lastLoginAt: serverTimestamp(), // ✅ CORRIGÉ
+                        lastLoginAt: serverTimestamp(),
                         avatarUrl: user.imageUrl || userSnap.data().avatarUrl,
                     });
                     info("Bon retour, " + (userSnap.data().displayName || 'Joueur') + " !");

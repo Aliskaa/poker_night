@@ -1,10 +1,11 @@
 import { Guest } from "./Player"
+import { Timestamp, FieldValue } from 'firebase/firestore'
 
 export type Group = {
   id: string
   name: string
   ownerId: string
-  createdAt: number
+  createdAt: Timestamp | FieldValue
   inviteCode: string
 
   // Les membres inscrits (ceux qui ont un compte Clerk)

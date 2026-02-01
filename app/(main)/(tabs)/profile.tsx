@@ -5,7 +5,7 @@ import { PokerButton } from '@/components/ui/PokerButton';
 import { StatCard } from '@/components/ui/StatCard';
 import { BankrollChart } from '@/components/ui/BankrollChart';
 import { useUserLogic } from '@/hooks/useUserLogic';
-import { useAuth, useUser } from '@clerk/clerk-expo';
+import { useUser, useAuthContext } from '@/providers/AuthProvider';
 import { BookOpen, Calendar, LogOut, Medal, Settings, ShieldCheck, Target, TrendingUp, Trophy, Percent, DollarSign } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
@@ -17,7 +17,7 @@ import type { Game } from '@/types/Game';
 
 export default function ProfileScreen() {
     const { user } = useUser();
-    const { signOut } = useAuth();
+    const { signOut } = useAuthContext();
     const router = useRouter();
     const { currentUserStats } = useUserLogic();
     

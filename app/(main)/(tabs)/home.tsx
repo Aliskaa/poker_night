@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import { Theme, YStack, Text, XStack } from 'tamagui';
 import { Search, Users, Plus, TrendingUp, Trophy, Target } from '@tamagui/lucide-icons';
 

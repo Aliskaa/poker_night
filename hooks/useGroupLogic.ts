@@ -3,7 +3,7 @@ import log from '@/services/logger';
 import { Group } from '@/types/Groups';
 import { Guest } from '@/types/Player';
 import { User } from '@/types/User';
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import { addDoc, collection, deleteDoc, doc, documentId, getDocs, onSnapshot, query, runTransaction, serverTimestamp, where } from 'firebase/firestore';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { db } from '../services/firebase';

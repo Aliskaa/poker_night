@@ -1,105 +1,70 @@
 import React, { useState } from 'react';
-import { useSignUp } from '@clerk/clerk-expo';
 import { useRouter, Link } from 'expo-router';
 import { YStack, Input, Button, Text, H1, XStack, Spinner, Theme } from 'tamagui';
 import { Mail, Lock, User, CheckCircle2, Crown } from '@tamagui/lucide-icons';
-import log from '@/services/logger';
+import { useAuthContext } from '@/providers/AuthProvider';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 
 export default function SignUpScreen() {
-  const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
+  const { signUp, isLoaded } = useAuthContext();
 
-  // Étape 1 : Infos
+  // Infos utilisateur
   const [firstName, setFirstName] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
 
-  // Étape 2 : OTP
-  const [pendingVerification, setPendingVerification] = useState(false);
-  const [code, setCode] = useState('');
+  // État
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
-  // --- ÉTAPE 1 : Création ---
   const onSignUpPress = async () => {
     if (!isLoaded) return;
     setLoading(true);
+    setError(null);
 
     try {
-      await signUp.create({ firstName, emailAddress, password });
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      setPendingVerification(true);
-    } catch (err: any) {
-      alert(err.errors[0].message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      const result = await signUp(emailAddress, password, firstName);
 
-  // --- ÉTAPE 2 : Vérification ---
-  const onPressVerify = async () => {
-    if (!isLoaded) return;
-    setLoading(true);
-
-    try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({ code });
-      log.debug("SignUp Status:", completeSignUp.status);
-
-      if (completeSignUp.status === 'complete') {
-        await setActive({ session: completeSignUp.createdSessionId });
-        router.replace('/(main)/(tabs)/home');
+      if (result.success) {
+        // Email de vérification envoyé, afficher le message
+        setEmailSent(true);
+        // Rediriger vers home après un délai
+        setTimeout(() => {
+          router.replace('/(main)/(tabs)/home');
+        }, 2000);
+      } else {
+        setError(result.error || 'Une erreur est survenue.');
       }
     } catch (err: any) {
-      alert("Code incorrect ou expiré.");
+      setError('Une erreur est survenue.');
     } finally {
       setLoading(false);
     }
   };
 
   // ---------------------------------------------------------------------------
-  // Rendu : ÉTAPE 2 (OTP)
+  // Rendu : Message de confirmation
   // ---------------------------------------------------------------------------
-  if (pendingVerification) {
+  if (emailSent) {
     return (
       <Theme name="dark">
         <PokerBackground>
           <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
             <YStack gap="$2" marginBottom="$4" alignItems="center">
               <CheckCircle2 size={56} color="$success" />
-              <H1 textAlign="center" color="$color" fontWeight="900" marginTop="$2">Vérification</H1>
+              <H1 textAlign="center" color="$color" fontWeight="900" marginTop="$2">
+                Bienvenue !
+              </H1>
               <Text textAlign="center" color="$colorMuted">
-                Un code a été envoyé à {emailAddress}.
+                Un email de vérification a été envoyé à {emailAddress}.
               </Text>
+              <Text textAlign="center" color="$colorMuted" fontSize="$3" marginTop="$2">
+                Redirection en cours...
+              </Text>
+              <Spinner color="$primary" size="large" marginTop="$4" />
             </YStack>
-
-            <Input
-              placeholder="000000"
-              value={code}
-              onChangeText={setCode}
-              keyboardType="numeric"
-              size="$5"
-              textAlign="center"
-              letterSpacing={8}
-              backgroundColor="$backgroundStrong"
-              borderColor="$borderColor"
-              borderWidth={1}
-              color="$color"
-              fontWeight="bold"
-              fontSize="$6"
-              height="$16"
-            />
-
-            <Button
-              size="$5"
-              height="$11"
-              onPress={onPressVerify}
-              backgroundColor="$success"
-              color="white"
-              fontWeight="900"
-              disabled={loading}
-            >
-              {loading ? <Spinner color="white" /> : 'Valider mon compte'}
-            </Button>
           </YStack>
         </PokerBackground>
       </Theme>
@@ -107,7 +72,7 @@ export default function SignUpScreen() {
   }
 
   // ---------------------------------------------------------------------------
-  // Rendu : ÉTAPE 1 (Formulaire)
+  // Rendu : Formulaire d'inscription
   // ---------------------------------------------------------------------------
   return (
     <Theme name="dark">
@@ -125,23 +90,65 @@ export default function SignUpScreen() {
             </Text>
           </YStack>
 
+          {/* MESSAGE D'ERREUR */}
+          {error && (
+            <YStack backgroundColor="$red2" borderRadius="$3" padding="$3" marginBottom="$2">
+              <Text color="$red10" textAlign="center" fontSize="$3">
+                {error}
+              </Text>
+            </YStack>
+          )}
+
           <YStack gap="$3">
             <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
               <User size={20} color="$colorMuted" />
-              <Input flex={1} placeholder="Prénom (ou Pseudo)" value={firstName} onChangeText={setFirstName} unstyled color="$color"
-                height="$14" />
+              <Input 
+                flex={1} 
+                placeholder="Prénom (ou Pseudo)" 
+                value={firstName} 
+                onChangeText={(text) => {
+                  setFirstName(text);
+                  setError(null);
+                }} 
+                unstyled 
+                color="$color"
+                height="$14" 
+              />
             </XStack>
 
             <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
               <Mail size={20} color="$colorMuted" />
-              <Input flex={1} placeholder="Email" value={emailAddress} onChangeText={setEmailAddress} autoCapitalize="none" unstyled color="$color"
-                height="$14" />
+              <Input 
+                flex={1} 
+                placeholder="Email" 
+                value={emailAddress} 
+                onChangeText={(text) => {
+                  setEmailAddress(text);
+                  setError(null);
+                }} 
+                autoCapitalize="none" 
+                keyboardType="email-address"
+                unstyled 
+                color="$color"
+                height="$14" 
+              />
             </XStack>
 
             <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
               <Lock size={20} color="$colorMuted" />
-              <Input flex={1} placeholder="Mot de passe" value={password} onChangeText={setPassword} secureTextEntry unstyled color="$color"
-                height="$14" />
+              <Input 
+                flex={1} 
+                placeholder="Mot de passe (min. 6 caractères)" 
+                value={password} 
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setError(null);
+                }} 
+                secureTextEntry 
+                unstyled 
+                color="$color"
+                height="$14" 
+              />
             </XStack>
 
             <Button
@@ -151,7 +158,8 @@ export default function SignUpScreen() {
               backgroundColor="$primary"
               color="$backgroundStrong"
               fontWeight="900"
-              disabled={loading}
+              disabled={loading || !emailAddress || !password || password.length < 6}
+              pressStyle={{ scale: 0.98, opacity: 0.8 }}
             >
               {loading ? <Spinner color="$backgroundStrong" /> : "Rejoindre la table"}
             </Button>

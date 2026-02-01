@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, Share, Alert } from 'react-native';
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import { YStack, Separator, Spinner, Theme } from 'tamagui';
 
 import { useGroupLogic } from '@/hooks/useGroupLogic';

@@ -1,6 +1,6 @@
 import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 import { Game } from '@/types/Game';
-import { useUser } from '@clerk/clerk-expo';
+import { useUser } from '@/providers/AuthProvider';
 import { AlertTriangle, Play, Settings2, Trash2 } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
