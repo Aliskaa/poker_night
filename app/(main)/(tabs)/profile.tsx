@@ -81,12 +81,12 @@ export default function ProfileScreen() {
                         >
                             <XStack alignItems="center" gap="$4">
                                 <Avatar circular size="$10" borderWidth={4} borderColor="$primary">
-                                    <Avatar.Image src={user?.imageUrl} />
+                                    <Avatar.Image src={user?.photoURL || undefined} />
                                     <Avatar.Fallback backgroundColor="$glass4" />
                                 </Avatar>
                                 <YStack flex={1}>
-                                    <H3 color="$text95" fontWeight="900">{user?.fullName || user?.username}</H3>
-                                    <Text color="$text60" fontSize="$3">{user?.primaryEmailAddress?.emailAddress}</Text>
+                                    <H3 color="$text95" fontWeight="900">{user?.displayName || user?.email?.split('@')[0] || 'Joueur'}</H3>
+                                    <Text color="$text60" fontSize="$3">{user?.email}</Text>
 
                                     <XStack
                                         alignItems="center"

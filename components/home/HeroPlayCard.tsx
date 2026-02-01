@@ -12,7 +12,7 @@ export function HeroPlayCard({ onPress }: { onPress: () => void }) {
             onPress={onPress}
             pressStyle={{ scale: 0.98, opacity: 0.9 }}
             elevation={10}
-            shadowColor="#fbbf24" // Ombre dorée
+            shadowColor="$gold400" // Ombre dorée
             shadowOpacity={0.2}
             shadowRadius={20}
             height={140} // Belle hauteur
@@ -59,7 +59,7 @@ export function HeroPlayCard({ onPress }: { onPress: () => void }) {
                         elevation={5}
                         shadowColor="black" shadowOpacity={0.3} shadowRadius={10}
                     >
-                        <Play size={32} color="#b45309" fill="#b45309" style={{ marginLeft: 4 }} />
+                        <Play size={32} color="$gold700" fill="$gold700" style={{ marginLeft: 4 }} />
                     </YStack>
 
                 </XStack>

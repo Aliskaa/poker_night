@@ -31,3 +31,6 @@ export { GlassCard } from './GlassCard'
 export { PokerBackground } from './PokerBackground'
 export { PokerButton } from './PokerButton'
 export { DealerButton } from './DealerButton'
+
+// Typography
+export * from './Typography'

@@ -11,8 +11,8 @@ export function MiniCard({ value, suit }: { value: string, suit: Suit }) {
         switch (s) {
             case 'hearts': return <Heart size={size} color="$danger" fill="currentColor" />;
             case 'diamonds': return <Diamond size={size} color="$danger" fill="currentColor" />;
-            case 'clubs': return <Club size={size} color="#1c1917" fill="currentColor" />;
-            case 'spades': return <Spade size={size} color="#1c1917" fill="currentColor" />;
+            case 'clubs': return <Club size={size} color="$cardBlack" fill="currentColor" />;
+            case 'spades': return <Spade size={size} color="$cardBlack" fill="currentColor" />;
             default: return null;
         }
     };

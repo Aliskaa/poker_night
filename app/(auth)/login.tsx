@@ -152,7 +152,7 @@ export default function LoginScreen() {
                         backgroundColor="$backgroundStrong"
                         borderWidth={1}
                         onPress={onPressGoogle}
-                        icon={<Chrome size={20} color="#EA4335" />}
+                        icon={<Chrome size={20} color="$danger" />}
                         animation="bouncy"
                         pressStyle={{ bg: '$backgroundHover', scale: 0.98 }}
                         disabled={loading}

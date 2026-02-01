@@ -126,23 +126,46 @@ const monoFont = createInterFont({
 const tokens = createTokens({
     // ═══ COULEURS ═══
     color: {
-        // ── POKER THÈME ──
-        pokerGreen: '#047857',
+        // ── POKER THÈME (Tapis de jeu) ──
+        felt: '#0F5132',           // Vert feutre principal
+        feltDark: '#0A3A23',       // Vert feutre sombre
+        feltDarker: '#052e16',     // Vert très sombre
+        feltLight: '#16613F',      // Vert feutre clair
+        pokerGreen: '#047857',     // Legacy (à migrer vers felt)
         pokerGreenDark: '#064e3b',
         pokerGreenDarker: '#052e16',
         pokerGreenLight: '#059669',
         
-        // ── GOLD / YELLOW (Pot, Chips) ──
+        // ── GOLD PREMIUM (Pot, Jetons, Accents) ──
+        gold: '#D4AF37',           // Or principal
+        goldDark: '#B8860B',       // Or sombre
+        goldLight: '#F4D03F',      // Or brillant
         gold50: '#fffbeb',
         gold100: '#fef3c7',
         gold200: '#fde68a',
         gold300: '#fcd34d',
-        gold400: '#fbbf24',    // Pot principal
+        gold400: '#fbbf24',        // Pot principal (legacy)
         gold500: '#f59e0b',
         gold600: '#d97706',
         gold700: '#b45309',
         gold800: '#92400e',
         gold900: '#78350f',
+        
+        // ── CARTES À JOUER ──
+        cardRed: '#DC2626',        // Cœur & Carreau
+        cardBlack: '#0F172A',      // Pique & Trèfle
+        cardBack: '#1E293B',       // Dos de carte
+        cardBorder: '#475569',     // Bordure carte
+        
+        // ── JETONS DE POKER (Chips) ──
+        chipRed: '#DC2626',        // Jeton rouge (5)
+        chipBlue: '#2563EB',       // Jeton bleu (10)
+        chipGreen: '#16A34A',      // Jeton vert (25)
+        chipBlack: '#0F172A',      // Jeton noir (100)
+        chipWhite: '#F8FAFC',      // Jeton blanc (1)
+        chipPurple: '#9333EA',     // Jeton violet (500)
+        chipOrange: '#EA580C',     // Jeton orange (1000)
+        chipYellow: '#fbbf24',     // Jeton jaune (legacy gold400)
         
         // ── SLATE / GRAY (Cartes, Fonds) ──
         slate50: '#f8fafc',
@@ -203,9 +226,21 @@ const tokens = createTokens({
         purple500: '#a855f7',
         purple600: '#9333ea',
         
+        // ── PLAYER STATUS (États des joueurs) ──
+        playerActive: '#22C55E',   // Joueur actif (en jeu)
+        playerFolded: '#64748B',   // Joueur couché
+        playerAllIn: '#EAB308',    // Joueur all-in
+        playerEliminated: '#DC2626', // Joueur éliminé
+        playerDealer: '#D4AF37',   // Bouton dealer
+        
         // ── WHITE / BLACK ──
         white: '#ffffff',
         black: '#000000',
+        
+        // ── BACKGROUNDS PREMIUM ──
+        bgPremium: '#0A0A0A',      // Fond ultra-sombre
+        bgElevated: '#1A1A1A',     // Fond élevé
+        bgGlass: 'rgba(255, 255, 255, 0.05)', // Fond vitreux
         
         // ── GLASS & OVERLAYS (RGBA) ──
         glass1: 'rgba(255,255,255,0.03)',

@@ -25,7 +25,7 @@ export const DealerButton = ({ onPress }: { onPress: () => void }) => {
                 style={{
                     width: 180, height: 180, borderRadius: 90,
                     justifyContent: 'center', alignItems: 'center',
-                    borderWidth: 1, borderColor: '#fff'
+                    borderWidth: 1, borderColor: '$white'
                 }}
             >
                 {/* CERCLE INTERNE (Effet strie) */}
@@ -33,12 +33,12 @@ export const DealerButton = ({ onPress }: { onPress: () => void }) => {
                     width={150} height={150} borderRadius={75}
                     borderWidth={4} borderColor="$glass5" borderStyle="dashed"
                     justifyContent="center" alignItems="center"
-                    backgroundColor="#d97706"
+                    backgroundColor="$gold600"
                 >
                     {/* TEXTE CENTRAL */}
                     <YStack alignItems="center">
-                        <Text color="#fff" fontSize="$2" fontWeight="bold" letterSpacing={2} opacity={0.8}>START</Text>
-                        <Text color="#fff" fontSize="$9" fontWeight="900" letterSpacing={-1} lineHeight={60}>GAME</Text>
+                        <Text color="$white" fontSize="$2" fontWeight="bold" letterSpacing={2} opacity={0.8}>START</Text>
+                        <Text color="$white" fontSize="$9" fontWeight="900" letterSpacing={-1} lineHeight={60}>GAME</Text>
                         <Play size={24} color="white" fill="white" style={{ marginTop: 5 }} />
                     </YStack>
                 </YStack>

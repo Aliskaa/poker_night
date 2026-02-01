@@ -51,7 +51,7 @@ export function CurrentToast() {
       borderWidth={1}
       borderRadius="$4"
       padding="$3"
-      shadowColor="#000"
+      shadowColor="$black"
       shadowOffset={{ width: 0, height: 4 }}
       shadowOpacity={0.3}
       shadowRadius={12}
