@@ -59,7 +59,7 @@ export function HeroPlayCard({ onPress }: { onPress: () => void }) {
                         elevation={5}
                         shadowColor="black" shadowOpacity={0.3} shadowRadius={10}
                     >
-                        <Play size={32} color="$gold700" fill="$gold700" style={{ marginLeft: 4 }} />
+                        <Play size={32} color="#b45309" fill="#b45309" style={{ marginLeft: 4 }} />
                     </YStack>
 
                 </XStack>

@@ -6,7 +6,7 @@ export function ConfigSection({ title, icon, children }: { title: string, icon: 
     <YStack gap="$3">
       <XStack alignItems="center" gap="$2">
         {icon}
-        <H4 color="$color" fontWeight="bold">{title}</H4>
+        <H4 color="$text95" fontWeight="bold">{title}</H4>
       </XStack>
       {children}
     </YStack>

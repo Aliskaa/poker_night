@@ -10,6 +10,7 @@ import { PokerBackground } from '@/components/ui/PokerBackground';
 import { PokerButton } from '@/components/ui/PokerButton';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import { useGroupLogic } from '@/hooks/useGroupLogic';
+import { usePlayerSubcollection } from '@/hooks/usePlayerSubcollection';
 
 export default function LobbyScreen() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function LobbyScreen() {
 
   const { currentGroup: group, memberDetails, loading } = useGroupLogic(params.groupId);
   const { createGame } = useGameLogic();
+  const [newGameId, setNewGameId] = useState<string | null>(null);
+  const { addPlayer } = usePlayerSubcollection(newGameId || undefined);
 
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [selectedGuests, setSelectedGuests] = useState<any[]>([]);
@@ -38,11 +41,62 @@ export default function LobbyScreen() {
   };
 
   const handleStartGame = async () => {
+    if (totalPlayers === 0) {
+      alert("Sélectionnez au moins un joueur");
+      return;
+    }
+
     setIsLaunching(true);
-    const newGameId = await createGame(gameConfig, params.groupId);
+    
+    // Créer la partie vide
+    const gameId = await createGame(gameConfig, params.groupId);
+    
+    if (!gameId) {
+      setIsLaunching(false);
+      alert("Erreur lors de la création.");
+      return;
+    }
+
+    // Stocker l'ID pour usePlayerSubcollection
+    setNewGameId(gameId);
+
+    // Ajouter tous les membres sélectionnés via subcollection
+    for (const memberId of selectedMembers) {
+      const member = memberDetails.find(m => m.id === memberId) || (memberId === user?.id ? user : null);
+      if (member) {
+        await addPlayer({
+          userId: member.id,
+          name: (member as any).displayName || (member as any).email?.split('@')[0] || 'Joueur',
+          avatarUrl: (member as any).photoURL || undefined,
+          isActive: true,
+          buyInAmount: gameConfig.defaultBuyIn,
+          totalInvested: gameConfig.defaultBuyIn,
+          rebuyCount: 0,
+          position: undefined,
+          finalRank: null,
+          winnings: 0,
+        });
+      }
+    }
+
+    // Ajouter les invités
+    for (const guest of selectedGuests) {
+      await addPlayer({
+        userId: null,
+        name: guest.name,
+        avatarUrl: undefined,
+        isActive: true,
+        buyInAmount: gameConfig.defaultBuyIn,
+        totalInvested: gameConfig.defaultBuyIn,
+        rebuyCount: 0,
+        position: undefined,
+        finalRank: null,
+        winnings: 0,
+      });
+    }
+
     setIsLaunching(false);
-    if (newGameId) router.replace(`/(main)/game/${newGameId}`);
-    else alert("Erreur lors de la création.");
+    router.replace(`/(main)/game/${gameId}`);
   };
 
   if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;

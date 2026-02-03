@@ -82,6 +82,26 @@ service cloud.firestore {
       
       // Suppression: Hôte uniquement
       allow delete: if isAuthenticated() && userId() == resource.data.hostId;
+      
+      // Subcollection: PLAYERS
+      match /players/{playerId} {
+        // Lecture: Tout utilisateur authentifié peut voir les joueurs
+        allow read: if isAuthenticated();
+        
+        // Création: Hôte de la partie ou le joueur lui-même
+        allow create: if isAuthenticated() && (
+          get(/databases/$(database)/documents/games/$(gameId)).data.hostId == userId() ||
+          request.resource.data.userId == userId()
+        );
+        
+        // Mise à jour: Hôte de la partie
+        allow update: if isAuthenticated() && 
+          get(/databases/$(database)/documents/games/$(gameId)).data.hostId == userId();
+        
+        // Suppression: Hôte de la partie
+        allow delete: if isAuthenticated() && 
+          get(/databases/$(database)/documents/games/$(gameId)).data.hostId == userId();
+      }
     }
     
     // ============================================

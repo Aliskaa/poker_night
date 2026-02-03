@@ -88,7 +88,7 @@ export function PlayerGrid({
       {/* HEADER */}
       {showHeader && (
         <XStack justifyContent="space-between" alignItems="center">
-          <Label color="muted" size="md">
+          <Label color="$muted" size="md">
             Joueurs ({totalPlayers})
           </Label>
           

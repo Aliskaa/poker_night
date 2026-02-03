@@ -2,16 +2,16 @@ import { db } from "@/services/firebase";
 import log from "@/services/logger";
 import { Game, GameConfig, MAX_PLAYERS_PER_GAME } from "@/types/Game";
 import { Player, PlayerStatus } from "@/types/Player";
-import { useUser } from "@/providers/AuthProvider";
 import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc, writeBatch, runTransaction, Timestamp } from "firebase/firestore";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { GameConfigSchema, RebuySchema, EliminatePlayerSchema, AddGuestSchema } from "@/lib/validations/game";
 import { isLateRegOpen as checkLateRegOpen } from "@/utils/timestampHelpers";
 import { ErrorHandler, generateSecureId } from "@/utils/errorHandler";
 import { useToast } from "@/hooks/useToast";
+import { useUserLogic } from "./useUserLogic";
 
 export const useGameLogic = (gameId?: string) => {
-    const { user } = useUser();
+    const { user } = useUserLogic();
     const { success: successToast, error: errorToast } = useToast();
     const [game, setGame] = useState<Game | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -47,7 +47,10 @@ export const useGameLogic = (gameId?: string) => {
     // ----------------------------------------------------------------------
     // 2. ACTION: CREATION DE PARTIE
     // ----------------------------------------------------------------------
-    const createGame = useCallback(async (config: GameConfig, groupId?: string) => {
+    const createGame = useCallback(async (
+        config: GameConfig, 
+        groupId?: string
+    ) => {
         if (!user) {
             errorToast('Vous devez être connecté');
             return null;
@@ -62,28 +65,15 @@ export const useGameLogic = (gameId?: string) => {
                     status: 'PLAYING',
                     groupId: groupId || null,
                     config: validatedConfig,
-                    totalPot: validatedConfig.defaultBuyIn,
-                    players: [
-                        {
-                            id: user.id,
-                            avatarUrl: user.imageUrl || undefined,
-                            name: user.firstName || user.fullName || "Hôte",
-                            isGuest: false,
-                            buyInCount: 1,
-                            totalInvested: validatedConfig.defaultBuyIn,
-                            status: 'ACTIVE',
-                            finalRank: null,
-                            payout: 0,
-                        },
-                    ],
+                    totalPot: 0,
                     createdAt: serverTimestamp(),
                     currentBlindLevel: 0,
                     blindLevelStartedAt: serverTimestamp(),
                     isPaused: false,
                     metadata: {
                         lastActivity: serverTimestamp(),
-                        playerCount: 1,
-                        activePlayers: 1,
+                        playerCount: 0,
+                        activePlayers: 0,
                     },
                 }
 
@@ -104,202 +94,10 @@ export const useGameLogic = (gameId?: string) => {
     }, [user, successToast, errorToast]);
 
     // ----------------------------------------------------------------------
-    // 3. ACTIONS: Gérer les joueurs (Ajout, Recave, Élimination)
+    // 3. UTILITAIRES
     // ----------------------------------------------------------------------
-
-    const joinGame = useCallback(async () => {
-        if (!game || !gameId || !user || hasJoinedRef.current) return;
-
-        if (!checkLateRegOpen(game.createdAt, game.config.lateRegLimit)) {
-            errorToast("Inscriptions fermées");
-            return;
-        }
-
-        const isAlreadyPlaying = game.players.some(p => p.id === user.id);
-        if (isAlreadyPlaying) {
-            hasJoinedRef.current = true;
-            return;
-        }
-
-        hasJoinedRef.current = true;
-
-        return ErrorHandler.tryAsync(
-            async () => {
-                const newPlayer: Player = {
-                    id: user.id,
-                    avatarUrl: user.imageUrl || undefined,
-                    name: user.firstName || user.fullName || "Joueur",
-                    isGuest: false,
-                    buyInCount: 1,
-                    totalInvested: game.config.defaultBuyIn,
-                    status: 'ACTIVE'
-                };
-
-                const gameRef = doc(db, "games", gameId);
-                await runTransaction(db, async (transaction) => {
-                    const gameSnap = await transaction.get(gameRef);
-                    if (!gameSnap.exists()) throw new Error('Game not found');
-                    
-                    const currentGame = gameSnap.data() as Game;
-                    if (currentGame.players.some(p => p.id === user.id)) {
-                        return; // Déjà rejoint
-                    }
-
-                    const newPlayerCount = currentGame.players.length + 1;
-                    transaction.update(gameRef, {
-                        players: [...currentGame.players, newPlayer],
-                        totalPot: currentGame.totalPot + game.config.defaultBuyIn,
-                        'metadata.playerCount': newPlayerCount,
-                        'metadata.activePlayers': currentGame.players.filter(p => p.status === 'ACTIVE').length + 1,
-                        'metadata.lastActivity': serverTimestamp(),
-                    });
-                });
-                
-                successToast('Vous avez rejoint la partie');
-            },
-            'joinGame',
-            (error) => errorToast(error.message)
-        );
-    }, [game, gameId, user, successToast, errorToast]);
-
-    // Ajouter un nouvel invité à la table
-    const addGuestPlayer = useCallback(async (guestName: string, buyIn: number) => {
-        if (!game || !gameId) return;
-
-        if (game.players.length >= MAX_PLAYERS_PER_GAME) {
-            errorToast(`Maximum ${MAX_PLAYERS_PER_GAME} joueurs par table`);
-            return;
-        }
-
-        if (!checkLateRegOpen(game.createdAt, game.config.lateRegLimit)) {
-            errorToast("Les inscriptions sont fermées");
-            return;
-        }
-
-        return ErrorHandler.tryAsync(
-            async () => {
-                const validatedData = AddGuestSchema.parse({ name: guestName, amount: buyIn });
-
-                const newGuest: Player = {
-                    id: generateSecureId('guest_'),
-                    name: validatedData.name,
-                    isGuest: true,
-                    buyInCount: 1,
-                    totalInvested: validatedData.amount,
-                    status: 'ACTIVE'
-                };
-
-                const gameRef = doc(db, "games", gameId);
-                await runTransaction(db, async (transaction) => {
-                    const gameSnap = await transaction.get(gameRef);
-                    if (!gameSnap.exists()) throw new Error('Game not found');
-
-                    const currentGame = gameSnap.data() as Game;
-                    const newPlayerCount = currentGame.players.length + 1;
-                    transaction.update(gameRef, {
-                        players: [...currentGame.players, newGuest],
-                        totalPot: currentGame.totalPot + validatedData.amount,
-                        'metadata.playerCount': newPlayerCount,
-                        'metadata.activePlayers': currentGame.players.filter(p => p.status === 'ACTIVE').length + 1,
-                        'metadata.lastActivity': serverTimestamp(),
-                    });
-                });
-
-                successToast(`${validatedData.name} a été ajouté`);
-            },
-            'addGuestPlayer',
-            (error) => errorToast(error.message)
-        );
-    }, [game, gameId, successToast, errorToast]);
-
-    // Ajouter une recave (Add-on) à un joueur existant
-    const addRebuy = useCallback(async (playerId: string, amount: number) => {
-        if (!game || !gameId) return;
-
-        if (!checkLateRegOpen(game.createdAt, game.config.lateRegLimit)) {
-            errorToast("Les recaves sont terminées");
-            return;
-        }
-
-        return ErrorHandler.tryAsync(
-            async () => {
-                const validatedData = RebuySchema.parse({ playerId, amount });
-                const gameRef = doc(db, "games", gameId);
-                const rebuyAmount = validatedData.amount || game.config.defaultBuyIn;
-
-                await runTransaction(db, async (transaction) => {
-                    const gameSnap = await transaction.get(gameRef);
-                    if (!gameSnap.exists()) throw new Error('Game not found');
-
-                    const currentGame = gameSnap.data() as Game;
-                    const updatedPlayers = currentGame.players.map(player => {
-                        if (player.id === validatedData.playerId) {
-                            return {
-                                ...player,
-                                buyInCount: player.buyInCount + 1,
-                                totalInvested: player.totalInvested + rebuyAmount,
-                                status: 'ACTIVE' as PlayerStatus,
-                            };
-                        }
-                        return player;
-                    });
-
-                    transaction.update(gameRef, {
-                        players: updatedPlayers,
-                        totalPot: currentGame.totalPot + rebuyAmount,
-                    });
-                });
-
-                successToast('Recave ajoutée');
-            },
-            'addRebuy',
-            (error) => errorToast(error.message)
-        );
-    }, [game, gameId, successToast, errorToast]);
-
-    // Eliminer un joueur
-    const eliminatePlayer = useCallback(async (playerId: string) => {
-        if (!game || !gameId) return;
-
-        return ErrorHandler.tryAsync(
-            async () => {
-                const validatedData = EliminatePlayerSchema.parse({ playerId });
-                const gameRef = doc(db, "games", gameId);
-
-                await runTransaction(db, async (transaction) => {
-                    const gameSnap = await transaction.get(gameRef);
-                    if (!gameSnap.exists()) throw new Error('Game not found');
-
-                    const currentGame = gameSnap.data() as Game;
-                    const eliminatedCount = currentGame.players.filter(p => p.status === 'ELIMINATED').length;
-                    const totalPlayers = currentGame.players.length;
-                    const currentRank = totalPlayers - eliminatedCount;
-
-                    const updatedPlayers = currentGame.players.map(player => {
-                        if (player.id === validatedData.playerId) {
-                            return {
-                                ...player,
-                                status: 'ELIMINATED' as PlayerStatus,
-                                finalRank: currentRank,
-                                eliminatedAt: Timestamp.now(), 
-                            };
-                        }
-                        return player;
-                    });
-
-                    transaction.update(gameRef, {
-                        players: updatedPlayers,
-                        'metadata.activePlayers': updatedPlayers.filter(p => p.status === 'ACTIVE').length,
-                        'metadata.lastActivity': serverTimestamp(),
-                    });
-                });
-
-                successToast('Joueur éliminé');
-            },
-            'eliminatePlayer',
-            (error) => errorToast(error.message)
-        );
-    }, [game, gameId, successToast, errorToast]);
+    // Note: joinGame, addGuestPlayer, addRebuy, eliminatePlayer sont maintenant
+    // dans usePlayerSubcollection.addPlayer / updatePlayer
 
     // --- UTILITAIRE : Vérifier si les inscriptions/recaves sont encore ouvertes ---
     const isLateRegOpen = useMemo(() => {
@@ -309,55 +107,75 @@ export const useGameLogic = (gameId?: string) => {
 
     // ----------------------------------------------------------------------
     // 4. ACTION: Terminer la partie et distribuer les gains (50/30/20)
-    //            Ajout des stats
     // ----------------------------------------------------------------------
     const endGame = useCallback(async () => {
         if (!game || !gameId) return;
 
         return ErrorHandler.tryAsync(
             async () => {
+                // Lire les joueurs depuis la subcollection
+                const playersSnapshot = await ErrorHandler.retryWithBackoff(
+                    () => import('firebase/firestore').then(m => 
+                        m.getDocs(collection(db, 'games', gameId, 'players'))
+                    ),
+                    2,
+                    500,
+                    'getPlayersForEndGame'
+                );
+
+                const players = playersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
                 const totalPot = game.totalPot;
                 const payout1 = Math.round(totalPot * 0.5);
                 const payout2 = Math.round(totalPot * 0.3);
                 const payout3 = totalPot - payout1 - payout2;
 
-                const updatedPlayers = game.players.map(player => {
-                    if (player.status === 'ACTIVE') {
-                        return {
-                            ...player,
-                            status: 'ELIMINATED' as PlayerStatus,
-                            finalRank: 1,
-                            payout: payout1
-                        };
-                    }
-
-                    let finalPayout = 0;
-                    if (player.finalRank === 2) finalPayout = payout2;
-                    if (player.finalRank === 3) finalPayout = payout3;
-
-                    return { ...player, payout: finalPayout };
-                });
-
                 const batch = writeBatch(db);
                 const gameRef = doc(db, "games", gameId);
                 
+                // Marquer la partie comme terminée
                 batch.update(gameRef, {
                     status: 'FINISHED',
-                    players: updatedPlayers,
                     finishedAt: serverTimestamp(),
                 });
 
-                updatedPlayers.forEach(player => {
-                    if (!player.isGuest) {
-                        const playerRef = doc(db, "users", player.id);
-                        const profit = (player.payout || 0) - player.totalInvested;
+                // Mettre à jour chaque joueur dans la subcollection
+                players.forEach((player: any) => {
+                    const playerRef = doc(db, 'games', gameId, 'players', player.id);
+                    
+                    let finalPayout = 0;
+                    let finalRank = player.finalRank;
 
-                        batch.update(playerRef, {
+                    // Si toujours actif, c'est le gagnant
+                    if (player.isActive) {
+                        finalRank = 1;
+                        finalPayout = payout1;
+                    } else if (player.finalRank === 2) {
+                        finalPayout = payout2;
+                    } else if (player.finalRank === 3) {
+                        finalPayout = payout3;
+                    }
+
+                    batch.update(playerRef, {
+                        winnings: finalPayout,
+                        finalRank,
+                        isActive: false,
+                    });
+
+                    // Mettre à jour les stats utilisateur (sauf invités)
+                    if (player.userId) {
+                        const userRef = doc(db, "users", player.userId);
+                        const profit = finalPayout - player.totalInvested;
+
+                        batch.update(userRef, {
                             'statistics.gamesPlayed': increment(1),
                             'statistics.totalInvested': increment(player.totalInvested),
-                            'statistics.totalWinnings': increment(player.payout || 0),
+                            'statistics.totalWinnings': increment(finalPayout),
                             'statistics.netProfit': increment(profit),
-                            'statistics.wins': player.finalRank === 1 ? increment(1) : increment(0),
+                            'statistics.wins': finalRank === 1 ? increment(1) : increment(0),
                             lastLoginAt: serverTimestamp(),
                         });
                     }
@@ -424,10 +242,6 @@ export const useGameLogic = (gameId?: string) => {
         game,
         loading,
         createGame,
-        joinGame,
-        addGuestPlayer,
-        addRebuy,
-        eliminatePlayer,
         endGame,
         pauseBlindTimer,
         resumeBlindTimer,

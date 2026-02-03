@@ -39,7 +39,7 @@ export const DealerButton = ({ onPress }: { onPress: () => void }) => {
                     <YStack alignItems="center">
                         <Text color="$white" fontSize="$2" fontWeight="bold" letterSpacing={2} opacity={0.8}>START</Text>
                         <Text color="$white" fontSize="$9" fontWeight="900" letterSpacing={-1} lineHeight={60}>GAME</Text>
-                        <Play size={24} color="white" fill="white" style={{ marginTop: 5 }} />
+                        <Play size={24} color="#ffffff" fill="#ffffff" style={{ marginTop: 5 }} />
                     </YStack>
                 </YStack>
             </LinearGradient>

@@ -5,21 +5,25 @@ import { Timestamp } from 'firebase/firestore';
  * Évite la limite de 1MB sur le document principal
  */
 export interface GamePlayer {
-    id: string; // userId ou guestId
+    id: string; // ID du document
+    userId: string | null; // ID de l'utilisateur (null pour invités)
     name: string;
-    avatar?: string;
+    avatarUrl?: string;
     
     // État dans la partie
-    buyIn: number;
-    cashOut: number;
-    netProfit: number;
+    buyInAmount: number;
+    totalInvested: number;
+    rebuyCount: number;
+    winnings: number;
     isActive: boolean;
-    isGuest: boolean;
+    
+    // Position et classement
+    position?: number;
+    finalRank: number | null;
     
     // Métadonnées
     joinedAt: Timestamp;
     leftAt?: Timestamp;
-    position?: number; // Ranking final
 }
 
 /**

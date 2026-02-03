@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView } from 'react-native';
 import { Button, Card, H4, Sheet, Text, XStack, YStack } from 'tamagui';
-import { Heading, PokerButton } from '../ui';
+import { Heading, IconButton, PokerButton } from '../ui';
 
 export function ActiveGamesSlider({ games }: { games: Game[] }) {
   const router = useRouter();
@@ -55,7 +55,7 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
               flex={1}
               variant="success"
               icon={<Play />}
-              title={`Pot: ${game.totalPot}€ • ${game.players.length} joueurs`}
+              title={`Pot: ${game.totalPot}€ • ${game.metadata?.playerCount} joueurs`}
               subtitle={"Rejoindre la partie"}
               onPress={() => router.push(`/(main)/game/${game.id}`)}
             />
@@ -84,7 +84,7 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
                     <Card.Header padded flexDirection="row" justifyContent="space-between" alignItems="center">
                       <YStack>
                         <Text color="$color" fontWeight="bold">Pot : {game.totalPot}€</Text>
-                        <Text color="$colorMuted" fontSize="$2">{game.players.length} joueurs • Créée il y a {hoursOld}h</Text>
+                        <Text color="$colorMuted" fontSize="$2">{game.metadata?.playerCount} joueurs • Créée il y a {hoursOld}h</Text>
                         {hoursOld > 12 && (
                           <XStack alignItems="center" gap="$1" marginTop="$1">
                             <AlertTriangle size={12} color="$warning" />
@@ -92,7 +92,13 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
                           </XStack>
                         )}
                       </YStack>
-                      <Button size="$3" circular backgroundColor="$danger" icon={<Trash2 size={16} color="white" />} onPress={() => confirmDelete(game.id)} />
+                      <IconButton
+                        icon={<Trash2 size={20} />}
+                        backgroundColor="$danger"
+                        color="$backgroundStrong"
+                        onPress={() => confirmDelete(game.id)}
+                        size="large"
+                      />
                     </Card.Header>
                   </Card>
                 );

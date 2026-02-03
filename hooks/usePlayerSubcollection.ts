@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import { collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp, increment } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { GamePlayer } from '@/types/PlayerSubcollection';
 import { useToast } from '@/hooks/useToast';
@@ -71,8 +71,9 @@ export const usePlayerSubcollection = (gameId: string | undefined) => {
                         playerData
                     );
 
-                    // Mettre à jour metadata du game
+                    // Mettre à jour metadata du game + totalPot
                     await updateDoc(doc(db, 'games', gameId), {
+                        totalPot: increment(player.buyInAmount),
                         'metadata.playerCount': players.length + 1,
                         'metadata.activePlayers': players.filter(p => p.isActive).length + 1,
                         'metadata.lastActivity': Timestamp.now(),
@@ -100,21 +101,34 @@ export const usePlayerSubcollection = (gameId: string | undefined) => {
 
             return ErrorHandler.tryAsync(
                 async () => {
+                    const player = players.find(p => p.id === playerId);
+                    if (!player) return;
+
                     await updateDoc(doc(db, 'games', gameId, 'players', playerId), {
                         ...updates,
                     });
+
+                    const gameUpdates: any = {
+                        'metadata.lastActivity': Timestamp.now(),
+                    };
+
+                    // Mettre à jour totalPot si rebuy
+                    if (updates.rebuyCount !== undefined && updates.totalInvested !== undefined) {
+                        const rebuyAmount = updates.totalInvested - player.totalInvested;
+                        if (rebuyAmount > 0) {
+                            gameUpdates.totalPot = increment(rebuyAmount);
+                        }
+                    }
 
                     // Mettre à jour metadata si changement d'état
                     if (updates.isActive !== undefined) {
                         const activeCount = players.filter(p => 
                             p.id === playerId ? updates.isActive : p.isActive
                         ).length;
-
-                        await updateDoc(doc(db, 'games', gameId), {
-                            'metadata.activePlayers': activeCount,
-                            'metadata.lastActivity': Timestamp.now(),
-                        });
+                        gameUpdates['metadata.activePlayers'] = activeCount;
                     }
+
+                    await updateDoc(doc(db, 'games', gameId), gameUpdates);
                 },
                 'updatePlayer',
                 (error) => {

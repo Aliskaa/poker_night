@@ -1,10 +1,11 @@
 import { PokerBackground } from '@/components/ui/PokerBackground'
 import { useGameLogic } from '@/hooks/useGameLogic'
+import { usePlayerSubcollection } from '@/hooks/usePlayerSubcollection'
 import { useGameTimer } from '@/hooks/useGameTimer'
 import { useUser } from '@/providers/AuthProvider'
 import { AlertTriangle } from '@tamagui/lucide-icons'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { ScrollView } from 'react-native'
 import { Spinner, Text, Theme, YStack } from 'tamagui'
 
@@ -26,17 +27,20 @@ export default function GameScreen() {
   const { 
     game, 
     loading, 
-    addRebuy, 
-    eliminatePlayer, 
-    addGuestPlayer, 
     endGame,
-    joinGame,
     pauseBlindTimer,
     resumeBlindTimer,
     nextBlindLevel 
   } = useGameLogic(id)
+  
+  const { 
+    players, 
+    loading: playersLoading,
+    addPlayer, 
+    updatePlayer 
+  } = usePlayerSubcollection(id)
+  
   const { user } = useUser()
-  const hasAttemptedJoin = useRef(false)
 
   // ═══ BLIND STRUCTURE ═══
   const blindStructure = game 
@@ -61,18 +65,32 @@ export default function GameScreen() {
 
   // ═══ AUTO JOIN ═══
   useEffect(() => { 
-    if (game && user && !hasAttemptedJoin.current) {
-      hasAttemptedJoin.current = true
-      joinGame()
+    if (game && user && players.length > 0) {
+      const isAlreadyPlaying = players.some(p => p.userId === user.id)
+      if (!isAlreadyPlaying && isLateRegOpen) {
+        // Auto-ajouter le joueur s'il n'est pas déjà présent
+        addPlayer({
+          userId: user.id,
+          name: (user as any).displayName || user.email?.split('@')[0] || 'Joueur',
+          avatarUrl: (user as any).photoURL || undefined,
+          isActive: true,
+          buyInAmount: game.config.defaultBuyIn,
+          totalInvested: game.config.defaultBuyIn,
+          rebuyCount: 0,
+          position: undefined,
+          finalRank: null,
+          winnings: 0,
+        })
+      }
     }
-  }, [game?.id, user?.id])
+  }, [game?.id, user?.id, players.length])
 
   // ═══ DERIVED STATE ═══
-  const activePlayers = game?.players.filter(p => p.status === 'ACTIVE') || []
-  const canEndGame = activePlayers.length <= 1 && (game?.players.length || 0) > 1
+  const activePlayers = players.filter(p => p.isActive)
+  const canEndGame = activePlayers.length <= 1 && players.length > 1
 
   // ═══ LOADING ═══
-  if (loading) {
+  if (loading || playersLoading) {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background">
         <Spinner size="large" color="$primary" />
@@ -92,7 +110,7 @@ export default function GameScreen() {
 
   // ═══ PODIUM (partie terminée) ═══
   if (game.status === 'FINISHED') {
-    return <GamePodium game={game} onClose={() => router.replace('/(main)/(tabs)/groups')} />
+    return <GamePodium game={game} players={players} onClose={() => router.replace('/(main)/(tabs)/groups')} />
   }
 
   // ═══ RENDER ═══
@@ -121,7 +139,7 @@ export default function GameScreen() {
               {/* POT PRINCIPAL */}
               <PotDisplay
                 totalPot={game.totalPot}
-                playerCount={game.players.length}
+                playerCount={players.length}
                 payoutModel={game.config.payoutModel}
                 defaultBuyIn={game.config.defaultBuyIn}
                 showPayoutPreview={true}
@@ -163,11 +181,37 @@ export default function GameScreen() {
 
               {/* GRILLE DES JOUEURS */}
               <PlayerGrid
-                players={game.players}
+                players={players.map(p => ({
+                  id: p.id,
+                  name: p.name,
+                  avatarUrl: p.avatarUrl,
+                  isGuest: !p.userId,
+                  buyInCount: p.rebuyCount + 1,
+                  totalInvested: p.totalInvested,
+                  status: p.isActive ? 'ACTIVE' : 'ELIMINATED',
+                  finalRank: p.finalRank,
+                  payout: p.winnings,
+                }))}
                 defaultBuyIn={game.config.defaultBuyIn}
                 isLateRegOpen={isLateRegOpen}
-                onRebuy={(playerId) => addRebuy(playerId, game.config.defaultBuyIn)}
-                onEliminate={eliminatePlayer}
+                onRebuy={(playerId) => {
+                  const player = players.find(p => p.id === playerId)
+                  if (player) {
+                    updatePlayer(playerId, {
+                      rebuyCount: player.rebuyCount + 1,
+                      totalInvested: player.totalInvested + game.config.defaultBuyIn,
+                      isActive: true,
+                    })
+                  }
+                }}
+                onEliminate={(playerId) => {
+                  const eliminatedCount = players.filter(p => !p.isActive).length
+                  const currentRank = players.length - eliminatedCount
+                  updatePlayer(playerId, {
+                    isActive: false,
+                    finalRank: currentRank,
+                  })
+                }}
                 showHeader={true}
               />
             </YStack>
@@ -176,7 +220,18 @@ export default function GameScreen() {
           {/* FOOTER : AJOUT INVITÉ */}
           <AddGuestFooter 
             isLateRegOpen={isLateRegOpen} 
-            onAddGuest={(name) => addGuestPlayer(name, game.config.defaultBuyIn)} 
+            onAddGuest={(name) => addPlayer({
+              userId: null,
+              name,
+              avatarUrl: undefined,
+              isActive: true,
+              buyInAmount: game.config.defaultBuyIn,
+              totalInvested: game.config.defaultBuyIn,
+              rebuyCount: 0,
+              position: undefined,
+              finalRank: null,
+              winnings: 0,
+            })} 
           />
         </YStack>
       </PokerBackground>

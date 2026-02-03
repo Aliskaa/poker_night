@@ -20,7 +20,6 @@ export type Game = {
     status: GameStatus;
     config: GameConfig;
     totalPot: number;
-    players: Player[];
     
     // Timestamps Firebase stricts
     createdAt: Timestamp | FieldValue;

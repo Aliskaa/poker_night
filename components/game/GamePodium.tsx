@@ -1,11 +1,16 @@
 import { PokerBackground } from "@/components/ui/PokerBackground";
 import { Game } from "@/types/Game";
+import { GamePlayer } from "@/types/PlayerSubcollection";
 import { DoorOpen, Trophy } from "@tamagui/lucide-icons";
 import { Card, H1, H3, H4, ScrollView, Text, Theme, XStack, YStack } from "tamagui";
 import { PokerButton } from "../ui";
 
-export function GamePodium({ game, onClose }: { game: Game, onClose: () => void }) {
-    const finalRankings = [...game.players].sort((a, b) => (a.finalRank || 99) - (b.finalRank || 99));
+export function GamePodium({ game, players, onClose }: { 
+  game: Game, 
+  players: GamePlayer[], 
+  onClose: () => void 
+}) {
+    const finalRankings = [...players].sort((a, b) => (a.finalRank || 99) - (b.finalRank || 99));
 
     return (
       <Theme name="dark">
@@ -22,7 +27,7 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
               <YStack gap="$3">
                 {finalRankings.map((player) => {
                   const isWinner = player.finalRank === 1;
-                  const profit = (player.payout || 0) - player.totalInvested;
+                  const profit = (player.winnings || 0) - player.totalInvested;
                   const profitColor = profit >= 0 ? "$success" : "$danger";
 
                   return (
@@ -46,7 +51,7 @@ export function GamePodium({ game, onClose }: { game: Game, onClose: () => void 
                           </YStack>
                         </XStack>
                         <YStack alignItems="flex-end">
-                          <Text color="$text95" fontWeight="900" fontSize="$6">{String(player.payout)}€</Text>
+                          <Text color="$text95" fontWeight="900" fontSize="$6">{String(player.winnings)}€</Text>
                           <Text color="$text60" fontSize="$2">Misé: {String(player.totalInvested)}€</Text>
                         </YStack>
                       </Card.Header>

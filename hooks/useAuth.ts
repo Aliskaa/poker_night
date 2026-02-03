@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { 
-  onAuthStateChanged, 
+import {
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -8,11 +8,15 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
-  type User
+  type User,
+  setPersistence,
+  browserSessionPersistence
 } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import log from '@/services/logger';
 import { Platform } from 'react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage"
+
 
 // Type pour l'utilisateur exposé (compatible avec l'ancien useUser de Clerk)
 export interface AuthUser {
@@ -27,10 +31,10 @@ export interface AuthUser {
 // Convertir User Firebase en AuthUser
 const mapFirebaseUser = (firebaseUser: User | null): AuthUser | null => {
   if (!firebaseUser) return null;
-  
+
   const displayName = firebaseUser.displayName || '';
   const firstName = displayName.split(' ')[0] || null;
-  
+
   return {
     id: firebaseUser.uid,
     email: firebaseUser.email,
@@ -52,7 +56,7 @@ export const useAuth = () => {
       setUser(mappedUser);
       setIsSignedIn(!!firebaseUser);
       setIsLoaded(true);
-      
+
       if (firebaseUser) {
         log.debug('🟢 Auth: User signed in', { uid: firebaseUser.uid });
       } else {
@@ -82,22 +86,22 @@ export const useAuth = () => {
   const signUp = async (email: string, password: string, displayName?: string) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      
+
       // Mettre à jour le profil avec le nom
       if (displayName) {
         await updateProfile(result.user, { displayName });
       }
-      
+
       // Envoyer email de vérification
       await sendEmailVerification(result.user);
-      
+
       log.debug('🟢 SignUp successful', { uid: result.user.uid });
       return { success: true, user: result.user };
     } catch (error: any) {
       log.error('🔴 SignUp error:', error.code, error.message);
-      return { 
-        success: false, 
-        error: getAuthErrorMessage(error.code) 
+      return {
+        success: false,
+        error: getAuthErrorMessage(error.code)
       };
     }
   };
@@ -116,11 +120,11 @@ export const useAuth = () => {
         log.debug('🟢 Google SignIn successful', { uid: result.user.uid });
         return { success: true, user: result.user };
       }
-      
+
       return { success: false, error: 'Connexion annulée' };
     } catch (error: any) {
       log.error('🔴 Google SignIn error:', error.code, error.message);
-      
+
       // Message spécifique pour auth/unauthorized-domain
       if (error.code === 'auth/unauthorized-domain') {
         return {
@@ -128,10 +132,10 @@ export const useAuth = () => {
           error: 'Domaine non autorisé. Configure localhost dans Firebase Console > Authentication > Settings > Authorized domains'
         };
       }
-      
-      return { 
-        success: false, 
-        error: getAuthErrorMessage(error.code) 
+
+      return {
+        success: false,
+        error: getAuthErrorMessage(error.code)
       };
     }
   };
@@ -177,7 +181,7 @@ const getAuthErrorMessage = (errorCode: string): string => {
     'auth/popup-blocked': 'Popup bloquée par le navigateur. Autorisez les popups pour ce site.',
     'auth/argument-error': 'Erreur de configuration. Vérifiez que Google Sign-In est activé dans Firebase Console.',
   };
-  
+
   return errorMessages[errorCode] || 'Une erreur est survenue. Veuillez réessayer.';
 };
 

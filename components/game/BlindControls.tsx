@@ -122,11 +122,6 @@ export function BlindControls({
         </YStack>
       )}
 
-
-
-
-
-
       <XStack
         backgroundColor={
           isUrgent ? '$dangerBg' :
@@ -175,30 +170,30 @@ export function BlindControls({
 
         <XStack gap="$2">
           {isPaused ? (
-              <IconButton
-                icon={<Play size={20} color="$night900" />}
-                backgroundColor="$success"
-                color="$night900"
-                onPress={async () => {
-                  await hapticFeedback.medium()
-                  onResume()
-                }}
-                disabled={disabled}
-                size="large"
-              />
-            ) : (
-              <IconButton
-                icon={<Pause size={20} color="$night900" />}
-                backgroundColor="$warning"
-                color="$night900"
-                onPress={async () => {
-                  await hapticFeedback.medium()
-                  onPause()
-                }}
-                disabled={disabled}
-                size="large"
-              />
-            )}
+            <IconButton
+              icon={<Play size={20} color="$night900" />}
+              backgroundColor="$success"
+              color="$night900"
+              onPress={async () => {
+                await hapticFeedback.medium()
+                onResume()
+              }}
+              disabled={disabled}
+              size="large"
+            />
+          ) : (
+            <IconButton
+              icon={<Pause size={20} color="$night900" />}
+              backgroundColor="$warning"
+              color="$night900"
+              onPress={async () => {
+                await hapticFeedback.medium()
+                onPause()
+              }}
+              disabled={disabled}
+              size="large"
+            />
+          )}
 
           <IconButton
             icon={<SkipForward size={20} color="$night900" />}

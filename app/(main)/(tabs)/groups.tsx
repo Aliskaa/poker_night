@@ -57,7 +57,6 @@ export default function GroupsScreen() {
                         <PokerButton
                             flex={1}
                             variant='secondary'
-                            fontsizeTitle='$4'
                             title="Rejoindre"
                             icon={<Key size={18} color="$primary" />}
                             onPress={() => setIsJoinOpen(true)}

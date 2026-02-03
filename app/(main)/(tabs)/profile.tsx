@@ -99,7 +99,7 @@ export default function ProfileScreen() {
                                         borderRadius="$4"
                                     >
                                         <Calendar size={12} color="$text60" />
-                                        <Caption color="muted" fontSize="$2">Membre depuis {memberSince}</Caption>
+                                        <Caption color="$text60" fontSize="$2">Membre depuis {memberSince}</Caption>
                                     </XStack>
                                 </YStack>
                             </XStack>
