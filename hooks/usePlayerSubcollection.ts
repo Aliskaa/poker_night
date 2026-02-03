@@ -62,13 +62,18 @@ export const usePlayerSubcollection = (gameId: string | undefined) => {
             return ErrorHandler.tryAsync(
                 async () => {
                     const playerData: Omit<GamePlayer, 'id'> = {
-                        ...player,
+                        ...player, 
                         joinedAt: Timestamp.now(),
                     };
 
+                    // Remove undefined values (Firebase doesn't support them)
+                    const cleanedData = Object.fromEntries(
+                        Object.entries(playerData).filter(([_, v]) => v !== undefined)
+                    );
+
                     const playerRef = await addDoc(
                         collection(db, 'games', gameId, 'players'),
-                        playerData
+                        cleanedData
                     );
 
                     // Mettre à jour metadata du game + totalPot

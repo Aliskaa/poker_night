@@ -71,12 +71,11 @@ export default function GameScreen() {
         addPlayer({
           userId: user.id,
           name: (user as any).displayName || user.email?.split('@')[0] || 'Joueur',
-          avatarUrl: (user as any).photoURL || undefined,
+          ...((user as any).photoURL && { avatarUrl: (user as any).photoURL }),
           isActive: true,
           buyInAmount: game.config.defaultBuyIn,
           totalInvested: game.config.defaultBuyIn,
           rebuyCount: 0,
-          position: undefined,
           finalRank: null,
           winnings: 0,
         })
@@ -211,12 +210,10 @@ export default function GameScreen() {
             onAddGuest={(name) => addPlayer({
               userId: null,
               name,
-              avatarUrl: undefined,
               isActive: true,
               buyInAmount: game.config.defaultBuyIn,
               totalInvested: game.config.defaultBuyIn,
               rebuyCount: 0,
-              position: undefined,
               finalRank: null,
               winnings: 0,
             })}

@@ -67,12 +67,11 @@ export default function LobbyScreen() {
         await addPlayer({
           userId: member.id,
           name: (member as any).displayName || (member as any).email?.split('@')[0] || 'Joueur',
-          avatarUrl: (member as any).photoURL || undefined,
+          ...((member as any).photoURL && { avatarUrl: (member as any).photoURL }),
           isActive: true,
           buyInAmount: gameConfig.defaultBuyIn,
           totalInvested: gameConfig.defaultBuyIn,
           rebuyCount: 0,
-          position: undefined,
           finalRank: null,
           winnings: 0,
         });
@@ -84,12 +83,10 @@ export default function LobbyScreen() {
       await addPlayer({
         userId: null,
         name: guest.name,
-        avatarUrl: undefined,
         isActive: true,
         buyInAmount: gameConfig.defaultBuyIn,
         totalInvested: gameConfig.defaultBuyIn,
         rebuyCount: 0,
-        position: undefined,
         finalRank: null,
         winnings: 0,
       });
