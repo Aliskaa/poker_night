@@ -58,7 +58,6 @@ export default function LoginScreen() {
             <PokerBackground>
                 <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
 
-                    {/* EN-TÊTE : Logo et Titre */}
                     <YStack gap="$2" marginBottom="$6" alignItems="center">
                         <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$5" marginBottom="$2">
                             <Spade size={40} color="$primary" />
@@ -71,7 +70,6 @@ export default function LoginScreen() {
                         </Text>
                     </YStack>
 
-                    {/* MESSAGE D'ERREUR */}
                     {error && (
                         <YStack backgroundColor="$red2" borderRadius="$3" padding="$3" marginBottom="$2">
                             <Text color="$red10" textAlign="center" fontSize="$3">
@@ -80,7 +78,6 @@ export default function LoginScreen() {
                         </YStack>
                     )}
 
-                    {/* FORMULAIRE */}
                     <YStack gap="$3">
                         <XStack alignItems="center" gap="$2" borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" borderRadius="$4" paddingHorizontal="$3">
                             <Mail size={20} color="$colorMuted" />
@@ -121,7 +118,6 @@ export default function LoginScreen() {
                             />
                         </XStack>
 
-                        {/* BOUTON CONNEXION EN OR */}
                         <Button
                             size="$5"
                             height="$11"
@@ -137,14 +133,12 @@ export default function LoginScreen() {
                         </Button>
                     </YStack>
 
-                    {/* SÉPARATION */}
                     <XStack alignItems="center" gap="$3" marginVertical="$4">
                         <Separator borderColor="$borderColor" flex={1} />
                         <Text color="$colorMuted" fontSize="$2" fontWeight="bold">OU</Text>
                         <Separator borderColor="$borderColor" flex={1} />
                     </XStack>
 
-                    {/* BOUTON GOOGLE */}
                     <Button
                         size="$5"
                         height="$11"
@@ -162,7 +156,6 @@ export default function LoginScreen() {
                         </Text>
                     </Button>
 
-                    {/* LIEN VERS SIGNUP */}
                     <XStack justifyContent="center" marginTop="$4">
                         <Text color="$colorMuted">Pas encore inscrit ? </Text>
                         <Link href="/(auth)/signup" asChild>

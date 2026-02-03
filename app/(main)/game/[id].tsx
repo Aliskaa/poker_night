@@ -1,7 +1,7 @@
 import { PokerBackground } from '@/components/ui/PokerBackground'
 import { useGameLogic } from '@/hooks/useGameLogic'
-import { usePlayerSubcollection } from '@/hooks/usePlayerSubcollection'
 import { useGameTimer } from '@/hooks/useGameTimer'
+import { usePlayerSubcollection } from '@/hooks/usePlayerSubcollection'
 import { useUser } from '@/providers/AuthProvider'
 import { AlertTriangle } from '@tamagui/lucide-icons'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -10,41 +10,40 @@ import { ScrollView } from 'react-native'
 import { Spinner, Text, Theme, YStack } from 'tamagui'
 
 // Composants game
+import { AddGuestFooter } from '@/components/game/AddGuestFooter'
+import { BlindControls } from '@/components/game/BlindControls'
+import { GameActions } from '@/components/game/GameActions'
+import { GamePodium } from '@/components/game/GamePodium'
 import { GameStatusBar } from '@/components/game/GameStatusBar'
-import { GameTimer } from '@/components/game/GameTimer'
 import { PlayerGrid } from '@/components/game/PlayerGrid'
 import { PotDisplay } from '@/components/game/PotDisplay'
-import { BlindControls } from '@/components/game/BlindControls'
-import { AddGuestFooter } from '@/components/game/AddGuestFooter'
-import { GamePodium } from '@/components/game/GamePodium'
-import { GameActions } from '@/components/game/GameActions'
 
 // Utils
 import { getBlindStructureByDuration } from '@/constants/blindStructures'
 
 export default function GameScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const { 
-    game, 
-    loading, 
+  const {
+    game,
+    loading,
     endGame,
     pauseBlindTimer,
     resumeBlindTimer,
-    nextBlindLevel 
+    nextBlindLevel
   } = useGameLogic(id)
-  
-  const { 
-    players, 
+
+  const {
+    players,
     loading: playersLoading,
-    addPlayer, 
-    updatePlayer 
+    addPlayer,
+    updatePlayer
   } = usePlayerSubcollection(id)
-  
+
   const { user } = useUser()
 
   // ═══ BLIND STRUCTURE ═══
-  const blindStructure = game 
-    ? getBlindStructureByDuration(game.config.defaultTimeBlindDuration) 
+  const blindStructure = game
+    ? getBlindStructureByDuration(game.config.defaultTimeBlindDuration)
     : []
 
   // ═══ GAME TIMER (remplace les 3 useEffect) ═══
@@ -64,7 +63,7 @@ export default function GameScreen() {
   })
 
   // ═══ AUTO JOIN ═══
-  useEffect(() => { 
+  useEffect(() => {
     if (game && user && players.length > 0) {
       const isAlreadyPlaying = players.some(p => p.userId === user.id)
       if (!isAlreadyPlaying && isLateRegOpen) {
@@ -118,9 +117,9 @@ export default function GameScreen() {
     <Theme name="dark">
       <PokerBackground>
         <YStack flex={1}>
-          
+
           {/* BARRE DE STATUS FIXE */}
-          <GameStatusBar 
+          <GameStatusBar
             currentSmallBlind={currentBlind?.smallBlind || 0}
             currentBigBlind={currentBlind?.bigBlind || 0}
             currentAnte={currentBlind?.ante || 0}
@@ -129,13 +128,13 @@ export default function GameScreen() {
             lateRegSeconds={lateRegSeconds}
             lateRegLimit={game.config.lateRegLimit}
             onBackPress={() => router.push('/(main)/(tabs)/home')}
-            onSharePress={() => {}} // Géré par GameActions
+            onSharePress={() => { }} // Géré par GameActions
           />
 
           {/* CONTENU SCROLLABLE */}
           <ScrollView style={{ flex: 1 }}>
             <YStack padding="$4" gap="$6">
-              
+
               {/* POT PRINCIPAL */}
               <PotDisplay
                 totalPot={game.totalPot}
@@ -145,29 +144,18 @@ export default function GameScreen() {
                 showPayoutPreview={true}
               />
 
-              {/* TIMER CIRCULAIRE + BLIND CONTROLS */}
-              <YStack alignItems="center" gap="$4">
-                <GameTimer
-                  seconds={timerSeconds}
-                  isRunning={isTimerRunning}
-                  isPaused={game.isPaused || false}
-                  progressPercentage={getProgressPercentage()}
-                  label={`LEVEL ${game.currentBlindLevel || 1}`}
-                  onPause={pauseBlindTimer}
-                  onResume={resumeBlindTimer}
-                  size="lg"
-                />
-                
-                <BlindControls
-                  seconds={timerSeconds}
-                  currentLevel={game.currentBlindLevel || 0}
-                  isPaused={game.isPaused || false}
-                  blindStructure={blindStructure}
-                  onPause={pauseBlindTimer}
-                  onResume={resumeBlindTimer}
-                  onNextLevel={nextBlindLevel}
-                />
-              </YStack>
+              {/* CONTRÔLES DES BLINDS */}
+              <BlindControls
+                seconds={timerSeconds}
+                currentLevel={game.currentBlindLevel || 0}
+                isPaused={game.isPaused || false}
+                isTimerRunning={isTimerRunning}
+                getProgressPercentage={getProgressPercentage}
+                blindStructure={blindStructure}
+                onPause={pauseBlindTimer}
+                onResume={resumeBlindTimer}
+                onNextLevel={nextBlindLevel}
+              />
 
               {/* ACTIONS HÔTE */}
               <GameActions
@@ -218,8 +206,8 @@ export default function GameScreen() {
           </ScrollView>
 
           {/* FOOTER : AJOUT INVITÉ */}
-          <AddGuestFooter 
-            isLateRegOpen={isLateRegOpen} 
+          <AddGuestFooter
+            isLateRegOpen={isLateRegOpen}
             onAddGuest={(name) => addPlayer({
               userId: null,
               name,
@@ -231,7 +219,7 @@ export default function GameScreen() {
               position: undefined,
               finalRank: null,
               winnings: 0,
-            })} 
+            })}
           />
         </YStack>
       </PokerBackground>

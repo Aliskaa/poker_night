@@ -6,19 +6,14 @@ import {
   signOut as firebaseSignOut,
   sendEmailVerification,
   updateProfile,
-  GoogleAuthProvider,
-  signInWithPopup,
   type User,
-  setPersistence,
-  browserSessionPersistence
+  // GoogleAuthProvider, // Attention: signInWithPopup ne marche pas sur mobile
+  // signInWithPopup,   // Attention: signInWithPopup ne marche pas sur mobile
 } from 'firebase/auth';
-import { auth } from '@/services/firebase';
-import log from '@/services/logger';
-import { Platform } from 'react-native';
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { auth } from '@/services/firebase'; // On importe l'auth configurée avec persistance
+import log from '@/services/logger'; // Assure-toi que ce service existe ou remplace par console.log
 
-
-// Type pour l'utilisateur exposé (compatible avec l'ancien useUser de Clerk)
+// Type pour l'utilisateur exposé
 export interface AuthUser {
   id: string;
   email: string | null;
@@ -48,19 +43,20 @@ const mapFirebaseUser = (firebaseUser: User | null): AuthUser | null => {
 export const useAuth = () => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  // Si user n'est pas null, on est signé
+  const isSignedIn = user !== null;
 
   useEffect(() => {
+    // onAuthStateChanged détecte automatiquement la session restaurée grâce à firebase.ts
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       const mappedUser = mapFirebaseUser(firebaseUser);
       setUser(mappedUser);
-      setIsSignedIn(!!firebaseUser);
       setIsLoaded(true);
 
       if (firebaseUser) {
-        log.debug('🟢 Auth: User signed in', { uid: firebaseUser.uid });
+        log.debug('🟢 Auth: User signed in', { uid: firebaseUser.uid })
       } else {
-        log.debug('🔴 Auth: User signed out');
+        log.debug('🔴 Auth: User signed out')
       }
     });
 
@@ -71,13 +67,13 @@ export const useAuth = () => {
   const signIn = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      log.debug('🟢 SignIn successful', { uid: result.user.uid });
+      // Pas besoin de setPersistence ici, c'est géré par firebase.ts
       return { success: true, user: result.user };
     } catch (error: any) {
-      log.error('🔴 SignIn error:', error.code, error.message);
-      return { 
-        success: false, 
-        error: getAuthErrorMessage(error.code) 
+      console.error(error);
+      return {
+        success: false,
+        error: getAuthErrorMessage(error.code)
       };
     }
   };
@@ -87,18 +83,15 @@ export const useAuth = () => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
 
-      // Mettre à jour le profil avec le nom
       if (displayName) {
         await updateProfile(result.user, { displayName });
       }
 
-      // Envoyer email de vérification
-      await sendEmailVerification(result.user);
+      // Note: sendEmailVerification peut échouer si le domaine n'est pas autorisé, on catch à part si besoin
+      await sendEmailVerification(result.user).catch(e => console.log("Email verif error", e));
 
-      log.debug('🟢 SignUp successful', { uid: result.user.uid });
       return { success: true, user: result.user };
     } catch (error: any) {
-      log.error('🔴 SignUp error:', error.code, error.message);
       return {
         success: false,
         error: getAuthErrorMessage(error.code)
@@ -106,48 +99,50 @@ export const useAuth = () => {
     }
   };
 
-  // Connexion avec Google
+  // NOTE IMPORTANTE SUR GOOGLE : 
+  // Sur mobile (React Native), signInWithPopup NE FONCTIONNE PAS.
+  // Il faut utiliser le package @react-native-google-signin/google-signin
+  // Je laisse la fonction vide ou basique pour l'instant pour éviter les erreurs.
   const signInWithGoogle = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
+    // try {
+    //   const provider = new GoogleAuthProvider();
+    //   provider.setCustomParameters({
+    //     prompt: 'select_account'
+    //   });
 
-      const result = await signInWithPopup(auth, provider);
+    //   const result = await signInWithPopup(auth, provider);
 
-      if (result?.user) {
-        log.debug('🟢 Google SignIn successful', { uid: result.user.uid });
-        return { success: true, user: result.user };
-      }
+    //   if (result?.user) {
+    //     log.debug('🟢 Google SignIn successful', { uid: result.user.uid });
+    //     return { success: true, user: result.user };
+    //   }
 
-      return { success: false, error: 'Connexion annulée' };
-    } catch (error: any) {
-      log.error('🔴 Google SignIn error:', error.code, error.message);
+    //   return { success: false, error: 'Connexion annulée' };
+    // } catch (error: any) {
+    //   log.error('🔴 Google SignIn error:', error.code, error.message);
 
-      // Message spécifique pour auth/unauthorized-domain
-      if (error.code === 'auth/unauthorized-domain') {
-        return {
-          success: false,
-          error: 'Domaine non autorisé. Configure localhost dans Firebase Console > Authentication > Settings > Authorized domains'
-        };
-      }
+    //   // Message spécifique pour auth/unauthorized-domain
+    //   if (error.code === 'auth/unauthorized-domain') {
+    //     return {
+    //       success: false,
+    //       error: 'Domaine non autorisé. Configure localhost dans Firebase Console > Authentication > Settings > Authorized domains'
+    //     };
+    //   }
 
-      return {
-        success: false,
-        error: getAuthErrorMessage(error.code)
-      };
-    }
+    //   return {
+    //     success: false,
+    //     error: getAuthErrorMessage(error.code)
+    //   };
+    // }
+    return { success: false, error: "Google Sign-In nécessite une config native spécifique." };
   };
 
   // Déconnexion
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
-      log.debug('🟢 SignOut successful');
       return { success: true };
     } catch (error: any) {
-      log.error('🔴 SignOut error:', error);
       return { success: false, error: error.message };
     }
   };
@@ -175,14 +170,9 @@ const getAuthErrorMessage = (errorCode: string): string => {
     'auth/weak-password': 'Le mot de passe doit contenir au moins 6 caractères.',
     'auth/network-request-failed': 'Erreur réseau. Vérifiez votre connexion.',
     'auth/too-many-requests': 'Trop de tentatives. Réessayez plus tard.',
-    'auth/operation-not-allowed': 'Cette méthode de connexion n\'est pas activée dans Firebase Console.',
-    'auth/popup-closed-by-user': 'Fenêtre de connexion fermée.',
-    'auth/cancelled-popup-request': 'Connexion annulée.',
-    'auth/popup-blocked': 'Popup bloquée par le navigateur. Autorisez les popups pour ce site.',
-    'auth/argument-error': 'Erreur de configuration. Vérifiez que Google Sign-In est activé dans Firebase Console.',
   };
 
-  return errorMessages[errorCode] || 'Une erreur est survenue. Veuillez réessayer.';
+  return errorMessages[errorCode] || `Erreur: ${errorCode}`;
 };
 
 export default useAuth;

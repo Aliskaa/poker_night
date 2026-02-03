@@ -1,8 +1,10 @@
 import React from 'react'
 import { Circle, Text, XStack, YStack, styled } from 'tamagui'
-import { Pause, Play } from '@tamagui/lucide-icons'
+import { Pause, Play, SkipForward } from '@tamagui/lucide-icons'
 import Svg, { Circle as SvgCircle } from 'react-native-svg'
 import { IconButton } from '@/components/ui/IconButton'
+import { hapticFeedback } from '@/services/haptics'
+import { BlindLevel } from '@/constants/blindStructures'
 
 // ═══════════════════════════════════════════════════════════════════
 // ⏱️ GAME TIMER - Timer circulaire moderne pour les blinds
@@ -11,28 +13,37 @@ import { IconButton } from '@/components/ui/IconButton'
 export interface GameTimerProps {
   /** Temps restant en secondes */
   seconds: number
-  
+
   /** Timer en cours d'exécution ? */
   isRunning: boolean
-  
+
   /** Timer en pause ? */
   isPaused: boolean
-  
+
   /** Pourcentage de progression (0-100) */
   progressPercentage?: number
-  
+
   /** Taille du timer */
   size?: 'sm' | 'md' | 'lg'
-  
+
+  /** Désactiver les interactions */
+  disabled?: boolean
+
+  /** Callback next level */
+  onNextLevel?: () => void
+
+  /** Niveau de blind suivant (pour activer/désactiver le bouton) */
+  nextBlind?: BlindLevel | null
+
   /** Callback pause */
   onPause?: () => void
-  
+
   /** Callback resume */
   onResume?: () => void
-  
+
   /** Afficher les contrôles (pause/play) */
   showControls?: boolean
-  
+
   /** Label (ex: "LEVEL 3") */
   label?: string
 }
@@ -68,19 +79,22 @@ export function GameTimer({
   size = 'md',
   onPause,
   onResume,
+  onNextLevel,
+  nextBlind,
+  disabled = false,
   showControls = true,
   label,
 }: GameTimerProps) {
-  
+
   const { radius, stroke, fontSize, labelSize } = SIZES[size]
   const circumference = 2 * Math.PI * radius
   const strokeDashoffset = circumference - (progressPercentage / 100) * circumference
-  
+
   // Formater le temps MM:SS
   const minutes = Math.floor(seconds / 60)
   const secs = seconds % 60
   const timeString = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  
+
   // Couleur basée sur l'urgence
   const getTimerColor = () => {
     if (isPaused) return '$text40'
@@ -88,10 +102,10 @@ export function GameTimer({
     if (seconds <= 60) return '$warning'
     return '$gold'
   }
-  
+
   const timerColor = getTimerColor()
   const svgSize = (radius + stroke) * 2
-  
+
   return (
     <YStack alignItems="center" gap="$3">
       {/* TIMER CIRCULAIRE */}
@@ -107,7 +121,7 @@ export function GameTimer({
             strokeWidth={stroke}
             fill="none"
           />
-          
+
           {/* Progress circle */}
           <SvgCircle
             cx={svgSize / 2}
@@ -122,19 +136,19 @@ export function GameTimer({
             transform={`rotate(-90 ${svgSize / 2} ${svgSize / 2})`}
           />
         </Svg>
-        
+
         {/* Temps au centre */}
-        <YStack 
-          width={svgSize} 
-          height={svgSize} 
-          alignItems="center" 
+        <YStack
+          width={svgSize}
+          height={svgSize}
+          alignItems="center"
           justifyContent="center"
           gap="$1"
         >
           {label && (
-            <Text 
-              color="$text60" 
-              fontSize={labelSize} 
+            <Text
+              color="$text60"
+              fontSize={labelSize}
               fontWeight="700"
               letterSpacing={1}
               textTransform="uppercase"
@@ -142,20 +156,20 @@ export function GameTimer({
               {label}
             </Text>
           )}
-          
-          <Text 
-            color={timerColor} 
-            fontSize={fontSize} 
+
+          <Text
+            color={timerColor}
+            fontSize={fontSize}
             fontWeight="900"
             letterSpacing={-1}
           >
             {timeString}
           </Text>
-          
+
           {isPaused && (
-            <Text 
-              color="$text40" 
-              fontSize={labelSize} 
+            <Text
+              color="$text40"
+              fontSize={labelSize}
               fontWeight="600"
               textTransform="uppercase"
             >
@@ -164,25 +178,46 @@ export function GameTimer({
           )}
         </YStack>
       </YStack>
-      
+
       {/* CONTRÔLES (PAUSE/PLAY) */}
       {showControls && (onPause || onResume) && (
         <XStack gap="$2">
           {isPaused ? (
             <IconButton
-              icon={<Play size={20} color="$success" />}
-              onPress={onResume}
-              variant="outlined"
-              size="small"
+              icon={<Play size={20} color="$night900" />}
+              backgroundColor="$success"
+              color="$night900"
+              onPress={async () => {
+                await hapticFeedback.medium()
+                onResume?.()
+              }}
+              disabled={disabled}
+              size="large"
             />
           ) : (
             <IconButton
-              icon={<Pause size={20} color="$warning" />}
-              onPress={onPause}
-              variant="outlined"
-              size="small"
+              icon={<Pause size={20} color="$night900" />}
+              backgroundColor="$warning"
+              color="$night900"
+              onPress={async () => {
+                await hapticFeedback.medium()
+                onPause?.()
+              }}
+              disabled={disabled}
+              size="large"
             />
           )}
+          <IconButton
+                icon={<SkipForward size={20} color="$night900" />}
+                backgroundColor="$primary"
+                color="$night900"
+                onPress={async () => {
+                  await hapticFeedback.blindLevelUp()
+                  onNextLevel?.()
+                }}
+                disabled={disabled || !nextBlind}
+                size="large"
+              />
         </XStack>
       )}
     </YStack>
