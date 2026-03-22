@@ -1,5 +1,5 @@
 // Collection: users
-// ID du document: UserID de Clerk (ex: "user_2aXy...")
+// ID du document: UID Firebase Auth
 {
   displayName: "Kevin",
   avatarUrl: "https://...",

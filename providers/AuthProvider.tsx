@@ -7,7 +7,6 @@ interface AuthContextType {
   isSignedIn: boolean;
   signIn: (email: string, password: string) => Promise<{ success: boolean; user?: any; error?: string }>;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ success: boolean; user?: any; error?: string }>;
-  signInWithGoogle: () => Promise<{ success: boolean; user?: any; error?: string }>;
   signOut: () => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -32,8 +31,7 @@ export function useAuthContext() {
   return context;
 }
 
-// Hook de compatibilité pour remplacer useUser de Clerk
-// Expose la même interface que Clerk pour faciliter la migration
+/** Profil utilisateur courant (Firebase Auth), pour les écrans qui utilisaient autrefois un nom générique « useUser ». */
 export function useUser() {
   const { user, isLoaded, isSignedIn } = useAuthContext();
   return { 

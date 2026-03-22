@@ -11,6 +11,8 @@ export type LeaderboardUser = {
     avatarUrl?: string;
     netProfit: number;
     gamesPlayed: number;
+    totalBuyins: number;
+    wins: number;
     rank: number;
 };
 
@@ -98,8 +100,8 @@ export const useUserLogic = () => {
 
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
-                // Stats depuis user-game-stats (source de vérité)
-                const netProfit = (data.totalWinnings || 0) - (data.totalBuyins || 0);
+                const totalBuyins = data.totalBuyIns || data.totalBuyins || 0;
+                const netProfit = (data.totalWinnings || 0) - totalBuyins;
                 const gamesPlayed = data.gamesPlayed || 0;
 
                 usersData.push({
@@ -108,6 +110,8 @@ export const useUserLogic = () => {
                     avatarUrl: data.photoURL,
                     netProfit,
                     gamesPlayed,
+                    totalBuyins,
+                    wins: data.totalWins || 0,
                     rank: currentRank++,
                 });
             });
@@ -143,7 +147,8 @@ export const useUserLogic = () => {
 
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
-                const netProfit = (data.totalWinnings || 0) - (data.totalBuyins || 0);
+                const totalBuyins = data.totalBuyIns || data.totalBuyins || 0;
+                const netProfit = (data.totalWinnings || 0) - totalBuyins;
                 const gamesPlayed = data.gamesPlayed || 0;
 
                 usersData.push({
@@ -152,6 +157,8 @@ export const useUserLogic = () => {
                     avatarUrl: data.photoURL,
                     netProfit,
                     gamesPlayed,
+                    totalBuyins,
+                    wins: data.totalWins || 0,
                     rank: currentRank++,
                 });
             });

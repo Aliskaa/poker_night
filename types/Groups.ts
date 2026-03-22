@@ -8,7 +8,7 @@ export type Group = {
   createdAt: Timestamp | FieldValue
   inviteCode: string
 
-  // Les membres inscrits (ceux qui ont un compte Clerk)
+  // Membres avec compte Firebase Auth (UID)
   // Tableau d'IDs pour faciliter les règles de sécurité Firestore
   members: string[]
 

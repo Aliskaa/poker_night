@@ -33,14 +33,13 @@ export default function ProfileScreen() {
                 const gamesRef = collection(db, 'games');
                 const q = query(
                     gamesRef,
+                    where('participantIds', 'array-contains', user.id),
                     where('status', '==', 'FINISHED'),
                     orderBy('createdAt', 'desc')
                 );
 
                 const snapshot = await getDocs(q);
-                const games = snapshot.docs
-                    .map(doc => ({ id: doc.id, ...doc.data() } as Game))
-                    .filter(game => game.players.some(p => p.id === user.id));
+                const games = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Game));
 
                 setUserGames(games);
             } catch (error) {

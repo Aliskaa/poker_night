@@ -62,6 +62,7 @@ export const useGameLogic = (gameId?: string) => {
 
                 const newGameData: Omit<Game, 'id'> = {
                     hostId: user.id,
+                    participantIds: [user.id],
                     status: 'PLAYING',
                     groupId: groupId || null,
                     config: validatedConfig,

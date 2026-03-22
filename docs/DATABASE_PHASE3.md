@@ -89,7 +89,7 @@ user-game-stats: last30Days.netProfit DESC // Top du mois
 
 ```
 collections/
-├── users/                    # Profils Clerk
+├── users/                    # Profils Firebase Auth
 ├── groups/                   # Groupes de joueurs
 │   └── {groupId}/members[]
 │

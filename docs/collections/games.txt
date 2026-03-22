@@ -22,7 +22,7 @@
   // 2. C'est plus facile à récupérer en une seule requête.
   players: [
     {
-      id: "user_2aXy...",  // ID Clerk ou un ID généré pour un invité
+      id: "<uid Firebase ou id doc invité>",  // joueur inscrit ou invité
       isGuest: false,      // Pour savoir si c'est un compte réel
       name: "Kevin",       // Copie du nom pour affichage rapide (dénormalisation)
       avatar: "...",

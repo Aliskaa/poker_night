@@ -1,10 +1,7 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-// Ajoute 'getAuth' aux imports
-import { initializeAuth, getAuth, type Auth } from "firebase/auth";
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-//@ts-ignore
-import { getReactNativePersistence } from '@firebase/auth/dist/rn/index.js';
+import { getAuth, initializeAuth, type Auth } from "firebase/auth";
+import { Platform } from "react-native";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -15,27 +12,28 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
-// 1. Empêcher la ré-initialisation de l'App (bonne pratique)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const db = getFirestore(app);
 
-// 2. Initialisation sécurisée de l'Auth
-let auth: Auth;
+function initAuth(): Auth {
+  if (Platform.OS === "web") {
+    return getAuth(app);
+  }
 
-try {
-  // On tente d'initialiser avec la persistance React Native
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-  });
-} catch (e: any) {
-  // Si l'erreur dit que c'est déjà initialisé, on récupère l'instance existante
-  if (e.code === 'auth/already-initialized') {
-    auth = getAuth(app); 
-  } else {
-    // Si c'est une autre erreur, on la fait remonter
+  const ReactNativeAsyncStorage = require("@react-native-async-storage/async-storage").default;
+  const { getReactNativePersistence } = require("@firebase/auth/dist/rn/index.js");
+
+  try {
+    return initializeAuth(app, {
+      persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+    });
+  } catch (e: unknown) {
+    if (typeof e === "object" && e !== null && "code" in e && (e as { code: string }).code === "auth/already-initialized") {
+      return getAuth(app);
+    }
     throw e;
   }
 }
 
-export { auth };
+export const auth = initAuth();

@@ -13,6 +13,8 @@ interface PlayerCardProps {
     player: Player
     defaultBuyIn: number
     isLateRegOpen: boolean
+    /** Reboursements / élimination (réservé à l'hôte, aligné sur les règles Firestore) */
+    showHostActions?: boolean
     onRebuy: () => void
     onEliminate: () => void
 }
@@ -20,6 +22,7 @@ interface PlayerCardProps {
 export function PlayerCard({
     player,
     isLateRegOpen,
+    showHostActions = true,
     onRebuy,
     onEliminate
 }: PlayerCardProps) {
@@ -118,7 +121,7 @@ export function PlayerCard({
                                 #{player.finalRank}
                             </Text>
                         </XStack>
-                    ) : (
+                    ) : showHostActions ? (
                         <XStack gap="$2">
                             <IconButton
                                 icon={isLateRegOpen ? <Plus size={15} /> : <Lock size={15} color="$night900" />}
@@ -140,7 +143,7 @@ export function PlayerCard({
                                 size="medium"
                             />
                         </XStack>
-                    )}
+                    ) : null}
                 </XStack>
             </Card.Header>
         </Card>

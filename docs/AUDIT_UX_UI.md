@@ -98,7 +98,7 @@ useEffect(() => { /* Late registration countdown */ })
 - 🟡 Mais manque d'interactivité (filtres, périodes)
 
 **Profile:**
-- ❌ **user.username** et autres props Clerk encore présentes
+- ❌ **user.username** et autres props obsolètes encore présentes
 - 🟡 Chargement de toutes les games finies en mémoire (pas paginé)
 - 🟡 Pas d'édition de profil
 
@@ -295,7 +295,7 @@ colors: {
 #### 6. **Profile Screen Cleanup**
 
 **Actions:**
-- [ ] Supprimer refs Clerk (`user.username`, `primaryEmailAddress`)
+- [ ] Supprimer refs obsolètes (`user.username`, `primaryEmailAddress`)
 - [ ] Paginer `userGames` (20 par page)
 - [ ] Ajouter édition profil (nom, avatar)
 - [ ] Intégrer BankrollChart correctement
@@ -347,7 +347,7 @@ Ces changements ont un **impact visuel immédiat** :
 1. ✅ **Standardiser les couleurs** - Remplacer hardcoded par tokens (30 min)
 2. ✅ **Créer Typography components** - Title, Subtitle, Body (1h)
 3. ✅ **Améliorer Home layout** - Simplifier sections (1.5h)
-4. ✅ **Fixer Profile Clerk refs** - Supprimer props obsolètes (30 min)
+4. ✅ **Fixer Profile (refs obsolètes)** - Supprimer props obsolètes (30 min)
 5. ✅ **Ajouter loading states** - Spinners + skeletons (1h)
 
 ---
@@ -359,7 +359,7 @@ Ces changements ont un **impact visuel immédiat** :
 
 - [ ] Enrichir tamagui.config.ts (tokens poker)
 - [ ] Créer composants Typography
-- [ ] Fixer Profile (supprimer Clerk refs)
+- [ ] Fixer Profile (supprimer refs obsolètes)
 - [ ] Standardiser les couleurs (tokens partout)
 
 **Livrables:** Design System solide

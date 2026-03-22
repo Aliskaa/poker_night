@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useRouter, Link } from 'expo-router';
 import { YStack, Input, Button, Text, H1, XStack, Spinner, Theme, Separator } from 'tamagui';
-import { Mail, Lock, LogIn, Spade, Chrome } from '@tamagui/lucide-icons';
+import { Mail, Lock, LogIn, Spade } from '@tamagui/lucide-icons';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { useAuthContext } from '@/providers/AuthProvider';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 
 export default function LoginScreen() {
     const router = useRouter();
-    const { signIn, signInWithGoogle, isLoaded } = useAuthContext();
+    const { signIn, isLoaded } = useAuthContext();
 
     const [emailAddress, setEmailAddress] = useState('');
     const [password, setPassword] = useState('');
@@ -29,25 +30,6 @@ export default function LoginScreen() {
             }
         } catch (err: any) {
             setError('Une erreur est survenue.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const onPressGoogle = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const result = await signInWithGoogle();
-
-            if (result.success) {
-                router.replace('/(main)/(tabs)/home');
-            } else {
-                setError(result.error || 'Connexion Google annulée.');
-            }
-        } catch (err: any) {
-            setError('Erreur lors de la connexion Google.');
         } finally {
             setLoading(false);
         }
@@ -139,22 +121,12 @@ export default function LoginScreen() {
                         <Separator borderColor="$borderColor" flex={1} />
                     </XStack>
 
-                    <Button
-                        size="$5"
-                        height="$11"
-                        borderColor="$borderColor"
-                        backgroundColor="$backgroundStrong"
-                        borderWidth={1}
-                        onPress={onPressGoogle}
-                        icon={<Chrome size={20} color="$danger" />}
-                        animation="bouncy"
-                        pressStyle={{ bg: '$backgroundHover', scale: 0.98 }}
+                    <GoogleSignInButton
                         disabled={loading}
-                    >
-                        <Text fontWeight="600" color="$color">
-                            Continuer avec Google
-                        </Text>
-                    </Button>
+                        loading={loading}
+                        onLoadingChange={setLoading}
+                        onError={setError}
+                    />
 
                     <XStack justifyContent="center" marginTop="$4">
                         <Text color="$colorMuted">Pas encore inscrit ? </Text>

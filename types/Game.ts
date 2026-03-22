@@ -16,6 +16,8 @@ export type GameConfig = {
 export type Game = {
     id: string;
     hostId: string;
+    /** UIDs Firebase Auth autorisés à lire la partie (hôte + joueurs inscrits). */
+    participantIds?: string[];
     groupId: string | null;
     status: GameStatus;
     config: GameConfig;

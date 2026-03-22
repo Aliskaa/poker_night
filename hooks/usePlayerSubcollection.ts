@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, Timestamp, increment } from 'firebase/firestore';
+import { collection, doc, onSnapshot, addDoc, setDoc, updateDoc, deleteDoc, Timestamp, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '@/services/firebase';
 import { GamePlayer } from '@/types/PlayerSubcollection';
 import { useToast } from '@/hooks/useToast';
@@ -71,21 +71,36 @@ export const usePlayerSubcollection = (gameId: string | undefined) => {
                         Object.entries(playerData).filter(([_, v]) => v !== undefined)
                     );
 
-                    const playerRef = await addDoc(
-                        collection(db, 'games', gameId, 'players'),
-                        cleanedData
-                    );
+                    const gameRef = doc(db, 'games', gameId);
+                    let newPlayerDocId: string;
 
-                    // Mettre à jour metadata du game + totalPot
-                    await updateDoc(doc(db, 'games', gameId), {
+                    if (player.userId) {
+                        const playerRef = doc(db, 'games', gameId, 'players', player.userId);
+                        await setDoc(playerRef, cleanedData);
+                        newPlayerDocId = player.userId;
+                    } else {
+                        const playerRef = await addDoc(
+                            collection(db, 'games', gameId, 'players'),
+                            cleanedData
+                        );
+                        newPlayerDocId = playerRef.id;
+                    }
+
+                    const gamePatch: Record<string, unknown> = {
                         totalPot: increment(player.buyInAmount),
-                        'metadata.playerCount': players.length + 1,
-                        'metadata.activePlayers': players.filter(p => p.isActive).length + 1,
+                        'metadata.playerCount': increment(1),
                         'metadata.lastActivity': Timestamp.now(),
-                    });
+                    };
+                    if (player.isActive !== false) {
+                        gamePatch['metadata.activePlayers'] = increment(1);
+                    }
+                    if (player.userId) {
+                        gamePatch.participantIds = arrayUnion(player.userId);
+                    }
+                    await updateDoc(gameRef, gamePatch);
 
                     successToast(`${player.name} a rejoint la partie`);
-                    return playerRef.id;
+                    return newPlayerDocId;
                 },
                 'addPlayer',
                 (error) => {
@@ -188,13 +203,22 @@ export const usePlayerSubcollection = (gameId: string | undefined) => {
 
             return ErrorHandler.tryAsync(
                 async () => {
+                    const player = players.find(p => p.id === playerId);
+                    if (!player) return;
+
                     await deleteDoc(doc(db, 'games', gameId, 'players', playerId));
 
-                    await updateDoc(doc(db, 'games', gameId), {
-                        'metadata.playerCount': players.length - 1,
-                        'metadata.activePlayers': players.filter(p => p.isActive && p.id !== playerId).length,
+                    const gamePatch: Record<string, unknown> = {
+                        'metadata.playerCount': increment(-1),
                         'metadata.lastActivity': Timestamp.now(),
-                    });
+                    };
+                    if (player.isActive) {
+                        gamePatch['metadata.activePlayers'] = increment(-1);
+                    }
+                    if (player.userId) {
+                        gamePatch.participantIds = arrayRemove(player.userId);
+                    }
+                    await updateDoc(doc(db, 'games', gameId), gamePatch);
                 },
                 'deletePlayer',
                 (error) => {

@@ -7,35 +7,49 @@ service cloud.firestore {
     // FONCTIONS UTILITAIRES
     // ============================================
     
-    // Vérifie que l'utilisateur est authentifié via Firebase Auth
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    // Récupère l'ID de l'utilisateur authentifié
     function userId() {
       return request.auth.uid;
     }
     
-    // Vérifie que l'utilisateur est le propriétaire du document
     function isOwner(uid) {
       return isAuthenticated() && userId() == uid;
+    }
+
+    // Membre d'un groupe (propriétaire ou dans members[])
+    function isGroupMember(groupId) {
+      return groupId != null
+        && exists(/databases/$(database)/documents/groups/$(groupId))
+        && (
+          userId() == get(/databases/$(database)/documents/groups/$(groupId)).data.ownerId
+          || userId() in get(/databases/$(database)/documents/groups/$(groupId)).data.members
+        );
+    }
+
+    // Données du doc games/{gameId} : hôte, participantIds, ou club
+    function canReadGameDoc(d) {
+      return d.hostId == userId()
+        || ('participantIds' in d && userId() in d.participantIds)
+        || (d.groupId != null && isGroupMember(d.groupId));
+    }
+
+    // Pour la subcollection players : même logique + doc joueur id = uid (anciennes données)
+    function canAccessGameAsPlayer(gameId) {
+      let d = get(/databases/$(database)/documents/games/$(gameId)).data;
+      return canReadGameDoc(d)
+        || exists(/databases/$(database)/documents/games/$(gameId)/players/$(userId()));
     }
     
     // ============================================
     // COLLECTION: USERS
     // ============================================
     match /users/{uid} {
-      // Lecture: Tout utilisateur authentifié peut voir les profils
       allow read: if isAuthenticated();
-      
-      // Création: Un utilisateur ne peut créer que son propre profil
       allow create: if isOwner(uid);
-      
-      // Mise à jour: Un utilisateur ne peut modifier que son profil
       allow update: if isOwner(uid);
-      
-      // Suppression: Désactivée
       allow delete: if false;
     }
     
@@ -43,19 +57,15 @@ service cloud.firestore {
     // COLLECTION: GROUPS
     // ============================================
     match /groups/{groupId} {
-      // Lecture: Membres du groupe uniquement
       allow read: if isAuthenticated() && 
         (userId() in resource.data.members || userId() == resource.data.ownerId);
       
-      // Création: Tout utilisateur authentifié peut créer un groupe
       allow create: if isAuthenticated() && 
         request.resource.data.ownerId == userId();
       
-      // Mise à jour: Propriétaire ou membre
       allow update: if isAuthenticated() && 
         (userId() == resource.data.ownerId || userId() in resource.data.members);
       
-      // Suppression: Propriétaire uniquement
       allow delete: if isAuthenticated() && userId() == resource.data.ownerId;
     }
     
@@ -63,42 +73,31 @@ service cloud.firestore {
     // COLLECTION: GAMES
     // ============================================
     match /games/{gameId} {
-      // Fonction helper pour vérifier si l'utilisateur est un joueur
-      function isPlayerInGame() {
-        return resource.data.players.hasAny([
-          {'id': userId()}
-        ]) || resource.data.hostId == userId();
-      }
+      allow read: if isAuthenticated() && (
+        canReadGameDoc(resource.data)
+        || exists(/databases/$(database)/documents/games/$(gameId)/players/$(userId()))
+      );
       
-      // Lecture: Utilisateur authentifié (pour voir les parties actives)
-      allow read: if isAuthenticated();
-      
-      // Création: Tout utilisateur authentifié
       allow create: if isAuthenticated() && 
-        request.resource.data.hostId == userId();
+        request.resource.data.hostId == userId()
+        && 'participantIds' in request.resource.data
+        && userId() in request.resource.data.participantIds;
       
-      // Mise à jour: Hôte de la partie
       allow update: if isAuthenticated() && userId() == resource.data.hostId;
       
-      // Suppression: Hôte uniquement
       allow delete: if isAuthenticated() && userId() == resource.data.hostId;
       
-      // Subcollection: PLAYERS
       match /players/{playerId} {
-        // Lecture: Tout utilisateur authentifié peut voir les joueurs
-        allow read: if isAuthenticated();
+        allow read: if isAuthenticated() && canAccessGameAsPlayer(gameId);
         
-        // Création: Hôte de la partie ou le joueur lui-même
         allow create: if isAuthenticated() && (
           get(/databases/$(database)/documents/games/$(gameId)).data.hostId == userId() ||
           request.resource.data.userId == userId()
         );
         
-        // Mise à jour: Hôte de la partie
         allow update: if isAuthenticated() && 
           get(/databases/$(database)/documents/games/$(gameId)).data.hostId == userId();
         
-        // Suppression: Hôte de la partie
         allow delete: if isAuthenticated() && 
           get(/databases/$(database)/documents/games/$(gameId)).data.hostId == userId();
       }
@@ -108,10 +107,7 @@ service cloud.firestore {
     // COLLECTION: USER-GAME-STATS (Phase 3)
     // ============================================
     match /user-game-stats/{uid} {
-      // Lecture: Tout utilisateur authentifié peut voir les stats
       allow read: if isAuthenticated();
-      
-      // Écriture: Désactivée (seulement Cloud Functions)
       allow write: if false;
     }
     
@@ -119,19 +115,14 @@ service cloud.firestore {
     // COLLECTION: GAME-HISTORY (Phase 3)
     // ============================================
     match /game-history/{gameId} {
-      // Lecture: Tout utilisateur authentifié
       allow read: if isAuthenticated();
-      
-      // Écriture: Désactivée (seulement Cloud Functions)
       allow write: if false;
       
-      // Subcollection players
       match /players/{playerId} {
         allow read: if isAuthenticated();
         allow write: if false;
       }
       
-      // Subcollection metadata
       match /metadata/{metaId} {
         allow read: if isAuthenticated();
         allow write: if false;

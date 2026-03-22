@@ -17,6 +17,8 @@ interface BlindControlsProps extends Omit<YStackProps, 'children'> {
   onResume: () => void
   onNextLevel: () => void
   disabled?: boolean
+  /** Pause / niveau suivant : réservé à l'hôte (les autres voient le timer en lecture seule) */
+  hostCanControl?: boolean
 }
 
 export function BlindControls({
@@ -30,6 +32,7 @@ export function BlindControls({
   onResume,
   onNextLevel,
   disabled = false,
+  hostCanControl = true,
   ...props
 }: BlindControlsProps) {
   const currentBlind = getCurrentBlindLevel(currentLevel, blindStructure)
@@ -140,6 +143,7 @@ export function BlindControls({
             nextBlind={nextBlind}
             onNextLevel={onNextLevel}
             disabled={disabled}
+            showControls={hostCanControl}
             progressPercentage={getProgressPercentage()}
             label={`LEVEL ${currentBlind.level || 1}`}
             onPause={onPause}

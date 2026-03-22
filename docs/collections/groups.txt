@@ -2,13 +2,13 @@
 // ID: auto-generated (ex: "group_xyz123")
 {
   name: "Les Potes du Vendredi",
-  ownerId: "clerk_user_admin", // Celui qui a créé le groupe
+  ownerId: "<uid Firebase>", // Créateur du groupe
   createdAt: Timestamp,
   
   // Code d'invitation simple pour rejoindre le groupe via l'app
   inviteCode: "POKER-VENDREDI", 
 
-  // Les membres inscrits (ceux qui ont un compte Clerk)
+  // Membres avec compte Firebase Auth (UID)
   // Tableau d'IDs pour faciliter les règles de sécurité Firestore
   members: [
     "user_2aXy...", 

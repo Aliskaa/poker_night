@@ -26,6 +26,9 @@ export interface PlayerGridProps {
   
   /** Afficher le header avec compteurs */
   showHeader?: boolean
+
+  /** Actions rebuy / eliminate (hôte uniquement) */
+  showHostActions?: boolean
   
   /** Espacement entre les cartes */
   gap?: '$2' | '$3' | '$4' | '$5'
@@ -60,6 +63,7 @@ export function PlayerGrid({
   onRebuy,
   onEliminate,
   showHeader = true,
+  showHostActions = true,
   gap = '$3',
 }: PlayerGridProps) {
   
@@ -124,6 +128,7 @@ export function PlayerGrid({
             player={player}
             defaultBuyIn={defaultBuyIn}
             isLateRegOpen={isLateRegOpen}
+            showHostActions={showHostActions}
             onRebuy={() => onRebuy?.(player.id)}
             onEliminate={() => onEliminate?.(player.id)}
           />

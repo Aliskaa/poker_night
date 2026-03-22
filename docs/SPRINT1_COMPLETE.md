@@ -129,12 +129,12 @@ import { Title, Heading, Body, StatValue } from '@/components/ui/Typography'
 
 ---
 
-### 3. ✅ Fixer Profile - Supprimer refs Clerk
+### 3. ✅ Fixer Profile - Supprimer refs obsolètes
 **Fichier:** `app/(main)/(tabs)/profile.tsx`
 
 **Changements:**
 ```tsx
-// ❌ AVANT (Clerk)
+// ❌ AVANT (ancien provider)
 <H3>{user?.fullName || user?.username}</H3>
 <Text>{user?.primaryEmailAddress?.emailAddress}</Text>
 <Avatar.Image src={user?.imageUrl} />
@@ -145,7 +145,7 @@ import { Title, Heading, Body, StatValue } from '@/components/ui/Typography'
 <Avatar.Image src={user?.photoURL || undefined} />
 ```
 
-**Impact:** Plus aucune référence Clerk, 100% Firebase Auth ✅
+**Impact:** Références obsolètes retirées, 100% Firebase Auth ✅
 
 ---
 
@@ -217,14 +217,14 @@ shadowColor="$black"
 - ❌ Tokens poker: Manquants
 - ❌ Typography standardisée: 0 composants
 - ❌ Couleurs hardcodées: ~15 occurrences
-- ❌ Props Clerk: 3 occurrences
+- ❌ Props obsolètes: 3 occurrences
 - 🟡 Cohérence visuelle: **45%**
 
 ### Après
 - ✅ Tokens poker: **45 nouveaux tokens**
 - ✅ Typography: **9 composants** (Title, Heading, Subtitle, Label, Body, Caption, StatValue, Link, Code)
 - ✅ Couleurs hardcodées: **0 dans screens** (tokens partout)
-- ✅ Props Clerk: **0** (100% Firebase Auth)
+- ✅ Props obsolètes: **0** (100% Firebase Auth)
 - 🟢 Cohérence visuelle: **75%** (+30%)
 
 ---
@@ -324,7 +324,7 @@ import { Title, Heading, Subtitle, Label, Body, Caption, StatValue, Link, Code }
 
 - [x] Tokens poker ajoutés (45 nouveaux)
 - [x] Composants Typography créés (9)
-- [x] Profile fixé (Clerk refs supprimées)
+- [x] Profile fixé (refs obsolètes supprimées)
 - [x] Couleurs standardisées (0 hardcoded)
 - [x] Exports centralisés (components/ui/index.ts)
 - [x] Documentation générée (ce fichier)

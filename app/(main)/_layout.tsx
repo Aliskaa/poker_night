@@ -1,17 +1,23 @@
-import { router, Stack } from 'expo-router';
-import { useAuthContext } from '@/providers/AuthProvider';
-import { Button, XStack } from 'tamagui';
-import { LogOut } from '@tamagui/lucide-icons';
 import { useSyncUser } from '@/hooks/useSyncUser';
+import { useAuthContext } from '@/providers/AuthProvider';
+import { Redirect, Stack } from 'expo-router';
+import { Spinner, YStack } from 'tamagui';
 
 export default function MainLayout() {
-  const { signOut } = useAuthContext();
+  const { isSignedIn, isLoaded } = useAuthContext();
 
   useSyncUser();
 
-  const onPressSignOut = async () => {
-    await signOut();
-    router.replace('/(auth)/login');
+  if (!isLoaded) {
+    return (
+      <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background">
+        <Spinner size="large" color="$primary" />
+      </YStack>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href="/(auth)/login" />;
   }
 
   return (
@@ -20,10 +26,8 @@ export default function MainLayout() {
         headerShown: false,
       }}
     >
-      {/* 1. LA ZONE AVEC LA BARRE DE NAVIGATION */}
       <Stack.Screen name="(tabs)" />
 
-      {/* 2. LES ÉCRANS MODAUX (Plein écran, SANS la barre de navigation) */}
       <Stack.Screen
         name="create-game"
         options={{
@@ -31,7 +35,7 @@ export default function MainLayout() {
           headerShown: true,
           title: 'Créer une Partie',
           headerStyle: {
-            backgroundColor: '#121212', // Dark theme background
+            backgroundColor: '#121212',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -46,7 +50,7 @@ export default function MainLayout() {
           headerShown: true,
           title: 'Lobby de la Partie',
           headerStyle: {
-            backgroundColor: '#121212', // Dark theme background
+            backgroundColor: '#121212',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -61,7 +65,7 @@ export default function MainLayout() {
           headerShown: true,
           title: 'Classement des Combinaisons',
           headerStyle: {
-            backgroundColor: '#121212', // Dark theme background
+            backgroundColor: '#121212',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -70,11 +74,9 @@ export default function MainLayout() {
         }}
       />
 
-      {/* 3. L'ÉCRAN DE JEU (Plein écran) */}
       <Stack.Screen name="game/[id]" />
       <Stack.Screen name="groups/[id]" />
-      
-      {/* SHOWCASE DES COMPOSANTS */}
+
       <Stack.Screen
         name="showcase"
         options={{

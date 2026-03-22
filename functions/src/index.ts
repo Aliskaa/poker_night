@@ -11,41 +11,6 @@ admin.initializeApp();
 const db = admin.firestore();
 
 // ============================================
-// CLERK → FIREBASE AUTH INTEGRATION
-// ============================================
-
-/**
- * Crée un Firebase Custom Token à partir d'un utilisateur Clerk
- * Appelé depuis le client après authentification Clerk
- */
-export const createFirebaseToken = functions.https.onCall(async (data, context) => {
-    // Le userId Clerk est passé en paramètre
-    const { userId } = data;
-    
-    if (!userId || typeof userId !== 'string') {
-        throw new functions.https.HttpsError(
-            'invalid-argument',
-            'userId is required'
-        );
-    }
-    
-    try {
-        // Créer un custom token Firebase avec le userId Clerk
-        const firebaseToken = await admin.auth().createCustomToken(userId);
-        
-        functions.logger.info(`Firebase token created for Clerk user: ${userId}`);
-        
-        return { token: firebaseToken };
-    } catch (error) {
-        functions.logger.error('Error creating Firebase token:', error);
-        throw new functions.https.HttpsError(
-            'internal',
-            'Unable to create Firebase token'
-        );
-    }
-});
-
-// ============================================
 // GAME ARCHIVING FUNCTIONS
 // ============================================
 

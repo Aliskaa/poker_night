@@ -5,7 +5,7 @@ import { usePlayerSubcollection } from '@/hooks/usePlayerSubcollection'
 import { useUser } from '@/providers/AuthProvider'
 import { AlertTriangle } from '@tamagui/lucide-icons'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { ScrollView } from 'react-native'
 import { Spinner, Text, Theme, YStack } from 'tamagui'
 
@@ -40,6 +40,8 @@ export default function GameScreen() {
   } = usePlayerSubcollection(id)
 
   const { user } = useUser()
+  const isHost = !!(game && user && game.hostId === user.id)
+  const autoJoinInFlightRef = useRef(false)
 
   // ═══ BLIND STRUCTURE ═══
   const blindStructure = game
@@ -59,29 +61,37 @@ export default function GameScreen() {
   } = useGameTimer({
     game,
     blindStructure,
-    onLevelComplete: nextBlindLevel,
+    onLevelComplete: isHost ? nextBlindLevel : undefined,
   })
 
-  // ═══ AUTO JOIN ═══
+  // ═══ AUTO JOIN (idempotent : une tentative à la fois, rejoue si échec réseau) ═══
   useEffect(() => {
-    if (game && user && players.length > 0) {
-      const isAlreadyPlaying = players.some(p => p.userId === user.id)
-      if (!isAlreadyPlaying && isLateRegOpen) {
-        // Auto-ajouter le joueur s'il n'est pas déjà présent
-        addPlayer({
-          userId: user.id,
-          name: (user as any).displayName || user.email?.split('@')[0] || 'Joueur',
-          ...((user as any).photoURL && { avatarUrl: (user as any).photoURL }),
-          isActive: true,
-          buyInAmount: game.config.defaultBuyIn,
-          totalInvested: game.config.defaultBuyIn,
-          rebuyCount: 0,
-          finalRank: null,
-          winnings: 0,
-        })
-      }
+    if (!game || !user || playersLoading) return
+    if (game.status !== 'PLAYING' && game.status !== 'WAITING') return
+
+    const alreadyIn = players.some(p => p.userId === user.id)
+    if (alreadyIn) {
+      autoJoinInFlightRef.current = false
+      return
     }
-  }, [game?.id, user?.id, players.length])
+    if (!isLateRegOpen) return
+    if (autoJoinInFlightRef.current) return
+
+    autoJoinInFlightRef.current = true
+    void addPlayer({
+      userId: user.id,
+      name: (user as { displayName?: string }).displayName || user.email?.split('@')[0] || 'Joueur',
+      ...((user as { photoURL?: string }).photoURL && { avatarUrl: (user as { photoURL?: string }).photoURL }),
+      isActive: true,
+      buyInAmount: game.config.defaultBuyIn,
+      totalInvested: game.config.defaultBuyIn,
+      rebuyCount: 0,
+      finalRank: null,
+      winnings: 0,
+    }).finally(() => {
+      autoJoinInFlightRef.current = false
+    })
+  }, [addPlayer, game, isLateRegOpen, players, playersLoading, user])
 
   // ═══ DERIVED STATE ═══
   const activePlayers = players.filter(p => p.isActive)
@@ -154,17 +164,20 @@ export default function GameScreen() {
                 onPause={pauseBlindTimer}
                 onResume={resumeBlindTimer}
                 onNextLevel={nextBlindLevel}
+                hostCanControl={isHost}
               />
 
               {/* ACTIONS HÔTE */}
-              <GameActions
-                gameId={id}
-                gameConfig={{ defaultBuyIn: game.config.defaultBuyIn }}
-                canEndGame={canEndGame}
-                onEndGame={endGame}
-                onNextLevel={nextBlindLevel}
-                showNextLevel={false}
-              />
+              {isHost && (
+                <GameActions
+                  gameId={id}
+                  gameConfig={{ defaultBuyIn: game.config.defaultBuyIn }}
+                  canEndGame={canEndGame}
+                  onEndGame={endGame}
+                  onNextLevel={nextBlindLevel}
+                  showNextLevel={false}
+                />
+              )}
 
               {/* GRILLE DES JOUEURS */}
               <PlayerGrid
@@ -181,6 +194,7 @@ export default function GameScreen() {
                 }))}
                 defaultBuyIn={game.config.defaultBuyIn}
                 isLateRegOpen={isLateRegOpen}
+                showHostActions={isHost}
                 onRebuy={(playerId) => {
                   const player = players.find(p => p.id === playerId)
                   if (player) {
@@ -204,20 +218,22 @@ export default function GameScreen() {
             </YStack>
           </ScrollView>
 
-          {/* FOOTER : AJOUT INVITÉ */}
-          <AddGuestFooter
-            isLateRegOpen={isLateRegOpen}
-            onAddGuest={(name) => addPlayer({
-              userId: null,
-              name,
-              isActive: true,
-              buyInAmount: game.config.defaultBuyIn,
-              totalInvested: game.config.defaultBuyIn,
-              rebuyCount: 0,
-              finalRank: null,
-              winnings: 0,
-            })}
-          />
+          {/* FOOTER : AJOUT INVITÉ (hôte) */}
+          {isHost && (
+            <AddGuestFooter
+              isLateRegOpen={isLateRegOpen}
+              onAddGuest={(name) => addPlayer({
+                userId: null,
+                name,
+                isActive: true,
+                buyInAmount: game.config.defaultBuyIn,
+                totalInvested: game.config.defaultBuyIn,
+                rebuyCount: 0,
+                finalRank: null,
+                winnings: 0,
+              })}
+            />
+          )}
         </YStack>
       </PokerBackground>
     </Theme>

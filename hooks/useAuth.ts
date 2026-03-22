@@ -7,8 +7,6 @@ import {
   sendEmailVerification,
   updateProfile,
   type User,
-  // GoogleAuthProvider, // Attention: signInWithPopup ne marche pas sur mobile
-  // signInWithPopup,   // Attention: signInWithPopup ne marche pas sur mobile
 } from 'firebase/auth';
 import { auth } from '@/services/firebase'; // On importe l'auth configurée avec persistance
 import log from '@/services/logger'; // Assure-toi que ce service existe ou remplace par console.log
@@ -99,43 +97,7 @@ export const useAuth = () => {
     }
   };
 
-  // NOTE IMPORTANTE SUR GOOGLE : 
-  // Sur mobile (React Native), signInWithPopup NE FONCTIONNE PAS.
-  // Il faut utiliser le package @react-native-google-signin/google-signin
-  // Je laisse la fonction vide ou basique pour l'instant pour éviter les erreurs.
-  const signInWithGoogle = async () => {
-    // try {
-    //   const provider = new GoogleAuthProvider();
-    //   provider.setCustomParameters({
-    //     prompt: 'select_account'
-    //   });
-
-    //   const result = await signInWithPopup(auth, provider);
-
-    //   if (result?.user) {
-    //     log.debug('🟢 Google SignIn successful', { uid: result.user.uid });
-    //     return { success: true, user: result.user };
-    //   }
-
-    //   return { success: false, error: 'Connexion annulée' };
-    // } catch (error: any) {
-    //   log.error('🔴 Google SignIn error:', error.code, error.message);
-
-    //   // Message spécifique pour auth/unauthorized-domain
-    //   if (error.code === 'auth/unauthorized-domain') {
-    //     return {
-    //       success: false,
-    //       error: 'Domaine non autorisé. Configure localhost dans Firebase Console > Authentication > Settings > Authorized domains'
-    //     };
-    //   }
-
-    //   return {
-    //     success: false,
-    //     error: getAuthErrorMessage(error.code)
-    //   };
-    // }
-    return { success: false, error: "Google Sign-In nécessite une config native spécifique." };
-  };
+  // Connexion Google : voir components/auth/GoogleSignInButton.tsx (web + natif).
 
   // Déconnexion
   const signOut = async () => {
@@ -153,7 +115,6 @@ export const useAuth = () => {
     isSignedIn,
     signIn,
     signUp,
-    signInWithGoogle,
     signOut,
   };
 };
