@@ -2,7 +2,7 @@ import { useUserLogic } from '@/hooks/useUserLogic';
 import { useUser } from '@/providers/AuthProvider';
 import { Award, Plus } from '@tamagui/lucide-icons';
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { Platform, ScrollView } from 'react-native';
 import { H1, Spinner, Text, Theme, YStack } from 'tamagui';
 import { PokerBackground } from '@/components/ui/PokerBackground';
 import { FAB } from '@/components/ui/FAB';
@@ -13,6 +13,8 @@ export default function LeaderboardScreen() {
   const { user: currentUser } = useUser();
   const { leaderboard: players, loading: loadingUsers } = useUserLogic();
   const router = useRouter();
+  const topSpacing = Platform.OS === 'web' ? '$6' : '$10';
+  const fabOffset = Platform.OS === 'web' ? 78 : 70;
 
   const globalRankings = players.map((u, index) => ({
     rank: index + 1,
@@ -36,7 +38,7 @@ export default function LeaderboardScreen() {
   return (
     <Theme name="dark">
       <PokerBackground>
-        <YStack flex={1} paddingTop="$10">
+        <YStack flex={1} paddingTop={topSpacing}>
 
           <YStack alignItems="center" marginBottom="$4" paddingHorizontal="$4">
             <Award size={56} color="$primary" />
@@ -72,7 +74,7 @@ export default function LeaderboardScreen() {
         <FAB 
           icon={<Plus size={28} color="$night900" />}
           fabPosition="bottom-right"
-          offset={70}
+          offset={fabOffset}
           onPress={() => router.push('/(main)/create-game')}
         />
       </PokerBackground>

@@ -91,7 +91,7 @@ export function PotDisplay({
           textTransform="uppercase"
           letterSpacing={1}
         >
-          Prize Pool
+          Pot principal
         </Text>
       </XStack>
       
@@ -106,7 +106,7 @@ export function PotDisplay({
       
       {/* Info joueurs */}
       <Text color="$primary" fontSize="$2" opacity={0.8}>
-        {playerCount} joueur{playerCount > 1 ? 's' : ''} • {model.title}
+        {playerCount} joueur{playerCount > 1 ? 's' : ''} a table • {model.title}
       </Text>
       
       {/* Preview distribution */}
@@ -126,7 +126,7 @@ export function PotDisplay({
               fontWeight="600"
               opacity={0.9}
             >
-              Distribution
+              Payout
             </Text>
           </XStack>
           

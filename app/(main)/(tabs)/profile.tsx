@@ -10,10 +10,11 @@ import { useAuthContext } from '@/providers/AuthProvider';
 import { db } from '@/services/firebase';
 import type { Game } from '@/types/Game';
 import { calculatePlayerStats, formatPercentage, generateBankrollHistory, getROIEmoji } from '@/utils/statsHelpers';
-import { BookOpen, Calendar, DollarSign, LogOut, Medal, Settings, ShieldCheck, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import { BookOpen, Calendar, DollarSign, LogOut, Medal, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { collection, getDocs, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { Avatar, H3, ScrollView, Separator, Text, Theme, XStack, YStack } from 'tamagui';
 
 export default function ProfileScreen() {
@@ -60,17 +61,19 @@ export default function ProfileScreen() {
     const stats = user ? calculatePlayerStats(currentUserStats as any) : null;
     const bankrollData = user ? generateBankrollHistory(userGames, user.id) : [];
     const memberSince = user?.createdAt && user.createdAt instanceof Timestamp ? user.createdAt.toDate().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Récent';
+    const topSpacing = Platform.OS === 'web' ? '$6' : '$8';
+    const headerTopSpacing = Platform.OS === 'web' ? '$7' : '$10';
 
     return (
         <Theme name="dark">
             <PokerBackground>
                 <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
-                    <YStack paddingTop="$8">
+                    <YStack paddingTop={topSpacing}>
 
                         {/* 1. HEADER PASSEPORT */}
                         <YStack
                             paddingHorizontal="$4"
-                            paddingTop="$10"
+                            paddingTop={headerTopSpacing}
                             paddingBottom="$6"
                             borderBottomLeftRadius={30}
                             borderBottomRightRadius={30}
@@ -98,7 +101,7 @@ export default function ProfileScreen() {
                                         borderRadius="$4"
                                     >
                                         <Calendar size={12} color="$text60" />
-                                        <Caption color="$text60" fontSize="$2">Membre depuis {memberSince}</Caption>
+                                        <Caption color="muted" fontSize="$2">Membre depuis {memberSince}</Caption>
                                     </XStack>
                                 </YStack>
                             </XStack>
@@ -204,18 +207,6 @@ export default function ProfileScreen() {
                                     title="Règles & Combinaisons"
                                     subtitle="Mémo poker"
                                     onPress={() => router.push('/(main)/hand-ranking')}
-                                />
-                                <GlassCard
-                                    icon={<Settings size={20} />}
-                                    title="Paramètres"
-                                    subtitle="Préférences"
-                                    onPress={() => { }}
-                                />
-                                <GlassCard
-                                    icon={<ShieldCheck size={20} />}
-                                    title="Confidentialité"
-                                    subtitle="Données & sécurité"
-                                    onPress={() => { }}
                                 />
                             </YStack>
 

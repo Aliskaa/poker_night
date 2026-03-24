@@ -6,8 +6,11 @@ import { useUser } from '@/providers/AuthProvider'
 import { AlertTriangle } from '@tamagui/lucide-icons'
 import { router, useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useRef } from 'react'
-import { ScrollView } from 'react-native'
+import { ScrollView, Share } from 'react-native'
 import { Spinner, Text, Theme, YStack } from 'tamagui'
+import * as Linking from 'expo-linking'
+import { useToast } from '@/hooks/useToast'
+import { hapticFeedback } from '@/services/haptics'
 
 // Composants game
 import { AddGuestFooter } from '@/components/game/AddGuestFooter'
@@ -40,6 +43,7 @@ export default function GameScreen() {
   } = usePlayerSubcollection(id)
 
   const { user } = useUser()
+  const { success: successToast, warning: warningToast } = useToast()
   const isHost = !!(game && user && game.hostId === user.id)
   const autoJoinInFlightRef = useRef(false)
 
@@ -96,6 +100,21 @@ export default function GameScreen() {
   // ═══ DERIVED STATE ═══
   const activePlayers = players.filter(p => p.isActive)
   const canEndGame = activePlayers.length <= 1 && players.length > 1
+  
+  const onShareTable = async () => {
+    const url = Linking.createURL(`/(main)/game/${id}`, { scheme: 'pokernight' })
+    try {
+      await Share.share({
+        message: `♠️ Table ouverte sur Poker Night\nBlindes: ${currentBlind?.smallBlind ?? 0}/${currentBlind?.bigBlind ?? 0}\nPot: ${game?.totalPot ?? 0}€\n\nRejoins la partie: ${url}`
+      })
+      void hapticFeedback.success()
+      successToast('Invitation envoyee')
+    } catch {
+      // Keep the game screen resilient even if share sheet fails.
+      void hapticFeedback.warning()
+      warningToast('Partage indisponible')
+    }
+  }
 
   // ═══ LOADING ═══
   if (loading || playersLoading) {
@@ -137,12 +156,12 @@ export default function GameScreen() {
             lateRegSeconds={lateRegSeconds}
             lateRegLimit={game.config.lateRegLimit}
             onBackPress={() => router.push('/(main)/(tabs)/home')}
-            onSharePress={() => { }} // Géré par GameActions
+            onSharePress={onShareTable}
           />
 
           {/* CONTENU SCROLLABLE */}
-          <ScrollView style={{ flex: 1 }}>
-            <YStack padding="$4" gap="$6">
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 96 }}>
+            <YStack padding="$4" gap="$6" width="100%" maxWidth={780} alignSelf="center">
 
               {/* POT PRINCIPAL */}
               <PotDisplay

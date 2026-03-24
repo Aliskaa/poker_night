@@ -5,6 +5,9 @@ import { Trophy, Share2, Home, SkipForward } from '@tamagui/lucide-icons'
 import { PokerButton } from '@/components/ui/PokerButton'
 import { router } from 'expo-router'
 import * as Linking from 'expo-linking'
+import { useState } from 'react'
+import { useToast } from '@/hooks/useToast'
+import { hapticFeedback } from '@/services/haptics'
 
 // ═══════════════════════════════════════════════════════════════════
 // 🎮 GAME ACTIONS - Actions hôte pendant la partie
@@ -70,22 +73,46 @@ export function GameActions({
   showHome = true,
   direction = 'vertical',
 }: GameActionsProps) {
+  const { success, error } = useToast()
+  const [isSharing, setIsSharing] = useState(false)
+  const [isEndingGame, setIsEndingGame] = useState(false)
   
   // ═══ HANDLERS ═══
   
   const handleShare = async () => {
+    setIsSharing(true)
     const url = Linking.createURL(`/(main)/game/${gameId}`, { scheme: 'pokernight' })
     try {
       await Share.share({
         message: `♠️ Viens jouer au Poker ! La table est ouverte.\nBuy-in: ${gameConfig.defaultBuyIn}€\n\nClique ici pour rejoindre : ${url}`
       })
-    } catch (error) {
-      console.error('Erreur partage:', error)
+      void hapticFeedback.success()
+      success('Lien de table partage', 'Invitation envoyee.')
+    } catch (shareError) {
+      console.error('Erreur partage:', shareError)
+      void hapticFeedback.warning()
+      error('Partage indisponible', 'Impossible d ouvrir la feuille de partage.')
+    } finally {
+      setIsSharing(false)
     }
   }
   
   const handleGoHome = () => {
+    void hapticFeedback.light()
     router.push('/(main)/(tabs)/home')
+  }
+
+  const handleEndGame = async () => {
+    if (!onEndGame) return
+    setIsEndingGame(true)
+    try {
+      await onEndGame()
+      void hapticFeedback.win()
+    } catch {
+      void hapticFeedback.error()
+    } finally {
+      setIsEndingGame(false)
+    }
   }
   
   // ═══ LAYOUT ═══
@@ -99,8 +126,9 @@ export function GameActions({
         <PokerButton
           variant="primary"
           icon={<Trophy size={20} />}
-          title="Terminer la partie"
-          onPress={onEndGame}
+          title={isEndingGame ? 'Cloture...' : 'Terminer la partie'}
+          onPress={handleEndGame}
+          disabled={isEndingGame}
         />
       )}
       
@@ -110,7 +138,10 @@ export function GameActions({
           variant="secondary"
           icon={<SkipForward size={18} />}
           title="Niveau suivant"
-          onPress={onNextLevel}
+          onPress={async () => {
+            void hapticFeedback.blindLevelUp()
+            await onNextLevel?.()
+          }}
         />
       )}
       
@@ -120,9 +151,10 @@ export function GameActions({
           <PokerButton
             variant="secondary"
             icon={<Share2 size={18} />}
-            title="Partager"
+            title={isSharing ? 'Partage...' : 'Partager'}
             onPress={handleShare}
             flex={1}
+            disabled={isSharing}
           />
         )}
         

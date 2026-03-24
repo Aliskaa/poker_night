@@ -2,7 +2,7 @@ import { useUser } from '@/providers/AuthProvider';
 import { Play, Users } from '@tamagui/lucide-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { Platform, ScrollView } from 'react-native';
 import { H2, Spinner, Text, Theme, YStack } from 'tamagui';
 
 import { SelectionCard } from '@/components/lobby/SelectionCard';
@@ -26,6 +26,7 @@ export default function LobbyScreen() {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [selectedGuests, setSelectedGuests] = useState<any[]>([]);
   const [isLaunching, setIsLaunching] = useState(false);
+  const topSpacing = Platform.OS === 'web' ? '$6' : '$10';
 
   useEffect(() => {
     if (user?.id && !selectedMembers.includes(user.id)) setSelectedMembers(prev => [...prev, user.id]);
@@ -103,7 +104,7 @@ export default function LobbyScreen() {
   return (
     <Theme name="dark">
       <PokerBackground>
-        <YStack flex={1} paddingTop="$10">
+        <YStack flex={1} paddingTop={topSpacing}>
 
           <YStack
             alignItems="center"

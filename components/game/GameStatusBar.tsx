@@ -4,6 +4,7 @@ import { BlindLevelCompact } from './BlindLevel'
 import { BlindTimerCompact } from './BlindTimer'
 import { CountdownBadge } from '../ui/CountdownBadge'
 import { IconButton } from '../ui/IconButton'
+import { Platform } from 'react-native'
 
 interface GameStatusBarProps extends Omit<YStackProps, 'children'> {
   // Blinds
@@ -39,13 +40,14 @@ export function GameStatusBar({
   ...props
 }: GameStatusBarProps) {
   const isLateRegOpen = lateRegLimit > 0 && lateRegSeconds !== null && lateRegSeconds !== undefined && lateRegSeconds > 0
+  const topSpacing = Platform.OS === 'web' ? '$6' : '$10'
 
   return (
     <YStack
       backgroundColor="$backgroundStrong"
       borderBottomWidth={1}
       borderBottomColor="$glass4"
-      paddingTop="$10"
+      paddingTop={topSpacing}
       paddingBottom="$3"
       paddingHorizontal="$4"
       gap="$3"
@@ -102,7 +104,7 @@ export function GameStatusBar({
         {isLateRegOpen && lateRegSeconds !== null && lateRegSeconds !== undefined && (
           <CountdownBadge
             seconds={lateRegSeconds}
-            label="Late Reg"
+            label="Late reg"
 
           />
         )}

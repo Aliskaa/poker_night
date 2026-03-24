@@ -38,7 +38,7 @@ export default function LoginScreen() {
     return (
         <Theme name="dark">
             <PokerBackground>
-                <YStack flex={1} justifyContent="center" padding="$4" gap="$4">
+                <YStack flex={1} justifyContent="center" padding="$4" gap="$4" width="100%" maxWidth={440} alignSelf="center">
 
                     <YStack gap="$2" marginBottom="$6" alignItems="center">
                         <YStack backgroundColor="$goldBg" padding="$3" borderRadius="$5" marginBottom="$2">
@@ -72,7 +72,10 @@ export default function LoginScreen() {
                                     setError(null);
                                 }}
                                 autoCapitalize="none"
+                                autoCorrect={false}
                                 keyboardType="email-address"
+                                textContentType="emailAddress"
+                                autoComplete="email"
                                 unstyled
                                 backgroundColor="transparent"
                                 borderWidth={0}
@@ -92,6 +95,9 @@ export default function LoginScreen() {
                                     setError(null);
                                 }}
                                 secureTextEntry
+                                autoCorrect={false}
+                                textContentType="password"
+                                autoComplete="password"
                                 unstyled
                                 backgroundColor="transparent"
                                 borderWidth={0}

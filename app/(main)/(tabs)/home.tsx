@@ -2,7 +2,7 @@ import { useUser } from '@/providers/AuthProvider';
 import { Plus, Trophy, Users } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { Platform, ScrollView } from 'react-native';
 import { Text, Theme, XStack, YStack } from 'tamagui';
 
 import { ActiveGamesSlider } from '@/components/home/ActiveGamesSlider';
@@ -21,12 +21,14 @@ export default function HomeScreen() {
   const router = useRouter();
   const { activeGames } = useActiveGames();
   const { currentUserStats } = useUserLogic();
+  const fabOffset = Platform.OS === 'web' ? 78 : 70;
+  const topSpacing = Platform.OS === 'web' ? '$6' : '$8';
 
   return (
     <Theme name="dark">
       <PokerBackground>
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
-          <YStack padding="$4" paddingTop="$8" gap="$6">
+          <YStack padding="$4" paddingTop={topSpacing} gap="$6">
 
             <HomeHeader user={user} />
 
@@ -49,9 +51,9 @@ export default function HomeScreen() {
                 <GlassCard
                   flex={1}
                   icon={<Trophy size={24} />}
-                  title="Stats"
+                  title="Classement"
                   subtitle="Voir"
-                  onPress={() => router.push('/(main)/(tabs)/profile')}
+                  onPress={() => router.push('/(main)/(tabs)/leaderboard')}
                 />
               </XStack>
             </YStack>
@@ -61,7 +63,7 @@ export default function HomeScreen() {
         <FAB
           icon={<Plus size={28} color="$night900" />}
           fabPosition="bottom-right"
-          offset={70}
+          offset={fabOffset}
           onPress={() => router.push('/(main)/create-game')}
         />
       </PokerBackground>

@@ -143,6 +143,30 @@ export interface BankrollDataPoint {
   cumulativeProfit: number;
 }
 
+type PlayerLike = {
+  id?: string;
+  userId?: string | null;
+  totalInvested?: number;
+  payout?: number;
+  winnings?: number;
+  finalRank?: number | null;
+};
+
+const getGamePlayers = (game: Game): PlayerLike[] => {
+  const raw = (game as unknown as { players?: unknown }).players;
+  return Array.isArray(raw) ? (raw as PlayerLike[]) : [];
+};
+
+const resolvePlayerPayout = (player: PlayerLike): number => {
+  if (typeof player.payout === 'number') return player.payout;
+  if (typeof player.winnings === 'number') return player.winnings;
+  return 0;
+};
+
+const matchPlayerByUser = (players: PlayerLike[], userId: string): PlayerLike | undefined => {
+  return players.find((p) => p.id === userId || p.userId === userId);
+};
+
 export const generateBankrollHistory = (
   games: Game[],
   userId: string
@@ -158,10 +182,12 @@ export const generateBankrollHistory = (
   const dataPoints: BankrollDataPoint[] = [];
 
   sortedGames.forEach((game) => {
-    const player = game.players.find((p) => p.id === userId);
+    const players = getGamePlayers(game);
+    const player = matchPlayerByUser(players, userId);
     if (!player) return;
 
-    const profit = (player.payout || 0) - player.totalInvested;
+    const invested = typeof player.totalInvested === 'number' ? player.totalInvested : 0;
+    const profit = resolvePlayerPayout(player) - invested;
     cumulativeProfit += profit;
 
     dataPoints.push({
@@ -179,27 +205,27 @@ export const generateBankrollHistory = (
  */
 export const calculateGroupStats = (games: Game[], userId: string) => {
   const userGames = games.filter((game) =>
-    game.players.some((p) => p.id === userId)
+    matchPlayerByUser(getGamePlayers(game), userId) !== undefined
   );
 
   const totalInvested = userGames.reduce((sum, game) => {
-    const player = game.players.find((p) => p.id === userId);
-    return sum + (player?.totalInvested || 0);
+    const player = matchPlayerByUser(getGamePlayers(game), userId);
+    return sum + (typeof player?.totalInvested === 'number' ? player.totalInvested : 0);
   }, 0);
 
   const totalWinnings = userGames.reduce((sum, game) => {
-    const player = game.players.find((p) => p.id === userId);
-    return sum + (player?.payout || 0);
+    const player = matchPlayerByUser(getGamePlayers(game), userId);
+    return sum + resolvePlayerPayout(player || {});
   }, 0);
 
   const wins = userGames.filter((game) => {
-    const player = game.players.find((p) => p.id === userId);
+    const player = matchPlayerByUser(getGamePlayers(game), userId);
     return player?.finalRank === 1;
   }).length;
 
   const cashes = userGames.filter((game) => {
-    const player = game.players.find((p) => p.id === userId);
-    return (player?.payout || 0) > 0;
+    const player = matchPlayerByUser(getGamePlayers(game), userId);
+    return resolvePlayerPayout(player || {}) > 0;
   }).length;
 
   return {

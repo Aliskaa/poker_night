@@ -1,4 +1,5 @@
 import '../tamagui-web.css'
+import '../web-typography.css'
 
 import { AppProvider } from '@/providers/AppProvider'
 import { useFonts } from 'expo-font'
@@ -22,8 +23,10 @@ SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
   const [interLoaded, interError] = useFonts({
-    Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
-    InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
+    Inter: require('@tamagui/font-inter/otf/Inter-Regular.otf'),
+    'Inter-Medium': require('@tamagui/font-inter/otf/Inter-Medium.otf'),
+    'Inter-SemiBold': require('@tamagui/font-inter/otf/Inter-SemiBold.otf'),
+    'Inter-Bold': require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   })
 
   const colorScheme = useColorScheme()

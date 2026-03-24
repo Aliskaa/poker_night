@@ -1,5 +1,9 @@
 import { Tabs } from 'expo-router';
 import { Home, Users, Trophy, User } from '@tamagui/lucide-icons';
+import { Platform } from 'react-native';
+
+const TAB_BAR_HEIGHT = Platform.OS === 'web' ? 66 : 60;
+const TAB_BAR_BOTTOM_PADDING = Platform.OS === 'web' ? 10 : 8;
 
 export default function TabLayout() {
     return (
@@ -7,12 +11,14 @@ export default function TabLayout() {
             screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: true,
+                tabBarHideOnKeyboard: true,
                 tabBarStyle: {
                     backgroundColor: '#0b0f19', // $night900
                     borderTopColor: 'rgba(0, 0, 0, 0.3)', // $overlay3
                     borderTopWidth: 1,
-                    height: 60,
-                    paddingBottom: 8,
+                    height: TAB_BAR_HEIGHT,
+                    paddingTop: 4,
+                    paddingBottom: TAB_BAR_BOTTOM_PADDING,
                 },
                 tabBarActiveTintColor: '#fbbf24', // $primary
                 tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.4)', // $text40

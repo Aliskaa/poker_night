@@ -1,10 +1,10 @@
 import { useActiveGames } from '@/hooks/useActiveGamesLogic';
 import { Game } from '@/types/Game';
 import { useUser } from '@/providers/AuthProvider';
-import { AlertTriangle, Play, Settings2, Trash2 } from '@tamagui/lucide-icons';
+import { AlertTriangle, Play, Settings2, Trash2, PlusCircle } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { ScrollView } from 'react-native';
 import { Button, Card, H4, Sheet, Text, XStack, YStack } from 'tamagui';
 import { Heading, IconButton, PokerButton } from '../ui';
 
@@ -13,24 +13,48 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
   const { user } = useUser();
   const { deleteActiveGame } = useActiveGames();
   const [isCleanUpOpen, setIsCleanUpOpen] = useState(false);
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null);
+  const [deletingGameId, setDeletingGameId] = useState<string | null>(null);
 
-  if (games.length === 0) return null;
+  if (games.length === 0) {
+    return (
+      <YStack
+        gap="$3"
+        marginTop="$2"
+        padding="$4"
+        borderRadius="$6"
+        borderWidth={1}
+        borderColor="$glass4"
+        backgroundColor="$glass2"
+      >
+        <XStack gap="$2" alignItems="center">
+          <PlusCircle size={18} color="$primary" />
+          <Text color="$colorPrimary" fontWeight="700">
+            Aucune table en direct
+          </Text>
+        </XStack>
+        <Text color="$colorMuted">
+          Lance la premiere donne pour ton groupe.
+        </Text>
+      </YStack>
+    );
+  }
 
   const myHostedGames = games.filter(game => game.hostId === user?.id);
 
-  const confirmDelete = (gameId: string) => {
-    Alert.alert(
-      "Confirmer la suppression",
-      "Êtes-vous sûr de vouloir supprimer cette partie ? Cette action est irréversible.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Supprimer", style: "destructive", onPress: async () => {
-            await deleteActiveGame(gameId);
-          }
-        }
-      ]
-    );
+  const confirmDelete = (game: Game) => {
+    setGameToDelete(game);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!gameToDelete?.id) return;
+    setDeletingGameId(gameToDelete.id);
+    try {
+      await deleteActiveGame(gameToDelete.id);
+      setGameToDelete(null);
+    } finally {
+      setDeletingGameId(null);
+    }
   };
 
   return (
@@ -96,7 +120,8 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
                         icon={<Trash2 size={20} />}
                         backgroundColor="$danger"
                         color="$backgroundStrong"
-                        onPress={() => confirmDelete(game.id)}
+                        onPress={() => confirmDelete(game)}
+                        disabled={deletingGameId === game.id}
                         size="large"
                       />
                     </Card.Header>
@@ -105,6 +130,46 @@ export function ActiveGamesSlider({ games }: { games: Game[] }) {
               })}
             </YStack>
           </ScrollView>
+        </Sheet.Frame>
+      </Sheet>
+
+      <Sheet
+        modal
+        open={!!gameToDelete}
+        onOpenChange={(open) => {
+          if (!open && !deletingGameId) setGameToDelete(null);
+        }}
+        snapPoints={[36]}
+        dismissOnSnapToBottom
+      >
+        <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+        <Sheet.Handle />
+        <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
+          <YStack gap="$2">
+            <H4 color="$color">Supprimer la partie ?</H4>
+            <Text color="$colorMuted">
+              Cette action est irreversible. La table et ses donnees en cours seront perdues.
+            </Text>
+          </YStack>
+
+          <XStack gap="$3">
+            <PokerButton
+              variant="secondary"
+              icon={<Settings2 size={16} />}
+              title="Annuler"
+              flex={1}
+              onPress={() => setGameToDelete(null)}
+              disabled={!!deletingGameId}
+            />
+            <PokerButton
+              variant="danger"
+              icon={<Trash2 size={16} />}
+              title={deletingGameId ? 'Suppression...' : 'Supprimer'}
+              flex={1}
+              onPress={handleDeleteConfirmed}
+              disabled={!!deletingGameId}
+            />
+          </XStack>
         </Sheet.Frame>
       </Sheet>
 

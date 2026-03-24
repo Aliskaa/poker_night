@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, Share, Alert } from 'react-native';
+import { Platform, ScrollView, Share } from 'react-native';
 import { useUser } from '@/providers/AuthProvider';
-import { YStack, Separator, Spinner, Theme } from 'tamagui';
+import { H4, Spinner, Text, Theme, XStack, YStack, Sheet } from 'tamagui';
+import { Settings2, Trash2 } from '@tamagui/lucide-icons';
 
 import { useGroupLogic } from '@/hooks/useGroupLogic';
 import { GroupHeader } from '@/components/group/GroupHeader';
@@ -12,6 +13,7 @@ import { GuestList } from '@/components/group/GuestList';
 import { GroupActions } from '@/components/group/GroupActions';
 import { AddGuestSheet } from '@/components/group/AddGuestSheet';
 import { PokerBackground } from '@/components/ui/PokerBackground';
+import { PokerButton } from '@/components/ui/PokerButton';
 
 // --- IMPORT DES SOUS-COMPOSANTS ---
 
@@ -24,6 +26,9 @@ export default function GroupDetailScreen() {
 
   // --- ÉTATS POUR LA SHEET INVITÉ ---
   const [isGuestSheetOpen, setIsGuestSheetOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deletingGroup, setDeletingGroup] = useState(false);
+  const topSpacing = Platform.OS === 'web' ? '$6' : '$10';
 
   // --- ACTIONS ---
   const shareInviteCode = async () => {
@@ -38,13 +43,19 @@ export default function GroupDetailScreen() {
   };
 
   const handleDeleteGroup = () => {
-    Alert.alert("Supprimer le Club", "Es-tu sûr de vouloir supprimer définitivement ce Club et tous ses invités ?", [
-      { text: "Annuler", style: "cancel" },
-      { text: "Supprimer", style: "destructive", onPress: async () => {
-          if (await deleteGroup()) router.replace('/(main)/(tabs)/groups');
-        } 
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteGroup = async () => {
+    setDeletingGroup(true);
+    try {
+      if (await deleteGroup()) {
+        setIsDeleteConfirmOpen(false);
+        router.replace('/(main)/(tabs)/groups');
       }
-    ]);
+    } finally {
+      setDeletingGroup(false);
+    }
   };
 
   if (loading || !group) return <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background"><Spinner size="large" color="$primary" /></YStack>;
@@ -54,7 +65,7 @@ export default function GroupDetailScreen() {
   return (
     <Theme name="dark">
       <PokerBackground>
-        <YStack flex={1} paddingTop="$10">
+        <YStack flex={1} paddingTop={topSpacing}>
 
           <GroupHeader name={group.name} totalPlayers={group.members.length + group.guests.length} />
 
@@ -67,9 +78,54 @@ export default function GroupDetailScreen() {
             </YStack>
           </ScrollView>
 
-          <GroupActions isOwner={isOwner} onConfigureGame={handleLaunchGroupGame} onDeleteGroup={handleDeleteGroup} />
+          <GroupActions
+            isOwner={isOwner}
+            onConfigureGame={handleLaunchGroupGame}
+            onDeleteGroup={handleDeleteGroup}
+            deletingGroup={deletingGroup}
+          />
 
           <AddGuestSheet isOpen={isGuestSheetOpen} onOpenChange={setIsGuestSheetOpen} onAddGuest={(name) => addGuestToGroup(name)} />
+
+          <Sheet
+            modal
+            open={isDeleteConfirmOpen}
+            onOpenChange={(open) => {
+              if (!deletingGroup) setIsDeleteConfirmOpen(open);
+            }}
+            snapPoints={[38]}
+            dismissOnSnapToBottom
+          >
+            <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+            <Sheet.Handle />
+            <Sheet.Frame padding="$4" gap="$4" backgroundColor="$background">
+              <YStack gap="$2">
+                <H4 color="$color">Supprimer ce club ?</H4>
+                <Text color="$colorMuted">
+                  Cette action est irreversible. Le club et tous les invites seront supprimes.
+                </Text>
+              </YStack>
+
+              <XStack gap="$3">
+                <PokerButton
+                  variant="secondary"
+                  icon={<Settings2 size={16} />}
+                  title="Annuler"
+                  flex={1}
+                  onPress={() => setIsDeleteConfirmOpen(false)}
+                  disabled={deletingGroup}
+                />
+                <PokerButton
+                  variant="danger"
+                  icon={<Trash2 size={16} />}
+                  title={deletingGroup ? 'Suppression...' : 'Supprimer'}
+                  flex={1}
+                  onPress={confirmDeleteGroup}
+                  disabled={deletingGroup}
+                />
+              </XStack>
+            </Sheet.Frame>
+          </Sheet>
 
         </YStack>
       </PokerBackground>
