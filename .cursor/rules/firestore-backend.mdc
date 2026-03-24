@@ -1,0 +1,13 @@
+---
+description: Modèle Firestore, règles et Cloud Functions Poker Night
+globs: firestore.rules, firestore.indexes.json, functions/**/*.ts
+alwaysApply: false
+---
+
+# Données et serveur
+
+- **Parties** : `games/{gameId}` + sous-collection **`players/{playerId}`** (vérité pour l’état des joueurs). Le doc `games` ne doit pas repasser sur un gros tableau `players` embarqué pour l’app courante.
+- **Fin de partie** : passage `status` → `FINISHED` + mises à jour des docs `players` (gains, `finalRank`) comme dans `useGameLogic.endGame`. Les stats **`users.statistics`** et **`user-game-stats`** sont mises à jour par la **Cloud Function** (`syncStatsOnGameFinished`), avec garde **`serverStatsAppliedAt`**.
+- **Écritures client** : pas d’écriture sur `user-game-stats` / `game-history` (règles `write: if false`). Pas de double logique stats côté client après cette migration.
+- **Archivage** : logique dans `functions/src/index.ts` ; lecture des joueurs depuis la **subcollection** avant `game-history`.
+- **Index** : déclarer les composites requis dans `firestore.indexes.json` ; certains champs uniques sont gérés côté console Firebase.

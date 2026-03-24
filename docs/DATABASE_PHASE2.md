@@ -37,12 +37,9 @@ game-history/{gameId}
 - Action: Supprime parties actives sans activité depuis 7 jours
 - TTL automatique
 
-### 3. **Utilitaires Client**
+### 3. **Côté client**
 
-**`utils/gameArchiver.ts`** :
-- `archiveFinishedGame()` - Archive manuelle
-- `archiveOldFinishedGames()` - Batch archivage
-- `cleanupAbandonedGames()` - Nettoyage manuel
+L’archivage vers `game-history` est assuré **uniquement par les Cloud Functions** (`archiveFinishedGame` côté serveur, voir `functions/src/index.ts`). Il n’y a plus de module client `utils/gameArchiver.ts` (supprimé pour éviter la duplication et les écritures non autorisées par les règles).
 
 **`hooks/useGameHistory.ts`** :
 - Chargement paginé de l'historique
@@ -146,17 +143,18 @@ function HistoryScreen() {
 }
 ```
 
-### Archivage manuel (admin)
+### Données de démonstration (admin local)
 
-```typescript
-import { archiveFinishedGame } from '@/utils/gameArchiver';
+Pour enchaîner des parties de test sans tout créer à la main dans l’UI, utiliser le script :
 
-// Archiver une partie spécifique
-await archiveFinishedGame(gameId);
+```bash
+npm run simulate:poker -- --help
 
-// Archiver toutes les vieilles parties
-await archiveOldFinishedGames(24); // >24h
+# Exemple (Windows) avec clé de compte de service :
+npm run simulate:poker -- ensure-users --service-account C:\chemin\serviceAccount.json --uids <uid1>,<uid2>,...
 ```
+
+Voir les détails dans l’en-tête de `scripts/simulate-game-scenarios.cjs`.
 
 ## 🧪 Tests
 

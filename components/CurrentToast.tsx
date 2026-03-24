@@ -1,8 +1,6 @@
-import { useToast } from '@/hooks/useToast'
-import log from '@/services/logger'
 import { AlertCircle, AlertTriangle, CheckCircle2, Info } from '@tamagui/lucide-icons'
-import { Toast, useToastController, useToastState } from '@tamagui/toast'
-import { Button, H4, XStack, YStack, isWeb } from 'tamagui'
+import { Toast, useToastState } from '@tamagui/toast'
+import { XStack, YStack, isWeb } from 'tamagui'
 
 export function CurrentToast() {
   const currentToast = useToastState()
@@ -66,32 +64,5 @@ export function CurrentToast() {
         </YStack>
       </XStack>
     </Toast>
-  )
-}
-
-export function ToastControl() {
-
-  const { success, hide } = useToast();
-
-  return (
-    <YStack gap="$2" alignItems="center">
-      <H4>Toast demo</H4>
-      <XStack gap="$2" justifyContent="center">
-        <Button
-          onPress={() => {
-            success("Opération réussie", "Votre action a été effectuée avec succès.");
-          }}
-        >
-          Show
-        </Button>
-        <Button
-          onPress={() => {
-            hide()
-          }}
-        >
-          Hide
-        </Button>
-      </XStack>
-    </YStack>
   )
 }

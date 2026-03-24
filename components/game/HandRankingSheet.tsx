@@ -10,10 +10,7 @@ type Props = {
   onOpenChange: (open: boolean) => void
 }
 
-/**
- * Liste des combinaisons (du Texas Hold'em) pendant une partie.
- * Ne dépend pas du tutoriel timer de HelpBottomSheet.
- */
+/** Liste des combinaisons Texas Hold'em pendant une partie. */
 export function HandRankingSheet({ open, onOpenChange }: Props) {
   return (
     <Sheet

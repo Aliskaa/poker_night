@@ -50,36 +50,3 @@ export interface UserGameStats {
     updatedAt: Timestamp;
 }
 
-/**
- * Helper pour initialiser les stats d'un nouvel utilisateur
- */
-export const createEmptyUserStats = (userId: string): UserGameStats => ({
-    userId,
-    totalGames: 0,
-    totalWins: 0,
-    totalBuyIns: 0,
-    totalCashOuts: 0,
-    totalNetProfit: 0,
-    last30Days: { games: 0, wins: 0, netProfit: 0 },
-    last90Days: { games: 0, wins: 0, netProfit: 0 },
-    biggestWin: 0,
-    biggestLoss: 0,
-    longestWinStreak: 0,
-    currentWinStreak: 0,
-    statsByGroup: {},
-    updatedAt: Timestamp.now(),
-});
-
-/**
- * Événement pour mettre à jour les stats (utilisé par Cloud Functions)
- */
-export interface StatsUpdateEvent {
-    userId: string;
-    gameId: string;
-    groupId: string;
-    netProfit: number;
-    buyIn: number;
-    cashOut: number;
-    isWinner: boolean;
-    gameDate: Timestamp;
-}

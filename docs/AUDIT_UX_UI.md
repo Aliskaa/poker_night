@@ -181,7 +181,7 @@ useEffect(() => { /* Late registration countdown */ })
 - [ ] Extraire logique timer → `useGameTimer.ts`
 - [ ] Créer composants dédiés:
   - `GameTimer` - Timer circulaire avec pause/play
-  - `GameHeader` - Infos partie (pot, blinds)
+  - Barre d’infos partie (pot, blinds) — aujourd’hui couverte par `GameStatusBar` / `PotDisplay` (pas de `GameHeader` dédié)
   - `PlayerGrid` - Liste joueurs avec états
   - `GameActions` - Boutons hôte
   - `GameChat` - Messages (nouveau)
@@ -210,9 +210,9 @@ export const Body = styled(Text, { fontSize: '$4', color: '$text80' })
 ```
 
 **Actions:**
-- [ ] Créer `Typography.tsx`
+- [x] `Typography.tsx` (existe)
 - [ ] Créer `Spacing.tsx` (wrapper standardisé)
-- [ ] Documenter dans `UIShowcase.tsx`
+- [ ] Documenter les primitives UI (l’ancien `UIShowcase.tsx` a été retiré ; référence : écrans réels + `components/ui/index.ts`)
 - [ ] Remplacer hardcoded colors par tokens
 
 ---

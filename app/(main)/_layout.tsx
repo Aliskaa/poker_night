@@ -74,15 +74,12 @@ export default function MainLayout() {
         }}
       />
 
-      <Stack.Screen name="game/[id]" />
-      <Stack.Screen name="groups/[id]" />
-
       <Stack.Screen
-        name="showcase"
+        name="history"
         options={{
-          presentation: 'modal',
+          presentation: 'card',
           headerShown: true,
-          title: '🎨 UI Showcase',
+          title: 'Historique',
           headerStyle: {
             backgroundColor: '#121212',
           },
@@ -92,6 +89,25 @@ export default function MainLayout() {
           },
         }}
       />
+
+      <Stack.Screen
+        name="stats"
+        options={{
+          presentation: 'card',
+          headerShown: true,
+          title: 'Statistiques',
+          headerStyle: {
+            backgroundColor: '#121212',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+
+      <Stack.Screen name="game/[id]" />
+      <Stack.Screen name="groups/[id]" />
     </Stack>
   );
 }

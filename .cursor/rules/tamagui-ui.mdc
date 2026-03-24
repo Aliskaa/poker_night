@@ -1,0 +1,13 @@
+---
+description: Composants UI Tamagui et patterns visuels
+globs: components/**/*.tsx
+alwaysApply: false
+---
+
+# UI (Tamagui)
+
+- Encadrer les écrans avec **`Theme name="dark"`** et souvent **`PokerBackground`** pour cohérence « table de poker ».
+- Préférer les **tokens** Tamagui (`$primary`, `$glass3`, `$text60`, etc.) définis dans `tamagui.config.ts` plutôt que des couleurs hex en dur (sauf en-têtes stack déjà en `#121212`).
+- Composants réutilisables : `GlassCard`, `PokerButton`, typographie depuis `@/components/ui` (`Heading`, `Body`, …).
+- **Web** : `Platform.OS === 'web'` pour paddings / tab bar si le fichier le fait déjà ; garder le même style de condition.
+- Toasts : `@tamagui/toast` via `useToast` / `CurrentToast` monté dans `AppProvider`.

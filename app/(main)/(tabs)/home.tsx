@@ -1,5 +1,5 @@
 import { useUser } from '@/providers/AuthProvider';
-import { Plus, Trophy, Users } from '@tamagui/lucide-icons';
+import { History, Plus, Trophy, Users } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Platform, ScrollView } from 'react-native';
@@ -56,6 +56,12 @@ export default function HomeScreen() {
                   onPress={() => router.push('/(main)/(tabs)/leaderboard')}
                 />
               </XStack>
+              <GlassCard
+                icon={<History size={24} />}
+                title="Historique"
+                subtitle="Parties archivées"
+                onPress={() => router.push('/(main)/history')}
+              />
             </YStack>
           </YStack>
         </ScrollView>

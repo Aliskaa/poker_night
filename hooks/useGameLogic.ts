@@ -1,12 +1,11 @@
 import { db } from "@/services/firebase";
 import log from "@/services/logger";
-import { Game, GameConfig, MAX_PLAYERS_PER_GAME } from "@/types/Game";
-import { Player, PlayerStatus } from "@/types/Player";
-import { addDoc, collection, doc, increment, onSnapshot, serverTimestamp, updateDoc, writeBatch, runTransaction, Timestamp } from "firebase/firestore";
+import { Game, GameConfig } from "@/types/Game";
+import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { GameConfigSchema, RebuySchema, EliminatePlayerSchema, AddGuestSchema } from "@/lib/validations/game";
+import { GameConfigSchema } from "@/lib/validations/game";
 import { isLateRegOpen as checkLateRegOpen } from "@/utils/timestampHelpers";
-import { ErrorHandler, generateSecureId } from "@/utils/errorHandler";
+import { ErrorHandler } from "@/utils/errorHandler";
 import { useToast } from "@/hooks/useToast";
 import { useUserLogic } from "./useUserLogic";
 
@@ -165,25 +164,11 @@ export const useGameLogic = (gameId?: string) => {
                         finalRank,
                         isActive: false,
                     });
-
-                    // Mettre à jour les stats utilisateur (sauf invités)
-                    if (player.userId) {
-                        const userRef = doc(db, "users", player.userId);
-                        const profit = finalPayout - player.totalInvested;
-
-                        batch.update(userRef, {
-                            'statistics.gamesPlayed': increment(1),
-                            'statistics.totalInvested': increment(player.totalInvested),
-                            'statistics.totalWinnings': increment(finalPayout),
-                            'statistics.netProfit': increment(profit),
-                            'statistics.wins': finalRank === 1 ? increment(1) : increment(0),
-                            lastLoginAt: serverTimestamp(),
-                        });
-                    }
+                    // Stats utilisateur / user-game-stats : Cloud Function (syncStatsOnGameFinished)
                 });
 
                 await batch.commit();
-                successToast('Partie terminée !');
+                successToast('Partie terminée ! Classement mis à jour sous peu.');
             },
             'endGame',
             (error) => errorToast(error.message)

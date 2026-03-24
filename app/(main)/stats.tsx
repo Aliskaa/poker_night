@@ -1,8 +1,9 @@
-import { View } from 'react-native';
-import { Text, Card, YStack, XStack, ScrollView, Separator } from 'tamagui';
+import { PokerBackground } from '@/components/ui/PokerBackground';
 import { useUserStats } from '@/hooks/useUserStats';
 import { useUser } from '@/providers/AuthProvider';
-import { Trophy, TrendingUp, TrendingDown, Target, Flame } from '@tamagui/lucide-icons';
+import { Flame, Target, TrendingDown, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import { Platform } from 'react-native';
+import { Card, ScrollView, Separator, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 
 function StatCard({ 
     title, 
@@ -44,26 +45,44 @@ function StatCard({
 export default function StatsScreen() {
     const { user } = useUser();
     const { stats, loading } = useUserStats(user?.id);
+    const topPad = Platform.OS === 'web' ? '$3' : '$4';
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>Chargement des statistiques...</Text>
-            </View>
+            <Theme name="dark">
+                <PokerBackground>
+                    <YStack flex={1} justifyContent="center" alignItems="center" paddingTop={topPad}>
+                        <Spinner size="large" color="$primary" />
+                        <Text marginTop="$3" color="$text60">
+                            Chargement des statistiques...
+                        </Text>
+                    </YStack>
+                </PokerBackground>
+            </Theme>
         );
     }
 
     if (!stats) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-                <Target size={64} color="$gray8" />
-                <Text fontSize="$6" fontWeight="bold" color="$gray11" mt="$4">
-                    Pas encore de stats
-                </Text>
-                <Text fontSize="$3" color="$gray10" mt="$2" textAlign="center">
-                    Jouez votre première partie pour voir vos statistiques
-                </Text>
-            </View>
+            <Theme name="dark">
+                <PokerBackground>
+                    <YStack
+                        flex={1}
+                        justifyContent="center"
+                        alignItems="center"
+                        padding="$6"
+                        paddingTop={topPad}
+                    >
+                        <Target size={64} color="$gray8" />
+                        <Text fontSize="$6" fontWeight="bold" color="$gray11" marginTop="$4">
+                            Pas encore de stats
+                        </Text>
+                        <Text fontSize="$3" color="$gray10" marginTop="$2" textAlign="center">
+                            Termine une partie pour voir les agrégats détaillés (30 j, records…).
+                        </Text>
+                    </YStack>
+                </PokerBackground>
+            </Theme>
         );
     }
 
@@ -76,16 +95,13 @@ export default function StatsScreen() {
         : '0';
 
     return (
-        <ScrollView flex={1} p="$4">
-            <YStack gap="$4" pb="$6">
-                <Text fontSize="$8" fontWeight="bold" color="$color" mb="$2">
-                    Mes Statistiques
-                </Text>
-
-                {/* Vue d'ensemble */}
+        <Theme name="dark">
+            <PokerBackground>
+                <ScrollView flex={1} paddingHorizontal="$4" paddingTop={topPad} paddingBottom="$8">
+                    <YStack gap="$4" paddingBottom="$6">
                 <YStack gap="$3">
                     <Text fontSize="$5" fontWeight="600" color="$gray12">
-                        Vue d'ensemble
+                        Vue d&apos;ensemble
                     </Text>
                     
                     <XStack gap="$3">
@@ -220,7 +236,9 @@ export default function StatsScreen() {
                         </Card.Header>
                     </Card>
                 </YStack>
-            </YStack>
-        </ScrollView>
+                    </YStack>
+                </ScrollView>
+            </PokerBackground>
+        </Theme>
     );
 }

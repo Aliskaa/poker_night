@@ -1,4 +1,4 @@
-import { YStack, XStack, Text, type YStackProps, type XStackProps } from 'tamagui'
+import { YStack, XStack, Text, type YStackProps } from 'tamagui'
 import { TrendingUp, TrendingDown, Minus } from '@tamagui/lucide-icons'
 import { Label } from './Typography'
 
@@ -83,33 +83,5 @@ export function StatCard({
         </XStack>
       )}
     </YStack>
-  )
-}
-
-interface StatRowProps extends Omit<XStackProps, 'children'> {
-  label: string
-  value: string | number
-  color?: string
-  highlight?: boolean
-}
-
-export function StatRow({ label, value, color = '$colorSecondary', highlight = false, ...props }: StatRowProps) {
-  return (
-    <XStack
-      justifyContent="space-between"
-      alignItems="center"
-      paddingVertical="$2"
-      paddingHorizontal="$3"
-      backgroundColor={highlight ? '$glass2' : 'transparent'}
-      borderRadius="$4"
-      {...props}
-    >
-      <Text color="$colorTertiary" fontSize="$3" fontWeight="600">
-        {label}
-      </Text>
-      <Text color={color} fontSize="$4" fontWeight="700" fontFamily="$mono">
-        {value}
-      </Text>
-    </XStack>
   )
 }

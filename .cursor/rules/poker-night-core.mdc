@@ -1,0 +1,14 @@
+---
+description: Stack Poker Night, langue, imports et discipline des changements
+alwaysApply: true
+---
+
+# Projet Poker Night — règles générales
+
+- **Réponses** : français pour tout texte destiné à l’utilisateur ou à l’UI ; code et identifiants en anglais comme dans le repo.
+- **Stack** : Expo SDK 54, **Expo Router** (dossier `app/`), **Tamagui**, **Firebase** (Firestore + Auth client + Cloud Functions).
+- **Alias** : imports depuis la racine avec `@/` (voir `tsconfig.json`).
+- **Cible UX** : **mobile-web** en priorité (tactile, safe-area, pas desktop-first).
+- **Changements** : rester sur la demande ; pas de refactor large ni de fichiers hors périmètre ; ne pas ajouter de doc `.md` non demandée.
+- **Packages** : pour **ajouter ou installer** des dépendances liées à Expo / React Native, utiliser **`npx expo install <paquet>`** (versions compatibles avec le SDK). Éviter `npm install <paquet>` ou `yarn add <paquet>` pour ces libs. Exception : tooling pur (ex. types, ESLint) peut être ajouté avec le gestionnaire du dépôt si `expo install` ne s’applique pas.
+- **Env** : préfixes `EXPO_PUBLIC_*` pour la config Firebase côté client ; ne pas committer de secrets.

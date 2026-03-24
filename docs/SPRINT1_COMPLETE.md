@@ -161,18 +161,9 @@ import { Title, Heading, Body, StatValue } from '@/components/ui/Typography'
 <Chrome size={20} color="$danger" />
 ```
 
-#### components/ui/DealerButton.tsx
-```tsx
-// ❌ AVANT
-backgroundColor="#d97706"
-color="#fff"
-borderColor='#fff'
+#### components/ui/DealerButton.tsx *(retiré du codebase)*
 
-// ✅ APRÈS
-backgroundColor="$gold600"
-color="$white"
-borderColor="$white"
-```
+Composant de démo jamais branché dans l’app ; supprimé lors du nettoyage du code mort. Toute variante « bouton donneur » pourra réutiliser les tokens `$gold600` / `$white`.
 
 #### components/poker/MiniCard.tsx
 ```tsx

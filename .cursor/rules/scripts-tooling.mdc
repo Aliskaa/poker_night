@@ -1,0 +1,12 @@
+---
+description: Script de simulation Firestore et outils locaux
+globs: scripts/**/*, package.json
+alwaysApply: false
+---
+
+# Scripts
+
+- **`scripts/simulate-game-scenarios.cjs`** : données de démo Firestore ; nécessite des **identifiants Admin** (`--service-account` ou `GOOGLE_APPLICATION_CREDENTIALS`). Les UIDs doivent être ceux de **Firebase Auth**, pas des libellés fictifs.
+- Marqueur : `demoSource: "simulate-script"` sur les parties de test ; nettoyage avec la commande du `package.json` du repo (ex. `npm run simulate:poker:clean` ou équivalent Yarn).
+- **Nouvelles dépendances app** : voir règle projet — **`npx expo install`** plutôt que `npm install` pour les paquets Expo/RN.
+- **Firebase client** : `services/firebase.ts` — Auth web vs native (persistance AsyncStorage) ; ne pas dupliquer l’initialisation ailleurs.

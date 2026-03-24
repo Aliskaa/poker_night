@@ -1,5 +1,16 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { collection, doc, onSnapshot, query, orderBy, limit, startAfter, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import {
+    collection,
+    doc,
+    onSnapshot,
+    query,
+    orderBy,
+    limit,
+    startAfter,
+    getDocs,
+    QueryDocumentSnapshot,
+    DocumentData,
+} from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useUser } from '@/providers/AuthProvider';
 import log from '@/services/logger';
@@ -26,26 +37,6 @@ function normalizeFromUserDoc(stats: Partial<UserStatistics> | undefined): UserS
     };
 }
 
-/** Agrégats Cloud Function / user-game-stats (schéma variable) → UserStatistics */
-function mapAggregateDoc(data: Record<string, unknown>): UserStatistics {
-    const totalBuyins = Number(data.totalBuyIns ?? data.totalBuyins ?? 0);
-    const totalWinnings = Number(data.totalCashOuts ?? data.totalWinnings ?? 0);
-    const gamesPlayed = Number(data.gamesPlayed ?? data.totalGames ?? 0);
-    const wins = Number(data.firstPlaceFinishes ?? data.totalWins ?? 0);
-    const net =
-        typeof data.totalNetProfit === 'number'
-            ? data.totalNetProfit
-            : totalWinnings - totalBuyins;
-    return {
-        netProfit: net,
-        gamesPlayed,
-        bestRank: typeof data.bestFinish === 'number' ? data.bestFinish : 9999,
-        wins,
-        totalInvested: totalBuyins,
-        totalWinnings,
-    };
-}
-
 export type LeaderboardUser = {
     id: string;
     name: string;
@@ -59,10 +50,14 @@ export type LeaderboardUser = {
 
 const LEADERBOARD_PAGE_SIZE = 20;
 
+/** Avatar stocké `avatarURL` (sync Clerk) ou `avatarUrl` */
+function userAvatar(data: Record<string, unknown>): string | undefined {
+    const a = data.avatarURL ?? data.avatarUrl;
+    return typeof a === 'string' ? a : undefined;
+}
+
 export const useUserLogic = () => {
     const { user } = useUser();
-    /** Stats issues de user-game-stats (optionnel) */
-    const [aggregateStats, setAggregateStats] = useState<UserStatistics | null>(null);
     const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
@@ -70,9 +65,6 @@ export const useUserLogic = () => {
 
     const [userData, setUserData] = useState<User | null>(null);
 
-    // ---------------------------------------------------------------------------
-    // 0. Charge les données de l'utilisateur connecté
-    // ---------------------------------------------------------------------------
     useEffect(() => {
         if (!user?.id) {
             setUserData(null);
@@ -91,129 +83,113 @@ export const useUserLogic = () => {
         return () => unsubscribe();
     }, [user?.id]);
 
-
-    // ---------------------------------------------------------------------------
-    // 1. ÉCOUTEUR : user-game-stats (schéma Cloud Functions / phase 3)
-    // Ne remplace pas seul l'affichage : endGame met à jour users.statistics en priorité.
-    // ---------------------------------------------------------------------------
-    useEffect(() => {
-        if (!user?.id) return;
-
-        const statsRef = doc(db, 'user-game-stats', user.id);
-        const unsubscribe = onSnapshot(statsRef, (docSnap) => {
-            if (!docSnap.exists()) {
-                setAggregateStats(null);
-                return;
-            }
-            setAggregateStats(mapAggregateDoc(docSnap.data() as Record<string, unknown>));
-        });
-
-        return () => unsubscribe();
-    }, [user?.id]);
-
     const currentUserStats = useMemo((): UserStatistics => {
         const fromUserDoc = normalizeFromUserDoc(userData?.statistics);
-        const hasUserDocActivity =
-            !!fromUserDoc &&
-            (fromUserDoc.gamesPlayed > 0 ||
-                fromUserDoc.totalInvested > 0 ||
-                fromUserDoc.totalWinnings > 0 ||
-                fromUserDoc.netProfit !== 0);
-
-        if (hasUserDocActivity) return fromUserDoc;
-        if (aggregateStats) return aggregateStats;
         return fromUserDoc ?? EMPTY_STATS;
-    }, [userData?.statistics, aggregateStats]);
+    }, [userData?.statistics]);
 
-    // ---------------------------------------------------------------------------
-    // 2. ÉCOUTEUR : Le Classement Général depuis user-game-stats
-    // ---------------------------------------------------------------------------
+    /** Classement : collection users, stats mises à jour par la Cloud Function à FINISHED (hybride A + B). */
     useEffect(() => {
         setLoading(true);
 
-        // Query avec tri par profit net (winnings - buyins)
         const q = query(
-            collection(db, 'user-game-stats'),
-            orderBy('totalWinnings', 'desc'),
+            collection(db, 'users'),
+            orderBy('statistics.netProfit', 'desc'),
             limit(LEADERBOARD_PAGE_SIZE)
         );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const usersData: LeaderboardUser[] = [];
-            let currentRank = 1;
+        const unsubscribe = onSnapshot(
+            q,
+            (snapshot) => {
+                const usersData: LeaderboardUser[] = [];
+                let currentRank = 1;
 
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const totalBuyins = data.totalBuyIns || data.totalBuyins || 0;
-                const netProfit = (data.totalWinnings || 0) - totalBuyins;
-                const gamesPlayed = data.gamesPlayed || 0;
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data() as Record<string, unknown>;
+                    const stats = (data.statistics as Record<string, unknown> | undefined) ?? {};
+                    const gamesPlayed = Number(stats.gamesPlayed ?? 0);
+                    const wins = Number(stats.wins ?? 0);
+                    const totalBuyins = Number(stats.totalInvested ?? 0);
+                    const netProfit = Number(stats.netProfit ?? 0);
 
-                usersData.push({
-                    id: docSnap.id,
-                    name: data.displayName || docSnap.id,
-                    avatarUrl: data.photoURL,
-                    netProfit,
-                    gamesPlayed,
-                    totalBuyins,
-                    wins: data.totalWins || 0,
-                    rank: currentRank++,
+                    if (gamesPlayed < 1) {
+                        return;
+                    }
+
+                    usersData.push({
+                        id: docSnap.id,
+                        name: (data.displayName as string) || docSnap.id,
+                        avatarUrl: userAvatar(data),
+                        netProfit,
+                        gamesPlayed,
+                        totalBuyins,
+                        wins,
+                        rank: currentRank++,
+                    });
                 });
-            });
 
-            setLeaderboard(usersData);
-            setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
-            setHasMore(snapshot.docs.length === LEADERBOARD_PAGE_SIZE);
-            setLoading(false);
-        }, (error) => {
-            log.error("Erreur Leaderboard:", error);
-            setLoading(false);
-        });
+                setLeaderboard(usersData);
+                setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+                setHasMore(snapshot.docs.length === LEADERBOARD_PAGE_SIZE);
+                setLoading(false);
+            },
+            (error) => {
+                log.error('Erreur Leaderboard:', error);
+                setLoading(false);
+            }
+        );
 
         return () => unsubscribe();
     }, []);
 
-    // Charger plus de résultats
     const loadMoreLeaderboard = useCallback(async () => {
         if (!lastDoc || !hasMore) return;
 
         setLoading(true);
-
         const q = query(
-            collection(db, 'user-game-stats'),
-            orderBy('totalWinnings', 'desc'),
+            collection(db, 'users'),
+            orderBy('statistics.netProfit', 'desc'),
             startAfter(lastDoc),
             limit(LEADERBOARD_PAGE_SIZE)
         );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        try {
+            const snapshot = await getDocs(q);
             const usersData: LeaderboardUser[] = [];
             let currentRank = leaderboard.length + 1;
 
             snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const totalBuyins = data.totalBuyIns || data.totalBuyins || 0;
-                const netProfit = (data.totalWinnings || 0) - totalBuyins;
-                const gamesPlayed = data.gamesPlayed || 0;
+                const data = docSnap.data() as Record<string, unknown>;
+                const stats = (data.statistics as Record<string, unknown> | undefined) ?? {};
+                const gamesPlayed = Number(stats.gamesPlayed ?? 0);
+                const wins = Number(stats.wins ?? 0);
+                const totalBuyins = Number(stats.totalInvested ?? 0);
+                const netProfit = Number(stats.netProfit ?? 0);
+
+                if (gamesPlayed < 1) {
+                    return;
+                }
 
                 usersData.push({
                     id: docSnap.id,
-                    name: data.displayName || docSnap.id,
-                    avatarUrl: data.photoURL,
+                    name: (data.displayName as string) || docSnap.id,
+                    avatarUrl: userAvatar(data),
                     netProfit,
                     gamesPlayed,
                     totalBuyins,
-                    wins: data.totalWins || 0,
+                    wins,
                     rank: currentRank++,
                 });
             });
 
-            setLeaderboard(prev => [...prev, ...usersData]);
+            setLeaderboard((prev) => [...prev, ...usersData]);
             setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
             setHasMore(snapshot.docs.length === LEADERBOARD_PAGE_SIZE);
+        } catch (e) {
+            log.error('loadMoreLeaderboard', e);
+        } finally {
             setLoading(false);
-        });
-
-        return () => unsubscribe();
+        }
     }, [lastDoc, hasMore, leaderboard.length]);
 
     return {

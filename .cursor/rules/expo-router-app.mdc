@@ -1,0 +1,13 @@
+---
+description: Convention des écrans Expo Router et navigation
+globs: app/**/*.tsx
+alwaysApply: false
+---
+
+# Expo Router (`app/`)
+
+- Structure : `app/(auth)/`, `app/(main)/` avec `(tabs)` (`home`, `groups`, `leaderboard`, `profile`) et stack `(main)/_layout.tsx` pour modales (`create-game`, `lobby`, `hand-ranking`, `history`, `stats`, `game/[id]`, `groups/[id]`).
+- **Navigation** : `useRouter()` de `expo-router` ; chemins du style `/(main)/game/[id]`, `/(main)/(tabs)/home`.
+- **Auth** : `app/index.tsx` redirige ; `(main)/_layout` utilise `Redirect` vers login si non connecté et `useSyncUser()`.
+- **Headers** : options sur `Stack.Screen` dans `(main)/_layout.tsx` pour titres modaux (fond `#121212`).
+- Ne pas introduire React Navigation en parallèle sans nécessité : rester sur Expo Router.

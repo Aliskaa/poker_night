@@ -18,7 +18,9 @@
     "web": "expo start --web",
     "build:web": "expo export --platform web",
     "build:web:optimized": "tamagui build --target web ./app -- expo export --platform web",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "simulate:poker": "node scripts/simulate-game-scenarios.cjs",
+    "simulate:poker:clean": "node scripts/simulate-game-scenarios.cjs clean"
   },
   "jest": {
     "preset": "jest-expo"
@@ -68,6 +70,7 @@
     "@tamagui/metro-plugin": "^1.144.3",
     "@types/react": "~19.1.10",
     "@types/react-native": "^0.73.0",
+    "firebase-admin": "^11.11.0",
     "typescript": "~5.9.2"
   }
 }

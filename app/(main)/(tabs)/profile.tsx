@@ -11,7 +11,7 @@ import { db } from '@/services/firebase';
 import type { Game } from '@/types/Game';
 import type { User } from '@/types/User';
 import { calculatePlayerStats, formatPercentage, generateBankrollHistory, getROIEmoji } from '@/utils/statsHelpers';
-import { BookOpen, Calendar, DollarSign, LogOut, Medal, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
+import { BarChart3, BookOpen, Calendar, DollarSign, History, LogOut, Medal, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { collection, doc, getDoc, getDocs, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
@@ -245,6 +245,18 @@ export default function ProfileScreen() {
                                     title="Règles & Combinaisons"
                                     subtitle="Mémo poker"
                                     onPress={() => router.push('/(main)/hand-ranking')}
+                                />
+                                <GlassCard
+                                    icon={<History size={20} />}
+                                    title="Historique des parties"
+                                    subtitle="Archives & résultats"
+                                    onPress={() => router.push('/(main)/history')}
+                                />
+                                <GlassCard
+                                    icon={<BarChart3 size={20} />}
+                                    title="Statistiques détaillées"
+                                    subtitle="Records & périodes"
+                                    onPress={() => router.push('/(main)/stats')}
                                 />
                             </YStack>
 

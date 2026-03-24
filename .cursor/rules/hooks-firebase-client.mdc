@@ -1,0 +1,14 @@
+---
+description: Hooks métier, Firestore client et cohérence avec le serveur
+globs: hooks/**/*.ts
+alwaysApply: false
+---
+
+# Hooks
+
+- **Partie** : `useGameLogic` (doc `games`, blinds, `endGame` batch) ; **joueurs** : `usePlayerSubcollection` (sous-collection `players`).
+- **`endGame`** : met à jour uniquement `games` + `players`, pas `users` directement (stats = Functions).
+- **Classement / profil** : `useUserLogic` — stats affichées depuis `users.statistics` ; requête classement sur `users` (`statistics.netProfit`), pas sur `user-game-stats` pour l’UI principale.
+- **Historique** : `useGameHistory` lit **`game-history`** (parties archivées).
+- **Stats détaillées écran** : `useUserStats` → `user-game-stats` (listener).
+- Réutiliser `ErrorHandler` / `log` du projet pour retries et logs au lieu d’inventer un nouveau pattern.

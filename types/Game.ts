@@ -27,6 +27,9 @@ export type Game = {
     createdAt: Timestamp | FieldValue;
     startedAt?: Timestamp | null;
     finishedAt?: Timestamp | FieldValue | null;
+
+    /** Renseigné par la Cloud Function après application des stats (idempotence). */
+    serverStatsAppliedAt?: Timestamp | FieldValue | null;
     
     // Gestion des blinds
     currentBlindLevel?: number;

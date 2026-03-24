@@ -13,10 +13,11 @@ games/{gameId}/
 └── players/{playerId} (subcollection)
 ```
 
-**Fichiers créés** :
-- [types/PlayerSubcollection.ts](types/PlayerSubcollection.ts) - Types `GamePlayer` et `GameWithSubcollection`
-- [utils/playerMigration.ts](utils/playerMigration.ts) - Fonctions de migration
-- [hooks/usePlayerSubcollection.ts](hooks/usePlayerSubcollection.ts) - CRUD en temps réel
+**Fichiers principaux** :
+- [types/PlayerSubcollection.ts](types/PlayerSubcollection.ts) — types `GamePlayer` et `GameWithSubcollection`
+- [hooks/usePlayerSubcollection.ts](hooks/usePlayerSubcollection.ts) — CRUD en temps réel
+
+(Un ancien `utils/playerMigration.ts` a été retiré : la création des joueurs se fait via `usePlayerSubcollection`.)
 
 **Utilisation** :
 ```typescript
@@ -33,40 +34,30 @@ const { players, addPlayer, updatePlayer } = usePlayerSubcollection(gameId);
 - Records : biggest win/loss, streaks
 - Par groupe : stats détaillées
 
-**Fichiers créés** :
-- [types/UserGameStats.ts](types/UserGameStats.ts) - Interface complète
-- [utils/userStatsManager.ts](utils/userStatsManager.ts) - Gestion client-side
-- [hooks/useUserStats.ts](hooks/useUserStats.ts) - Real-time listener
+**Fichiers** :
+- [types/UserGameStats.ts](types/UserGameStats.ts) — interface des agrégats
+- [hooks/useUserStats.ts](hooks/useUserStats.ts) — écoute temps réel sur `user-game-stats`
 
-**Automatisation** : Cloud Function `updateUserStatsOnGameEnd` se déclenche à chaque archivage
+L’écriture dans `user-game-stats` est **réservée au serveur** (règles Firestore). Le client ne doit pas utiliser d’ancien `utils/userStatsManager.ts` (fichier supprimé).
 
-### 3. **Cloud Functions pour Stats**
+**Automatisation (actuelle)** :
+- Lors du passage `games/{id}.status` → `FINISHED`, la fonction **`scheduleGameArchiving`** enchaîne **`syncStatsOnGameFinished`** : lecture de `games/{id}/players`, mise à jour de `users.statistics` et `user-game-stats`, puis champ `serverStatsAppliedAt` sur la partie.
+- **`updateUserStatsOnGameEnd`** (trigger sur création `game-history`) est conservée pour compatibilité de déploiement mais **ne ré-applique plus les stats** (évite le double comptage une fois l’historique archivé).
 
-**Fonction ajoutée** : `updateUserStatsOnGameEnd`
-
-- **Trigger** : Création dans `game-history/`
-- **Actions** :
-  - Initialise stats si premier game
-  - Incrémente totalGames, totalWins, totalProfit
-  - Met à jour stats 30j/90j
-  - Calcule records (biggest win/loss)
-  - Gère win streaks
-  - Stats par groupe
-
-**Code** : [functions/src/index.ts](functions/src/index.ts#L197-L330)
+**Code** : [functions/src/index.ts](../functions/src/index.ts)
 
 ### 4. **UI Historique & Stats**
 
 #### a) **Écran Historique**
-[app/(main)/history.tsx](app/(main)/history.tsx)
+[app/(main)/history.tsx](../app/(main)/history.tsx)
 
-- Liste toutes les parties terminées
+- Liste les parties **archivées** (`game-history`) ; les parties récentes encore dans `games` n’apparaissent qu’après l’archivage (~1 h après `FINISHED`)
 - Pagination automatique (20/page)
 - Affichage : winner, durée, pot, nombre de joueurs
 - Infinite scroll
 
 #### b) **Écran Statistiques**
-[app/(main)/stats.tsx](app/(main)/stats.tsx)
+[app/(main)/stats.tsx](../app/(main)/stats.tsx)
 
 - Vue d'ensemble : parties jouées, victoires, win rate
 - Profit net total avec moyenne/partie
@@ -74,16 +65,21 @@ const { players, addPlayer, updatePlayer } = usePlayerSubcollection(gameId);
 - Séries de victoires
 - Stats 30 derniers jours
 
-### 5. **Indexes Firestore Optimisés**
+#### c) **Script de simulation (admin)**
 
-**Ajoutés** :
-```json
-user-game-stats: totalNetProfit DESC  // Leaderboard profit
-user-game-stats: totalWins DESC       // Leaderboard victoires
-user-game-stats: last30Days.netProfit DESC // Top du mois
+Sans repasser par l’UI pour créer des parties à la main :
+
+```bash
+npm run simulate:poker -- --help
 ```
 
-[firestore.indexes.json](firestore.indexes.json#L75-L97)
+Référence : [scripts/simulate-game-scenarios.cjs](../scripts/simulate-game-scenarios.cjs).  
+Les parties générées portent `demoSource: "simulate-script"` et peuvent être effacées avec `npm run simulate:poker:clean`.
+
+### 5. **Indexes Firestore Optimisés**
+
+Le **classement** dans l’app trie les profils sur `users.statistics.netProfit` (index champ unique géré côté console si besoin).  
+D’autres index composites pour `games`, `game-history`, etc. restent dans [firestore.indexes.json](../firestore.indexes.json).
 
 ## 📊 Architecture Finale
 
@@ -111,11 +107,12 @@ collections/
 
 ## 🎯 Flux de Données
 
-1. **Partie se termine** → `game.status = FINISHED`
-2. **scheduleGameArchiving** (Cloud Function) → Programme archivage +1h
-3. **archiveFinishedGames** (cron hourly) → Déplace vers game-history
-4. **updateUserStatsOnGameEnd** (trigger) → Met à jour user-game-stats
-5. **UI** → Affiche stats en temps réel via hooks
+1. **Partie se termine** → `game.status = FINISHED` (+ payouts dans `games/.../players`, comme dans l’app ou le script de simulation)
+2. **scheduleGameArchiving** (même trigger `onUpdate`) → **`syncStatsOnGameFinished`** : `users.statistics` + `user-game-stats`, puis `serverStatsAppliedAt`
+3. **Tâche planifiée** → archivage ~1 h plus tard dans `scheduled-tasks`
+4. **archiveFinishedGames** (cron) → copie vers `game-history`, suppression de `games` (+ joueurs)
+5. **`updateUserStatsOnGameEnd`** sur `game-history` → **no-op** (évite double comptage)
+6. **UI** → profil / classement via `users` ; écran stats détaillées via `user-game-stats` ; historique via `game-history`
 
 ## 💡 Bénéfices
 
@@ -137,7 +134,7 @@ collections/
 4. Vérifier :
    - ✅ Partie supprimée de `games/`
    - ✅ Partie dans `game-history/`
-   - ✅ Stats mises à jour dans `user-game-stats/`
+   - ✅ Stats déjà à jour dans `users` / `user-game-stats` **au moment de** `FINISHED` (sync serveur) ; pas de second passage à l’archivage
 
 ### Test 2 : Player Subcollection
 

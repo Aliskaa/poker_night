@@ -1,11 +1,12 @@
-import { View } from 'react-native';
-import { Text, Card, YStack, XStack, Separator, ScrollView } from 'tamagui';
+import { PokerBackground } from '@/components/ui/PokerBackground';
 import { useGameHistory } from '@/hooks/useGameHistory';
-import { useEffect } from 'react';
-import { Clock, Trophy, Users, TrendingUp, TrendingDown } from '@tamagui/lucide-icons';
 import { GameHistorySummary } from '@/types/GameHistory';
+import { Clock, Trophy, Users } from '@tamagui/lucide-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useEffect } from 'react';
+import { Platform } from 'react-native';
+import { Card, ScrollView, Separator, Spinner, Text, Theme, XStack, YStack } from 'tamagui';
 
 interface GameHistoryCardProps {
     game: GameHistorySummary;
@@ -13,11 +14,11 @@ interface GameHistoryCardProps {
 }
 
 function GameHistoryCard({ game, onPress }: GameHistoryCardProps) {
-    const duration = game.duration 
+    const duration = game.duration
         ? `${Math.floor(game.duration / 3600)}h ${Math.floor((game.duration % 3600) / 60)}min`
         : 'N/A';
 
-    const timeAgo = game.finishedAt 
+    const timeAgo = game.finishedAt
         ? formatDistanceToNow(game.finishedAt.toDate(), { addSuffix: true, locale: fr })
         : '';
 
@@ -84,6 +85,7 @@ function GameHistoryCard({ game, onPress }: GameHistoryCardProps) {
 
 export default function GameHistoryScreen() {
     const { history, loading, loadHistory, loadMore, hasMore } = useGameHistory();
+    const topPad = Platform.OS === 'web' ? '$3' : '$4';
 
     useEffect(() => {
         loadHistory();
@@ -91,61 +93,81 @@ export default function GameHistoryScreen() {
 
     if (loading && history.length === 0) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>Chargement de l'historique...</Text>
-            </View>
+            <Theme name="dark">
+                <PokerBackground>
+                    <YStack flex={1} justifyContent="center" alignItems="center" paddingTop={topPad}>
+                        <Spinner size="large" color="$primary" />
+                        <Text marginTop="$3" color="$text60">
+                            Chargement de l&apos;historique...
+                        </Text>
+                    </YStack>
+                </PokerBackground>
+            </Theme>
         );
     }
 
     if (history.length === 0) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-                <Trophy size={64} color="$gray8" />
-                <Text fontSize="$6" fontWeight="bold" color="$gray11" mt="$4">
-                    Aucune partie terminée
-                </Text>
-                <Text fontSize="$3" color="$gray10" mt="$2" textAlign="center">
-                    L'historique de vos parties apparaîtra ici
-                </Text>
-            </View>
+            <Theme name="dark">
+                <PokerBackground>
+                    <YStack
+                        flex={1}
+                        justifyContent="center"
+                        alignItems="center"
+                        padding="$6"
+                        paddingTop={topPad}
+                    >
+                        <Trophy size={64} color="$gray8" />
+                        <Text fontSize="$6" fontWeight="bold" color="$gray11" marginTop="$4">
+                            Aucune partie archivée
+                        </Text>
+                        <Text fontSize="$3" color="$gray10" marginTop="$2" textAlign="center">
+                            Les parties terminées apparaissent ici après archivage (environ 1 h).
+                        </Text>
+                    </YStack>
+                </PokerBackground>
+            </Theme>
         );
     }
 
     return (
-        <ScrollView
-            flex={1}
-            p="$4"
-            onScroll={(e) => {
-                const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
-                const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
-                
-                if (isCloseToBottom && hasMore && !loading) {
-                    loadMore();
-                }
-            }}
-            scrollEventThrottle={400}
-        >
-            <YStack gap="$3" pb="$6">
-                <Text fontSize="$7" fontWeight="bold" color="$color" mb="$2">
-                    Historique des parties
-                </Text>
+        <Theme name="dark">
+            <PokerBackground>
+                <ScrollView
+                    flex={1}
+                    paddingHorizontal="$4"
+                    paddingTop={topPad}
+                    paddingBottom="$8"
+                    onScroll={(e) => {
+                        const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+                        const isCloseToBottom =
+                            layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
 
-                {history.map((game) => (
-                    <GameHistoryCard key={game.id} game={game} />
-                ))}
+                        if (isCloseToBottom && hasMore && !loading) {
+                            loadMore();
+                        }
+                    }}
+                    scrollEventThrottle={400}
+                >
+                    <YStack gap="$3" paddingBottom="$6">
+                        {history.map((game) => (
+                            <GameHistoryCard key={game.id} game={game} />
+                        ))}
 
-                {loading && (
-                    <Text textAlign="center" color="$gray10" py="$4">
-                        Chargement...
-                    </Text>
-                )}
+                        {loading && (
+                            <Text textAlign="center" color="$gray10" paddingVertical="$4">
+                                Chargement...
+                            </Text>
+                        )}
 
-                {!hasMore && history.length > 0 && (
-                    <Text textAlign="center" color="$gray10" py="$4">
-                        Fin de l'historique
-                    </Text>
-                )}
-            </YStack>
-        </ScrollView>
+                        {!hasMore && history.length > 0 && (
+                            <Text textAlign="center" color="$gray10" paddingVertical="$4">
+                                Fin de l&apos;historique
+                            </Text>
+                        )}
+                    </YStack>
+                </ScrollView>
+            </PokerBackground>
+        </Theme>
     );
 }
