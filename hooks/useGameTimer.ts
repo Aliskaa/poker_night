@@ -53,59 +53,108 @@ export function useGameTimer({
   const [timerSeconds, setTimerSeconds] = useState(0)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [lateRegSeconds, setLateRegSeconds] = useState<number | null>(null)
+  const [effectiveLevel, setEffectiveLevel] = useState(0)
   
   // Ref pour éviter les appels multiples
   const hasCalledLevelComplete = useRef(false)
+  const lastSyncRequestBaseLevelRef = useRef<number | null>(null)
+
+  const toMillis = (value: unknown): number | null => {
+    if (!value) return null
+    if (typeof (value as { toDate?: () => Date }).toDate === 'function') {
+      return (value as { toDate: () => Date }).toDate().getTime()
+    }
+    if (typeof value === 'object' && value !== null && 'seconds' in (value as Record<string, unknown>)) {
+      const seconds = (value as { seconds?: number }).seconds
+      if (typeof seconds === 'number') return seconds * 1000
+    }
+    if (value instanceof Date) return value.getTime()
+    if (typeof value === 'string' || typeof value === 'number') {
+      const parsed = new Date(value).getTime()
+      return Number.isNaN(parsed) ? null : parsed
+    }
+    return null
+  }
   
   // ═══ BLIND LEVELS ═══
+  const currentLevel = game ? effectiveLevel : 0
   const currentBlind = game 
-    ? getCurrentBlindLevel(game.currentBlindLevel || 0, blindStructure) 
+    ? getCurrentBlindLevel(currentLevel, blindStructure) 
     : null
     
   const nextBlind = game 
-    ? getNextBlindLevel(game.currentBlindLevel || 0, blindStructure) 
+    ? getNextBlindLevel(currentLevel, blindStructure) 
     : null
   
   // ═══ TIMER PRINCIPAL (BLINDS) ═══
   useEffect(() => {
-    if (!game || !currentBlind) {
+    if (!game || blindStructure.length === 0) {
       setTimerSeconds(0)
       setIsTimerRunning(false)
+      setEffectiveLevel(0)
       return
     }
 
-    // Fonction de calcul du temps restant
-    const calculateRemainingTime = () => {
-      if (!game.blindLevelStartedAt) {
-        return currentBlind.duration * 60
+    const baseLevel = game.currentBlindLevel || 0
+    const startedAtMs = toMillis(game.blindLevelStartedAt)
+    const isPaused = game.isPaused || false
+
+    const calculateLevelAndRemaining = () => {
+      const fallbackBlind = getCurrentBlindLevel(baseLevel, blindStructure)
+      if (!startedAtMs || isPaused) {
+        const remaining = getBlindLevelRemainingSeconds(
+          game.blindLevelStartedAt,
+          fallbackBlind.duration,
+          isPaused,
+          game.pausedAt,
+          0
+        )
+        return {
+          level: baseLevel,
+          remaining: Math.max(0, remaining),
+        }
       }
 
-      return getBlindLevelRemainingSeconds(
-        game.blindLevelStartedAt,
-        currentBlind.duration,
-        game.isPaused || false,
-        game.pausedAt,
-        0 // TODO: ajouter totalPausedSeconds si tracking précis nécessaire
-      )
+      let elapsedSeconds = Math.max(0, Math.floor((Date.now() - startedAtMs) / 1000))
+      let level = baseLevel
+
+      while (level < blindStructure.length - 1) {
+        const levelDef = getCurrentBlindLevel(level, blindStructure)
+        const levelDuration = levelDef.duration * 60
+        if (elapsedSeconds < levelDuration) break
+        elapsedSeconds -= levelDuration
+        level += 1
+      }
+
+      const effectiveBlind = getCurrentBlindLevel(level, blindStructure)
+      const remaining = Math.max(0, effectiveBlind.duration * 60 - elapsedSeconds)
+      return { level, remaining }
     }
 
     // Initialisation
-    const initialTime = calculateRemainingTime()
-    setTimerSeconds(initialTime)
-    setIsTimerRunning(!game.isPaused)
+    const initial = calculateLevelAndRemaining()
+    setEffectiveLevel(initial.level)
+    setTimerSeconds(initial.remaining)
+    setIsTimerRunning(!isPaused)
     hasCalledLevelComplete.current = false
+    if (initial.level === baseLevel) {
+      lastSyncRequestBaseLevelRef.current = null
+    }
 
     // Interval pour mise à jour en temps réel
     const interval = setInterval(() => {
-      if (!game.isPaused) {
-        const remaining = calculateRemainingTime()
-        setTimerSeconds(remaining)
+      const computed = calculateLevelAndRemaining()
+      setEffectiveLevel(computed.level)
+      setTimerSeconds(computed.remaining)
 
-        // Auto-passage au niveau suivant
-        if (remaining <= 0 && nextBlind && !hasCalledLevelComplete.current) {
-          hasCalledLevelComplete.current = true
-          onLevelComplete?.()
-        }
+      // Si le client hôte peut écrire, on demande une synchro Firestore
+      if (
+        onLevelComplete &&
+        computed.level > baseLevel &&
+        lastSyncRequestBaseLevelRef.current !== baseLevel
+      ) {
+        lastSyncRequestBaseLevelRef.current = baseLevel
+        onLevelComplete()
       }
     }, 1000)
 
@@ -115,9 +164,8 @@ export function useGameTimer({
     game?.blindLevelStartedAt, 
     game?.isPaused, 
     game?.pausedAt,
-    game?.currentBlindLevel, 
-    currentBlind?.duration,
-    nextBlind?.level,
+    game?.currentBlindLevel,
+    blindStructure,
     onLevelComplete
   ])
 
