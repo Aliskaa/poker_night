@@ -9,10 +9,11 @@ import { useUserLogic } from '@/hooks/useUserLogic';
 import { useAuthContext } from '@/providers/AuthProvider';
 import { db } from '@/services/firebase';
 import type { Game } from '@/types/Game';
+import type { User } from '@/types/User';
 import { calculatePlayerStats, formatPercentage, generateBankrollHistory, getROIEmoji } from '@/utils/statsHelpers';
 import { BookOpen, Calendar, DollarSign, LogOut, Medal, Target, TrendingUp, Trophy } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
-import { collection, getDocs, orderBy, query, Timestamp, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { Avatar, H3, ScrollView, Separator, Text, Theme, XStack, YStack } from 'tamagui';
@@ -40,7 +41,32 @@ export default function ProfileScreen() {
                 );
 
                 const snapshot = await getDocs(q);
-                const games = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Game));
+                const games = await Promise.all(
+                    snapshot.docs.map(async (d) => {
+                        const base = { id: d.id, ...d.data() } as Game;
+                        try {
+                            const pRef = doc(db, 'games', d.id, 'players', user.id);
+                            const pSnap = await getDoc(pRef);
+                            if (!pSnap.exists()) return base;
+                            const p = pSnap.data();
+                            return {
+                            ...base,
+                            players: [
+                                {
+                                    id: user.id,
+                                    userId: user.id,
+                                    totalInvested: typeof p.totalInvested === 'number' ? p.totalInvested : 0,
+                                    payout: typeof p.winnings === 'number' ? p.winnings : 0,
+                                    winnings: typeof p.winnings === 'number' ? p.winnings : 0,
+                                    finalRank: p.finalRank ?? null,
+                                },
+                            ],
+                        } as Game;
+                        } catch {
+                            return base;
+                        }
+                    })
+                );
 
                 setUserGames(games);
             } catch (error) {
@@ -58,7 +84,19 @@ export default function ProfileScreen() {
         router.replace('/(auth)/login');
     };
 
-    const stats = user ? calculatePlayerStats(currentUserStats as any) : null;
+    const stats = user
+        ? calculatePlayerStats({
+              ...user,
+              statistics: {
+                  gamesPlayed: currentUserStats.gamesPlayed,
+                  wins: currentUserStats.wins,
+                  totalInvested: currentUserStats.totalInvested,
+                  totalWinnings: currentUserStats.totalWinnings,
+                  netProfit: currentUserStats.netProfit,
+                  bestRank: currentUserStats.bestRank,
+              },
+          } as User)
+        : null;
     const bankrollData = user ? generateBankrollHistory(userGames, user.id) : [];
     const memberSince = user?.createdAt && user.createdAt instanceof Timestamp ? user.createdAt.toDate().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'Récent';
     const topSpacing = Platform.OS === 'web' ? '$6' : '$8';

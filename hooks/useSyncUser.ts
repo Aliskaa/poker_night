@@ -27,6 +27,14 @@ export const useSyncUser = () => {
                         createdAt: serverTimestamp(),
                         lastLoginAt: serverTimestamp(),
                         groupIds: [],
+                        statistics: {
+                            gamesPlayed: 0,
+                            wins: 0,
+                            totalInvested: 0,
+                            totalWinnings: 0,
+                            netProfit: 0,
+                            bestRank: 9999,
+                        },
                     };
 
                     await setDoc(userRef, newUser);

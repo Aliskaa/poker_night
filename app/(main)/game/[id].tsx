@@ -5,7 +5,7 @@ import { usePlayerSubcollection } from '@/hooks/usePlayerSubcollection'
 import { useUser } from '@/providers/AuthProvider'
 import { AlertTriangle } from '@tamagui/lucide-icons'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ScrollView, Share } from 'react-native'
 import { Spinner, Text, Theme, YStack } from 'tamagui'
 import * as Linking from 'expo-linking'
@@ -18,6 +18,7 @@ import { BlindControls } from '@/components/game/BlindControls'
 import { GameActions } from '@/components/game/GameActions'
 import { GamePodium } from '@/components/game/GamePodium'
 import { GameStatusBar } from '@/components/game/GameStatusBar'
+import { HandRankingSheet } from '@/components/game/HandRankingSheet'
 import { PlayerGrid } from '@/components/game/PlayerGrid'
 import { PotDisplay } from '@/components/game/PotDisplay'
 
@@ -46,6 +47,7 @@ export default function GameScreen() {
   const { success: successToast, warning: warningToast } = useToast()
   const isHost = !!(game && user && game.hostId === user.id)
   const autoJoinInFlightRef = useRef(false)
+  const [handRankingOpen, setHandRankingOpen] = useState(false)
 
   // ═══ BLIND STRUCTURE ═══
   const blindStructure = game
@@ -156,8 +158,11 @@ export default function GameScreen() {
             lateRegSeconds={lateRegSeconds}
             lateRegLimit={game.config.lateRegLimit}
             onBackPress={() => router.push('/(main)/(tabs)/home')}
+            onHelpPress={() => setHandRankingOpen(true)}
             onSharePress={onShareTable}
           />
+
+          <HandRankingSheet open={handRankingOpen} onOpenChange={setHandRankingOpen} />
 
           {/* CONTENU SCROLLABLE */}
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 96 }}>

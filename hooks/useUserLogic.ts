@@ -5,6 +5,47 @@ import { useUser } from '@/providers/AuthProvider';
 import log from '@/services/logger';
 import { User, UserStatistics } from '@/types/User';
 
+const EMPTY_STATS: UserStatistics = {
+    netProfit: 0,
+    gamesPlayed: 0,
+    bestRank: 9999,
+    wins: 0,
+    totalInvested: 0,
+    totalWinnings: 0,
+};
+
+function normalizeFromUserDoc(stats: Partial<UserStatistics> | undefined): UserStatistics | null {
+    if (!stats) return null;
+    return {
+        netProfit: stats.netProfit ?? 0,
+        gamesPlayed: stats.gamesPlayed ?? 0,
+        bestRank: stats.bestRank ?? 9999,
+        wins: stats.wins ?? 0,
+        totalInvested: stats.totalInvested ?? 0,
+        totalWinnings: stats.totalWinnings ?? 0,
+    };
+}
+
+/** Agrégats Cloud Function / user-game-stats (schéma variable) → UserStatistics */
+function mapAggregateDoc(data: Record<string, unknown>): UserStatistics {
+    const totalBuyins = Number(data.totalBuyIns ?? data.totalBuyins ?? 0);
+    const totalWinnings = Number(data.totalCashOuts ?? data.totalWinnings ?? 0);
+    const gamesPlayed = Number(data.gamesPlayed ?? data.totalGames ?? 0);
+    const wins = Number(data.firstPlaceFinishes ?? data.totalWins ?? 0);
+    const net =
+        typeof data.totalNetProfit === 'number'
+            ? data.totalNetProfit
+            : totalWinnings - totalBuyins;
+    return {
+        netProfit: net,
+        gamesPlayed,
+        bestRank: typeof data.bestFinish === 'number' ? data.bestFinish : 9999,
+        wins,
+        totalInvested: totalBuyins,
+        totalWinnings,
+    };
+}
+
 export type LeaderboardUser = {
     id: string;
     name: string;
@@ -20,14 +61,8 @@ const LEADERBOARD_PAGE_SIZE = 20;
 
 export const useUserLogic = () => {
     const { user } = useUser();
-    const [currentUserStats, setCurrentUserStats] = useState<UserStatistics>({
-        netProfit: 0,
-        gamesPlayed: 0,
-        bestRank: 9999,
-        wins: 0,
-        totalInvested: 0,
-        totalWinnings: 0,
-    });
+    /** Stats issues de user-game-stats (optionnel) */
+    const [aggregateStats, setAggregateStats] = useState<UserStatistics | null>(null);
     const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
@@ -58,28 +93,37 @@ export const useUserLogic = () => {
 
 
     // ---------------------------------------------------------------------------
-    // 1. ÉCOUTEUR : Mes statistiques personnelles depuis user-game-stats
+    // 1. ÉCOUTEUR : user-game-stats (schéma Cloud Functions / phase 3)
+    // Ne remplace pas seul l'affichage : endGame met à jour users.statistics en priorité.
     // ---------------------------------------------------------------------------
     useEffect(() => {
         if (!user?.id) return;
 
         const statsRef = doc(db, 'user-game-stats', user.id);
         const unsubscribe = onSnapshot(statsRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setCurrentUserStats({
-                    netProfit: data.totalWinnings - data.totalBuyins,
-                    gamesPlayed: data.gamesPlayed || 0,
-                    bestRank: data.bestFinish || 9999,
-                    wins: data.firstPlaceFinishes || 0,
-                    totalInvested: data.totalBuyins || 0,
-                    totalWinnings: data.totalWinnings || 0,
-                });
+            if (!docSnap.exists()) {
+                setAggregateStats(null);
+                return;
             }
+            setAggregateStats(mapAggregateDoc(docSnap.data() as Record<string, unknown>));
         });
 
         return () => unsubscribe();
     }, [user?.id]);
+
+    const currentUserStats = useMemo((): UserStatistics => {
+        const fromUserDoc = normalizeFromUserDoc(userData?.statistics);
+        const hasUserDocActivity =
+            !!fromUserDoc &&
+            (fromUserDoc.gamesPlayed > 0 ||
+                fromUserDoc.totalInvested > 0 ||
+                fromUserDoc.totalWinnings > 0 ||
+                fromUserDoc.netProfit !== 0);
+
+        if (hasUserDocActivity) return fromUserDoc;
+        if (aggregateStats) return aggregateStats;
+        return fromUserDoc ?? EMPTY_STATS;
+    }, [userData?.statistics, aggregateStats]);
 
     // ---------------------------------------------------------------------------
     // 2. ÉCOUTEUR : Le Classement Général depuis user-game-stats

@@ -18,6 +18,7 @@ export { GameHeader } from './GameHeader'
 export { GamePodium } from './GamePodium'
 export { AddGuestFooter } from './AddGuestFooter'
 export { HelpBottomSheet } from './HelpBottomSheet'
+export { HandRankingSheet } from './HandRankingSheet'
 
 // New refactored components (Sprint 2)
 export { GameTimer, CompactGameTimer } from './GameTimer'
